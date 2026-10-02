@@ -1994,7 +1994,7 @@ const stories = [...document.querySelectorAll('.fig[data-scene]')].map(fig => {
   return { sec, fig, cvs, ctx: cvs.getContext('2d'), fill, fctx: fill ? fill.getContext('2d', { willReadFrequently: true }) : null,
     scene: d.scene, nobg: 'nobg' in d, cutpole: 'cutpole' in d,
     zoom: +(d.zoom || 1), fx: +(d.fx || W / 2), fy: +(d.fy || H / 2),
-    u0: +d.u0, u1: +d.u1, fadeIn: +(d.fadein || 0), still: 'static' in d, fc: 0, ready: false, played: false, playing: false, t0: 0 };
+    u0: +d.u0, u1: +d.u1, fadeIn: +(d.fadein || 0), still: 'static' in d, fc: 0, ready: false, played: false, playing: false, armed: true, timer: 0, t0: 0 };
 });
 
 function renderScene(g, s, u, bgOnly) {
@@ -2087,15 +2087,26 @@ const nearIO = new IntersectionObserver(es => es.forEach(e => {
   stories.filter(x => x.sec === e.target).forEach((s, i) => setTimeout(() => prepare(s), i * 30));
   nearIO.unobserve(e.target);
 }), { rootMargin: '120% 0px' });
+// every time a section scrolls into view its animation plays again from the start ("armed" = it has been out of view since the last play)
 const inIO = new IntersectionObserver(es => es.forEach(e => {
   if (!e.isIntersecting) return;
   e.target.classList.add('in');
   stories.filter(x => x.sec === e.target).forEach((s, i) => {
     if (REDUCED) { prepare(s); s.fig.classList.add('done'); }
-    else if (!s.played) setTimeout(() => play(s), 450 + i * 500);
+    else if (s.armed && !s.still) { s.armed = false; clearTimeout(s.timer); s.timer = setTimeout(() => play(s), 450 + i * 500); }
   });
 }), { threshold: 0.35 });
-document.querySelectorAll('.story').forEach(sec => { nearIO.observe(sec); inIO.observe(sec); });
+// once a section is completely off screen, put its animation back on the first frame and get it ready for the next visit
+function rewind(s) {
+  clearTimeout(s.timer);
+  s.playing = false; s.played = false; s.armed = true; s.fig.classList.remove('done');
+  if (s.ready && !s.still && !REDUCED) { drawFrame(s, s.u0); drawFill(s, s.u0); }
+}
+const outIO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) return;
+  stories.filter(x => x.sec === e.target).forEach(rewind);
+}), { threshold: 0 });
+document.querySelectorAll('.story').forEach(sec => { nearIO.observe(sec); inIO.observe(sec); outIO.observe(sec); });
 
 for (const s of stories) {
   if (s.still) continue;
