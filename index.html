@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Library | My N. Nguyen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Pixelify+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common/site.css">
+<style>
+:root {
+  --sky: #7bcde8;
+  --sea: #3787c4;
+  --ink: #1B1920;
+  --paper: #FBFCFD;
+  --mist: #EEF6FA;
+  --line: #DCE6EC;
+  --muted: #59606B;
+  --font-ui: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-px: "Pixelify Sans", "Courier New", monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { font-family: var(--font-ui); background: var(--paper); color: var(--ink); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: clamp(40px, 7vw, 80px) clamp(16px, 5vw, 64px) 40px; }
+
+header { margin-bottom: 32px; }
+h1 { font-family: var(--font-px); font-weight: 600; font-size: clamp(30px, 4.4vw, 46px); line-height: 1.15; margin: 0 0 12px; color: var(--ink); display: flex; align-items: center; }
+h1 .dot { display: inline-block; flex: none; width: 16px; height: 16px; background: var(--sea); box-shadow: 4px 4px 0 var(--sky); margin-right: 18px; }
+.lead { margin: 0; max-width: 60ch; color: var(--muted); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0; }
+.card {
+  display: flex; flex-direction: column; height: 100%;
+  background: #fff; color: var(--ink); text-decoration: none;
+  border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--sky);
+  padding: 20px 20px 18px;
+  transition: transform .15s, box-shadow .15s;
+}
+.card:hover { transform: translate(-2px, -2px); box-shadow: 8px 8px 0 var(--sea); }
+.card:focus-visible { outline: 3px solid var(--sea); outline-offset: 4px; }
+.card h3 { margin: 0 0 6px; font-family: var(--font-px); font-size: 21px; font-weight: 600; line-height: 1.2; }
+.card h3 .ext { font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--muted); margin-left: 6px; }
+.shelf + .shelf { margin-top: 56px; }
+.shelf-title { font-family: var(--font-px); font-weight: 600; font-size: clamp(22px, 2.6vw, 28px); line-height: 1.2; margin: 0 0 20px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
+.card-body { display: flex; align-items: flex-start; gap: 16px; flex: 1; }
+.icon { display: block; flex: none; }
+.card-text { flex: 1; min-width: 0; }
+.card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
+.tags li { font-size: 12.5px; padding: 1px 9px; background: var(--mist); border: 1px solid var(--line); color: var(--ink); }
+
+.note { margin-top: 36px; padding: 14px 16px; border: 2px dashed #9DB3C2; color: var(--muted); font-size: 13px; max-width: 70ch; }
+.note code { font: 12.5px ui-monospace, Menlo, Consolas, monospace; background: var(--mist); padding: 1px 5px; }
+
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<nav class="site-nav" aria-label="Site">
+  <a class="site-mark" href="https://nnmy.github.io/"><img src="https://nnmy.github.io/lib/logo-my.svg" alt="" width="30" height="30"><span>My N. Nguyen</span></a>
+  <ul>
+    <li><a href="https://nnmy.github.io/">Profile</a></li>
+    <li><a href="index.html" class="active" aria-current="page">Library</a></li>
+  </ul>
+</nav>
+<div class="wrap">
+  <header>
+    <h1><span class="dot"></span>MY LIBRARY</h1>
+    <p class="lead">Bộ sưu tập các tiện ích nhỏ và những sáng tác của mình.</p>
+  </header>
+
+  <div id="shelves"></div>
+  <noscript><p>Cần bật JavaScript để hiển thị danh sách.
+    Các tiện ích: <a href="nes-pixelator/index.html">NES Pixelator</a>, <a href="foto-batch/index.html">Foto Batch</a>, <a href="https://nnmy.github.io/game-joy/">Game: Joy</a>.
+    Sáng tác: <a href="chuyen-hoi-do/index.html">Chuyện hồi đó</a>.</p></noscript>
+</div>
+
+<script>
+/* =====================================================
+   DANH SÁCH THEO MỤC
+   Mỗi mục (section) có tiêu đề và danh sách thẻ. Thêm thẻ mới: tạo thư mục con (có index.html),
+   rồi thêm một phần tử vào "items" của mục phù hợp. Link bắt đầu bằng http(s) được đánh dấu ↗ (trang bên ngoài).
+   icon: lưới pixel (số hàng/cột tùy ý), mỗi ký tự là một ô: "." = trống, các ký tự khác tra trong iconColors.
+   ===================================================== */
+const SECTIONS = [
+  {
+    title: "Các tiện ích",
+    items: [
+      {
+        name: "NES Pixelator",
+        href: "nes-pixelator/index.html",
+        desc: "Biến ảnh thành pixel art kiểu NES game.",
+        tags: ["Photo", "Pixel art"],
+        iconColors: { o: "#1d1d21", g: "#2e9e4f", s: "#f2c9a0", b: "#8a5a2b" },
+        icon: [
+          "...oooo...",
+          "..oggggo..",
+          ".oggggggo.",
+          ".ogssssgo.",
+          ".osossoso.",
+          ".osssssso.",
+          "..oooooo..",
+          ".obbbbbbo.",
+          "obbbbbbbbo",
+          "obbbbbbbbo",
+          ".obbbbbbo.",
+          "..oo..oo..",
+    ],
+  },
+  {
+    name: "Foto Batch",
+    href: "foto-batch/index.html",
+    desc: "Đặt metadata, watermark & tạo collage cho nhóm ảnh.",
+    tags: ["Photo", "Metadata", "Watermark", "Collage"],
+    iconColors: { o: "#1d1d21", w: "#e9e7df", s: "#4a90d9", y: "#f2c230", g: "#3fa055", p: "#8f63c9", q: "#d9c8f5", t: "#2bb3b1", l: "#bfeeed", e: "#e8873a", r: "#d8312a" },
+    icon: [
+      "oooooooooooo",
+      "owwwwwwwwwwo",
+      "owsssywppqwo",
+      "owgssswpppwo",
+      "owggggwpppwo",
+      "owwwwwwwwwwo",
+      "owttlweeyewo",
+      "owtttwrrrrwo",
+      "owwwwwwwwwwo",
+      "oooooooooooo",
+    ],
+  },
+  {
+    name: "Game: Joy",
+    href: "https://nnmy.github.io/game-joy/",
+    desc: "Một NES game lấy cảm hứng từ Legend of Kage 1986.",
+    tags: ["NES game"],
+    iconColors: { K: "#000000", H: "#503000", h: "#8c5a2b", S: "#fcbc80", R: "#d82800", r: "#a81000", B: "#141c68", W: "#fcfcfc" },
+    icon: [
+      "...KKKKKK...",
+      "..KHhHHhHK..",
+      ".KHHhHHhHHK.",
+      "KHHhHHHHhHHK",
+      "KHSKSSSSKSHK",
+      "KHSSSKKSSSHK",
+      ".KRRKSSKRRK.",
+      "KRRRRrrRRRRK",
+      "KSKRRrrRRKSK",
+      ".KBBBBBBBBK.",
+      "..KBBKKBBK..",
+      ".KKWWKKWWKK.",
+    ],
+  },
+    ],
+  },
+  {
+    title: "Sáng tác",
+    items: [
+      {
+        name: "Chuyện hồi đó",
+        href: "chuyen-hoi-do/index.html",
+        desc: "Ký ức tuổi thơ miền Tây những năm 2000.",
+        tags: ["Visual storytelling", "Reminiscence"],
+        // đèn dầu: ngọn lửa trong bóng thủy tinh, cổ đồng, chân đèn xanh
+        iconColors: { o: "#1d1d21", g: "#cfe6ef", w: "#ffffff", F: "#f08a24", f: "#ffd23f", b: "#c9932f", B: "#8a5f1c", k: "#2e8b57", K: "#1f5e3c" },
+        icon: [
+          "....oooo....",
+          "....owgo....",
+          "...oggggo...",
+          "..oggFFggo..",
+          ".owgFffFggo.",
+          ".oggFffFggo.",
+          ".oggFffFggo.",
+          ".ogggFFgggo.",
+          "..oggBBggo..",
+          "..obbbbbbo..",
+          ".oBbbbbbbBo.",
+          "..okkkkkko..",
+          ".okKkkkkKko.",
+          "okkkkkkkkkko",
+          "oKkkkkkkkkKo",
+          ".oooooooooo.",
+    ],
+  },
+    ],
+  },
+];
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+function iconSVG(tool) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  const W = Math.max(...tool.icon.map(r => r.length)), H = tool.icon.length, CELL = 6;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W * CELL); svg.setAttribute("height", H * CELL);
+  svg.setAttribute("class", "icon");
+  svg.setAttribute("shape-rendering", "crispEdges");
+  svg.setAttribute("aria-hidden", "true");
+  tool.icon.forEach((row, y) => [...row].forEach((ch, x) => {
+    const fill = tool.iconColors[ch];
+    if (!fill) return;
+    const r = document.createElementNS(SVG_NS, "rect");
+    r.setAttribute("x", x); r.setAttribute("y", y); r.setAttribute("width", 1); r.setAttribute("height", 1); r.setAttribute("fill", fill);
+    svg.appendChild(r);
+  }));
+  return svg;
+}
+
+const shelves = document.getElementById("shelves");
+SECTIONS.forEach((sec, si) => {
+  const section = document.createElement("section");
+  section.className = "shelf"; section.setAttribute("aria-labelledby", "shelf-" + si);
+  const h = document.createElement("h2"); h.className = "shelf-title"; h.id = "shelf-" + si; h.textContent = sec.title;
+  const grid = document.createElement("ul"); grid.className = "grid";
+  section.append(h, grid); shelves.appendChild(section);
+  sec.items.forEach(tool => {
+    const external = /^https?:/.test(tool.href);
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.className = "card"; a.href = tool.href;
+    a.target = "_blank"; a.rel = "noopener";
+    a.setAttribute("aria-label", tool.name + (external ? " (trang bên ngoài, mở trong tab mới)" : " (mở trong tab mới)"));
+    const t3 = document.createElement("h3"); t3.textContent = tool.name;
+    if (external) { const x = document.createElement("span"); x.className = "ext"; x.textContent = "↗"; x.setAttribute("aria-hidden", "true"); t3.appendChild(x); }
+    const body = document.createElement("div"); body.className = "card-body";
+    const text = document.createElement("div"); text.className = "card-text";
+    const p = document.createElement("p"); p.textContent = tool.desc;
+    const tags = document.createElement("ul"); tags.className = "tags";
+    (tool.tags || []).forEach(tg => { const tl = document.createElement("li"); tl.textContent = tg; tags.appendChild(tl); });
+    text.append(t3, p);   // cột phải: tiêu đề + mô tả
+    if (tool.icon) body.appendChild(iconSVG(tool));
+    body.appendChild(text);
+    a.append(body, tags);   // trái: icon, phải: tiêu đề + mô tả; dưới cùng: tag chiếm trọn bề ngang
+    li.appendChild(a); grid.appendChild(li);
+  });
+});
+</script>
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Make the cat jump (hold to jump further)" title="Tap to jump, hold to jump further">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>&copy; 2026 My N. Nguyen</span></div>
+  </div>
+</footer>
+<script src="common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

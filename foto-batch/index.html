@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foto Batch</title>
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+  --console: #cccccc;
+  --console-dark: #8e8c83;
+  --panel: #29292e;
+  --panel-2: #34343b;
+  --line: #4b4b55;
+  --ink: #ecebe4;
+  --ink-dim: #a9a8a0;
+  --red: #d8312a;
+  --red-dark: #a8231e;
+  --screen: #121216;
+  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-px: "Press Start 2P", ui-monospace, Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { font-family: var(--font-ui); background: var(--console); color: var(--ink); font-size: 14px; line-height: 1.45; }
+.app { display: grid; grid-template-columns: minmax(300px, 22%) minmax(0, 1fr); min-height: 100%; }
+
+/* ---------- Panel ---------- */
+.panel { background: var(--panel); border-right: 6px solid #111; padding: 14px 14px 24px; overflow-y: auto; position: sticky; top: 0; align-self: start; height: 100vh; }
+.back { display: inline-block; margin: 0 0 10px; color: var(--ink-dim); font-size: 12.5px; text-decoration: none; }
+.back:hover { color: var(--ink); text-decoration: underline; }
+.back:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+h1 { font-family: var(--font-px); font-weight: 400; font-size: 12px; line-height: 1.5; margin: 2px 0 4px; color: var(--ink); }
+h1 .dot { display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; }
+.sub { color: var(--ink-dim); font-size: 12.5px; margin: 0 0 14px; }
+.group { margin: 0 0 14px; }
+.field { margin: 0 0 10px; }
+.field > label, .lbl { display: block; font-weight: 600; font-size: 12.5px; margin-bottom: 4px; }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.row label { font-weight: 600; font-size: 12.5px; }
+.val { font-size: 12px; color: var(--ink-dim); font-variant-numeric: tabular-nums; }
+.hint { font-size: 11.5px; color: var(--ink-dim); margin-top: 4px; }
+.sect.first { margin-top: 0; padding-top: 0; border-top: 0; }
+.sect { font-weight: 700; font-size: 12px; color: var(--ink-dim); margin: 14px 0 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.tabrow { display: flex; gap: 8px; align-items: stretch; margin: 0 0 10px; }
+.tabrow .tabs { flex: 1; min-width: 0; margin: 0; }
+.tabrow .btn { flex: none; width: auto; padding: 0 10px; }
+.exportrow { display: flex; gap: 6px; align-items: stretch; margin-top: 6px; }
+.exportrow .btn.primary { flex: 1; min-width: 0; margin-top: 0; padding: 9px 6px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exportrow .btn:not(.primary) { flex: none; width: auto; padding: 0 8px; font-size: 13px; }
+.status:empty { display: none; }
+.status { font-size: 12px; color: var(--ink-dim); margin-top: 8px; min-height: 1.3em; white-space: pre-line; }
+.status.err, .err { color: #ff8a80; }
+.status.ok { color: #9ee6a0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grid2.aend { align-items: end; }
+.grid3b { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 8px; }
+.inl { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+.inl label { font-weight: 600; font-size: 12.5px; white-space: nowrap; }
+.inl select { flex: 1; min-width: 0; }
+.fontrow { display: flex; gap: 6px; align-items: center; margin: 0 0 8px; }
+.fontrow input[type=text], .fontrow input[type=url] { flex: 1; min-width: 0; }
+.fontrow > * { height: 34px; }
+.fontrow input[type=number] { width: 66px; flex: none; }
+.fontrow input[type=color] { width: 36px; flex: none; padding: 2px; }
+#wmColor2 { border-style: dashed !important; }   /* màu thay thế */
+.tgl, .ibtn { flex: none; width: 34px; padding: 0; font: inherit; font-size: 14px; color: var(--ink); background: var(--panel-2); border: 2px solid var(--line); border-radius: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.tgl[aria-pressed=true] { background: var(--red); border-color: #111; }
+.tgl:hover, .ibtn:hover { border-color: var(--ink-dim); }
+.tgl:focus-visible, .ibtn:focus-visible, .fdd-btn:focus-visible, .tbtn2:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.tgl .shd { text-shadow: 2px 2px 0 #555; color: #ddd; font-weight: 700; }
+.tgl[aria-pressed=true] .shd { color: #fff; text-shadow: 2px 2px 0 rgba(0,0,0,.6); }
+.tgl svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+.ibtn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.grid3 { display: grid; grid-template-columns: 1.5fr 1fr 0.8fr; gap: 8px; }
+.checks { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0 0 10px; }
+.checks .check { margin: 0; }
+.field[hidden] { display: none; }
+.btnrow { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.btnrow .btn { padding: 6px 4px; font-size: 13px; }
+
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 22px; background: transparent; margin: 0; cursor: pointer; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; background: var(--line); }
+input[type=range]::-moz-range-track { height: 6px; background: var(--line); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 20px; margin-top: -7px; background: var(--red); border: 2px solid #111; border-radius: 0; }
+input[type=range]::-moz-range-thumb { width: 10px; height: 16px; background: var(--red); border: 2px solid #111; border-radius: 0; }
+input[type=range]:disabled { opacity: .4; cursor: not-allowed; }
+select, input[type=text], input[type=number], input[type=url], textarea, .btn { font: inherit; color: var(--ink); background: var(--panel-2); border: 2px solid var(--line); border-radius: 0; padding: 6px 8px; width: 100%; }
+textarea { resize: vertical; min-height: 54px; }
+input[type=color] { width: 100%; height: 34px; padding: 2px; background: var(--panel-2); border: 2px solid var(--line); border-radius: 0; cursor: pointer; }
+input[type=file] { font: inherit; font-size: 12px; color: var(--ink-dim); width: 100%; }
+select:focus-visible, input:focus-visible, textarea:focus-visible, .btn:focus-visible, summary:focus-visible, .tab:focus-visible, .linkbtn:focus-visible, .pos:focus-visible, .drop:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+select:disabled, input:disabled, textarea:disabled, .btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn { cursor: pointer; text-align: center; font-weight: 600; }
+.btn:hover:not(:disabled) { border-color: var(--ink-dim); }
+.btn.primary { background: var(--red); border-color: #111; box-shadow: inset 0 -4px 0 var(--red-dark); padding: 9px; margin-top: 6px; }
+.btn.primary:hover:not(:disabled) { background: #e43c34; }
+.btn.primary:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 -2px 0 var(--red-dark); }
+.btn.ghost { background: transparent; font-weight: 500; font-size: 12.5px; padding: 5px 8px; }
+.check { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; cursor: pointer; margin: 6px 0; }
+.check input { margin-top: 3px; accent-color: var(--red); }
+
+details.adv { border: 2px solid var(--g-line, var(--line)); background: var(--g-bg, transparent); margin: 0 0 12px; }
+#gMeta { --g-bg: #2b2e39; --g-field: #373b49; --g-line: #4a5166; }
+#gWm   { --g-bg: #2f2b38; --g-field: #3c3747; --g-line: #564e69; }
+#gCol  { --g-bg: #2a3431; --g-field: #36423e; --g-line: #496259; }
+details.adv .adv-body select, details.adv .adv-body input[type=text], details.adv .adv-body input[type=number], details.adv .adv-body input[type=url], details.adv .adv-body textarea, details.adv .adv-body input[type=color], details.adv .adv-body .tab:not([aria-selected=true]), details.adv .adv-body .tgl:not([aria-pressed=true]), details.adv .adv-body .ibtn { background: var(--g-field, var(--panel-2)); border-color: var(--g-line, var(--line)); }
+details.adv .adv-body .sect { border-top-color: var(--g-line, var(--line)); }
+details.adv .adv-body input[type=range]::-webkit-slider-runnable-track { background: var(--g-line, var(--line)); }
+details.adv .adv-body input[type=range]::-moz-range-track { background: var(--g-line, var(--line)); }
+details.adv > summary { cursor: pointer; padding: 9px 10px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+details.adv > summary::-webkit-details-marker { display: none; }
+details.adv > summary .tri { transition: transform .15s; color: var(--ink-dim); }
+details.adv[open] > summary .tri { transform: rotate(90deg); }
+details.adv[open] > summary { border-bottom: 2px solid var(--g-line, var(--line)); }
+details.adv.locked { opacity: .55; }
+details.adv.locked > summary { cursor: not-allowed; }
+.adv-body { padding: 12px 10px 12px; }
+.badge { font-size: 11px; font-weight: 500; color: var(--ink-dim); margin-left: 8px; }
+
+.tabs { display: flex; margin: 0 0 10px; }
+.tab { flex: 1; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink); background: var(--panel-2); border: 2px solid var(--line); padding: 6px 6px; cursor: pointer; border-radius: 0; }
+.tab + .tab { margin-left: -2px; }
+.tab[aria-selected=true] { background: var(--red); border-color: #111; position: relative; }
+.tab:disabled { opacity: .45; cursor: not-allowed; }
+/* vùng "Tùy chọn khác": kiểu khác hẳn tiêu đề nhóm (nét đứt, dấu +/−) để khỏi nhầm với mở/đóng cả nhóm */
+details.more { margin: 12px 0 8px; }
+details.more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 5px 8px; border: 1px dashed var(--g-line, var(--line)); color: var(--ink-dim); font-size: 12.5px; font-weight: 500; }
+details.more > summary::-webkit-details-marker { display: none; }
+details.more > summary::before { content: "+"; display: inline-block; width: 14px; height: 14px; line-height: 12px; text-align: center; border: 1px solid currentColor; font-size: 13px; }
+details.more[open] > summary::before { content: "−"; }
+details.more > summary:hover { color: var(--ink); border-color: var(--ink-dim); }
+details.more > summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+details.more[open] > summary { margin-bottom: 12px; }
+.more-body { padding: 0 0 2px; }
+.fdd { position: relative; }
+.fdd-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 3px 6px 3px 3px; font: inherit; font-size: 12.5px; color: var(--ink); background: var(--g-field, var(--panel-2)); border: 2px solid var(--g-line, var(--line)); border-radius: 0; cursor: pointer; text-align: left; }
+.fdd-btn:hover { border-color: var(--ink-dim); }
+.fdd-btn canvas { width: 40px; height: 27px; flex: none; background: #000; }
+.fdd-btn .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fdd-btn .chev { color: var(--ink-dim); }
+.fdd-list { position: absolute; z-index: 30; left: 0; top: calc(100% + 3px); min-width: 236px; max-height: 300px; overflow-y: auto; background: var(--g-field, var(--panel-2)); border: 2px solid var(--ink-dim); box-shadow: 0 8px 0 rgba(0,0,0,.35); }
+.fdd-list[hidden] { display: none; }
+.fopt { display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px 8px; font: inherit; font-size: 12.5px; color: var(--ink); background: none; border: 0; border-bottom: 1px solid var(--g-line, var(--line)); border-radius: 0; cursor: pointer; text-align: left; }
+.fopt:last-child { border-bottom: 0; }
+.fopt canvas { width: 56px; height: 38px; flex: none; background: #000; }
+.fopt:hover { background: rgba(255,255,255,.08); }
+.fopt:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.fopt[aria-selected=true] { box-shadow: inset 3px 0 0 var(--red); }
+.fopt[aria-selected=true] .nm { font-weight: 700; }
+.thumbline { display: flex; gap: 8px; align-items: center; margin-top: 6px; font-size: 12px; color: var(--ink-dim); }
+.thumbline canvas { width: 40px; height: 40px; object-fit: contain; background: repeating-conic-gradient(#c9c9c9 0% 25%, #f4f4f4 0% 50%) 0 0 / 10px 10px; }
+
+/* ---------- Stage ---------- */
+.stage-wrap { padding: 14px; min-width: 0; display: flex; flex-direction: column; gap: 10px; color: #1d1d21; }
+.selbar { background: var(--panel); color: var(--ink); border: 4px solid #111; padding: 8px 12px; }
+.selmain { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; }
+.selmain strong { font-size: 15px; }
+.chip { font-size: 12px; padding: 1px 8px; background: var(--panel-2); border: 1px solid var(--line); color: var(--ink-dim); }
+.linkbtn { font: inherit; font-size: 12.5px; color: var(--ink); background: none; border: 0; padding: 2px 4px; cursor: pointer; text-decoration: underline; }
+.linkbtn:hover { color: #fff; }
+.linkbtn:disabled { opacity: .4; cursor: not-allowed; text-decoration: none; }
+.spacer { flex: 1; }
+.listbox { margin-top: 8px; max-height: 150px; overflow: auto; border: 1px solid var(--line); background: #1d1d21; }
+.listbox[hidden] { display: none; }
+.li { display: grid; grid-template-columns: 20px 30px 1fr auto auto 24px; gap: 8px; align-items: center; padding: 2px 8px; font-size: 12px; border-bottom: 1px solid #2c2c33; }
+.li:last-child { border-bottom: 0; }
+.li input[type=checkbox] { margin: 0; accent-color: var(--red); cursor: pointer; }
+.li.off .nm { opacity: .5; }
+.lih { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 10px; padding: 3px 8px; font-size: 12px; background: #26262c; border-bottom: 1px solid var(--line); color: var(--ink-dim); }
+.lih b { color: var(--ink); font-weight: 600; }
+.chipbtn { font: inherit; font-size: 12px; cursor: pointer; }
+.chipbtn:hover { color: var(--ink); border-color: var(--ink-dim); }
+.chipbtn.on { background: var(--red); border-color: #111; color: #fff; }
+.notes { margin-top: 6px; padding: 10px 2px 0; border-top: 1px solid var(--line); font-size: 11.5px; line-height: 1.5; color: var(--ink-dim); }
+.notes p { margin: 0 0 6px; }
+.notes b { color: var(--ink); font-weight: 600; }
+.li .n { color: var(--ink-dim); text-align: right; }
+.li .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.li .meta { color: var(--ink-dim); white-space: nowrap; }
+.li button { background: none; border: 0; color: var(--ink-dim); cursor: pointer; font-size: 14px; line-height: 1; padding: 2px; }
+.li button:hover { color: #ff8a80; }
+.listnote { padding: 4px 8px; font-size: 12px; color: var(--ink-dim); }
+
+.viewtabs { display: flex; gap: 0; align-items: center; }
+.pvpick { margin-left: auto; display: flex; gap: 4px; align-items: center; min-width: 0; max-width: 60%; }
+.pvpick[hidden] { display: none; }
+.pvpick select { width: auto; min-width: 150px; max-width: 360px; padding: 4px 8px; background: var(--panel); border-color: #111; color: var(--ink); }
+.tbtn2 { font: inherit; font-size: 16px; line-height: 1; padding: 3px 10px; background: var(--panel); color: var(--ink); border: 2px solid #111; cursor: pointer; border-radius: 0; }
+.tbtn2:hover:not(:disabled) { background: var(--panel-2); }
+.tbtn2:disabled { opacity: .4; cursor: not-allowed; }
+.viewtabs .tab { flex: 0 0 auto; padding: 6px 14px; background: var(--panel); }
+.viewtabs .tab[aria-selected=true] { background: var(--red); }
+.stage { flex: 1; background: var(--screen); border: 6px solid #111; outline: 2px solid var(--console-dark); padding: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 380px; position: relative; color: var(--ink); }
+.pvwrap { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.pvwrap canvas { display: block; max-width: 100%; max-height: 62vh; width: auto; height: auto; background: repeating-conic-gradient(#c9c9c9 0% 25%, #f4f4f4 0% 50%) 0 0 / 16px 16px; }
+.pvwrap canvas[hidden] { display: none; }
+.pvmsg { color: var(--ink-dim); font-size: 13px; text-align: center; padding: 20px; }
+.pvmsg:empty { display: none; }
+.pvinfo { margin-top: 10px; font-size: 12px; color: var(--ink-dim); text-align: center; }
+.pvinfo b { color: var(--ink); font-weight: 600; }
+.drop { position: absolute; inset: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; border: 3px dashed var(--line); color: var(--ink-dim); cursor: pointer; padding: 20px; }
+.drop.over, .drop:hover { border-color: var(--red); color: var(--ink); }
+.drop .big { font-family: var(--font-px); font-size: 13px; line-height: 1.7; color: var(--ink); }
+.drop .small { font-size: 12.5px; }
+.stage:not(.empty) .drop { display: none; }
+.stage.empty .pvwrap { display: none; }
+.progress { background: var(--panel); color: var(--ink); border: 4px solid #111; padding: 8px 12px; display: flex; gap: 12px; align-items: center; }
+.progress[hidden] { display: none; }
+.progress .bar { flex: 1; height: 10px; background: var(--line); }
+.progress .bar i { display: block; height: 100%; width: 0; background: var(--red); }
+.progress .txt { font-size: 12.5px; min-width: 160px; }
+.progress .btn { width: auto; padding: 4px 12px; }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; }
+  .panel { position: static; height: auto; border-right: 0; border-bottom: 6px solid #111; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="panel" aria-label="Điều khiển">
+    <a class="back" href="../index.html">← Trang chủ</a>
+    <h1><span class="dot"></span>FOTO BATCH</h1>
+    <p class="sub">Metadata, watermark, collage hàng loạt.</p>
+
+    <div class="group">
+      <div class="btnrow">
+        <button class="btn" id="btnFolder" type="button">Chọn thư mục</button>
+        <button class="btn" id="btnFiles" type="button">Chọn ảnh</button>
+      </div>
+      <button class="btn ghost" id="btnAdd" type="button" style="width:100%">+ Thêm ảnh vào danh sách</button>
+      <input type="file" id="inFolder" webkitdirectory directory multiple hidden>
+      <input type="file" id="inFiles" accept="image/*" multiple hidden>
+      <div class="status" id="stImport"></div>
+    </div>
+
+    <!-- ===== Metadata ===== -->
+    <details class="adv" id="gMeta">
+      <summary><span>Metadata</span><span class="tri">▶</span></summary>
+      <div class="adv-body">
+        <div class="field"><label for="mAuthor">Tác giả</label><input type="text" id="mAuthor" placeholder="Họ tên hoặc bút danh" autocomplete="off"></div>
+        <div class="field"><label for="mContact">Liên hệ</label><input type="text" id="mContact" placeholder="Email hoặc website" autocomplete="off"></div>
+        <div class="field"><label for="mLocation">Nơi chụp</label><input type="text" id="mLocation" placeholder="Ví dụ: Cù lao Giêng, An Giang" autocomplete="off"></div>
+        <div class="grid2">
+          <div class="field"><label for="mCity">Thành phố</label><input type="text" id="mCity" autocomplete="off"></div>
+          <div class="field"><label for="mCountry">Quốc gia</label><input type="text" id="mCountry" autocomplete="off"></div>
+        </div>
+        <div class="field"><label for="mTerms">Quyền sử dụng</label><textarea id="mTerms" rows="2">Phải ghi danh tác giả khi sử dụng.</textarea></div>
+        <div class="hint">Ô trống sẽ không được ghi.</div>
+        <button class="btn primary action" id="btnMeta" type="button" disabled>Ghi metadata</button>
+        <div class="status" id="stMeta"></div>
+      </div>
+    </details>
+
+    <!-- ===== Watermark ===== -->
+    <details class="adv" id="gWm">
+      <summary><span>Watermark</span><span class="tri">▶</span></summary>
+      <div class="adv-body">
+        <div class="tabrow">
+          <div class="tabs" id="srcTabs" role="tablist" aria-label="Nguồn watermark">
+            <button class="tab" role="tab" data-src="text" aria-selected="true" type="button">Text</button>
+            <button class="tab" role="tab" data-src="image" aria-selected="false" type="button">Ảnh</button>
+            <button class="tab" role="tab" data-src="url" aria-selected="false" type="button">URL</button>
+          </div>
+          <button class="btn" id="btnCfgLoad" type="button" title="Nạp preset (nhóm ngang/đứng, nguồn và thông số)">Nạp preset</button>
+        </div>
+        <input type="file" id="wmCfgFile" accept=".json,application/json" hidden>
+        <div class="status" id="stWmCfg"></div>
+
+        <div id="srcText">
+          <div class="field"><textarea id="wmText" rows="2" placeholder="© Họ tên" aria-label="Nội dung"></textarea></div>
+          <div class="fontrow">
+            <input type="text" id="wmFont" value="Arial" list="fontList" autocomplete="off" aria-label="Font" title="Font">
+            <datalist id="fontList"><option>Arial</option><option>Helvetica</option><option>Verdana</option><option>Tahoma</option><option>Trebuchet MS</option><option>Georgia</option><option>Times New Roman</option><option>Courier New</option><option>Impact</option><option>Comic Sans MS</option><option>system-ui</option><option>serif</option><option>sans-serif</option><option>monospace</option><option>cursive</option></datalist>
+            <button type="button" class="ibtn" id="wmFontBtn" title="Thêm file font (.ttf, .otf, .woff2)" aria-label="Thêm file font"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 1.5h6l3 3v10h-9z"/><path d="M9.5 1.5v3h3"/><path d="M8 7v5M5.5 9.5h5"/></svg></button>
+            <input type="color" id="wmColor" value="#ffffff" title="Màu chữ" aria-label="Màu chữ">
+            <input type="color" id="wmColor2" value="#000000" title="Màu thay thế (dùng khi nền gần màu chữ)" aria-label="Màu thay thế khi nền gần màu chữ">
+            <input type="file" id="wmFontFile" accept=".ttf,.otf,.woff,.woff2" hidden>
+          </div>
+          <div class="fontrow">
+            <input type="number" id="wmSize" min="1" max="100" step="1" value="12" title="Cỡ chữ" aria-label="Cỡ chữ">
+            <button type="button" class="tgl" id="wmBold" aria-pressed="false" title="Đậm" aria-label="Đậm"><b>B</b></button>
+            <button type="button" class="tgl" id="wmShadow" aria-pressed="true" title="Đổ bóng" aria-label="Đổ bóng"><span class="shd">A</span></button>
+            <button type="button" class="tgl" id="wmFrameSq" aria-pressed="false" title="Khung vuông" aria-label="Khung vuông"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10"/><path d="M5.8 10.5 8 5.5l2.2 5M6.6 9h2.8"/></svg></button>
+            <button type="button" class="tgl" id="wmFrameRd" aria-pressed="false" title="Khung bo tròn" aria-label="Khung bo tròn"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="3" width="13" height="10" rx="4"/><path d="M5.8 10.5 8 5.5l2.2 5M6.6 9h2.8"/></svg></button>
+          </div>
+        </div>
+
+        <div id="srcImage" hidden>
+          <div class="field"><input type="file" id="wmFile" accept="image/*" aria-label="Ảnh watermark (nên là PNG nền trong suốt)"></div>
+          <div class="thumbline" id="wmFileInfo"></div>
+        </div>
+
+        <div id="srcUrl" hidden>
+          <div class="fontrow">
+            <input type="url" id="wmUrl" placeholder="https://…/logo.png" autocomplete="off" aria-label="URL ảnh">
+            <button class="btn" id="btnWmUrl" type="button" style="width:auto;padding:0 12px">Tải</button>
+          </div>
+          <div class="thumbline" id="wmUrlInfo"></div>
+          <div class="status" id="stWmUrl"></div>
+        </div>
+
+        <div class="inl"><label for="oriSel">Áp dụng cho</label>
+          <select id="oriSel"><option value="landscape">Ảnh ngang (0)</option><option value="portrait">Ảnh đứng (0)</option></select>
+        </div>
+
+        <details class="more">
+          <summary>Tùy chọn khác</summary>
+          <div class="more-body">
+            <div class="field" id="fSize"><div class="row"><label for="wpSize">Size</label><span class="val" id="wpSizeV"></span></div><input type="range" id="wpSize" min="2" max="100" step="1" value="20"></div>
+            <div class="grid2 aend">
+              <div class="field"><div class="row"><label for="wpMr">Lề phải</label><span class="val" id="wpMrV"></span></div><input type="range" id="wpMr" min="0" max="50" step="0.5" value="8"></div>
+              <div class="field"><div class="row"><label for="wpMb">Lề dưới</label><span class="val" id="wpMbV"></span></div><input type="range" id="wpMb" min="0" max="50" step="0.5" value="3"></div>
+            </div>
+            <div class="field"><div class="row"><label for="wpOpacity">Opacity</label><span class="val" id="wpOpacityV"></span></div><input type="range" id="wpOpacity" min="5" max="100" step="1" value="70"></div>
+            <div class="grid2 aend">
+              <div class="field"><label for="wFBtn">Filter</label>
+                <div class="fdd">
+                  <button type="button" class="fdd-btn" id="wFBtn" aria-haspopup="listbox" aria-expanded="false"><canvas width="112" height="76"></canvas><span class="nm">Không</span><span class="chev">▾</span></button>
+                  <div class="fdd-list" id="wFList" role="listbox" aria-label="Filter" hidden></div>
+                </div>
+                <input type="hidden" id="wFilter" value="none">
+              </div>
+              <div class="field"><div class="row"><label for="wFStr">Mức</label><span class="val" id="wFStrV"></span></div><input type="range" id="wFStr" min="0" max="100" step="1" value="100"></div>
+            </div>
+            <div class="grid2 aend">
+              <div class="field"><div class="row"><label for="wpResize">Resize</label><span class="val" id="wpResizeV"></span></div><input type="range" id="wpResize" min="5" max="100" step="1" value="100"></div>
+              <div class="field"><label for="wSuffix">Hậu tố</label><input type="text" id="wSuffix" value="_wm" autocomplete="off"></div>
+            </div>
+            <label class="check"><input type="checkbox" id="wApplyMeta" checked><span>Kèm metadata</span></label>
+          </div>
+        </details>
+
+        <div class="exportrow">
+          <button class="btn primary action" id="btnWm" type="button" disabled>Xuất ảnh ngang</button>
+          <button class="btn" id="btnCfgSave" type="button" title="Lưu preset của nhóm đang chọn (ngang hoặc đứng)">Lưu preset</button>
+        </div>
+        <div class="status" id="stWm"></div>
+      </div>
+    </details>
+
+    <!-- ===== Collage ===== -->
+    <details class="adv locked" id="gCol">
+      <summary><span>Collage<span class="badge" id="colBadge">≥ 2 ảnh</span></span><span class="tri">▶</span></summary>
+      <div class="adv-body">
+        <div class="grid3b">
+          <div class="field"><label for="cRatio">Aspect ratio</label>
+            <select id="cRatio"><option>1:1</option><option>4:5</option><option>5:4</option><option>3:2</option><option>2:3</option><option>4:3</option><option>3:4</option><option>16:9</option><option>9:16</option><option value="free">Tự do</option></select>
+          </div>
+          <div class="field"><label for="cW">Rộng</label><input type="number" id="cW" min="64" max="12000" value="1080"></div>
+          <div class="field"><label for="cH">Cao</label><input type="number" id="cH" min="64" max="12000" value="1080"></div>
+        </div>
+        <div class="field">
+          <label for="cLayout">Layout</label>
+          <select id="cLayout">
+            <option value="grid">Lưới</option>
+            <option value="hero">Ảnh chính + lưới</option>
+            <option value="justified">Giữ tỷ lệ (cao tự động)</option>
+          </select>
+        </div>
+        <div class="grid2 aend">
+          <div class="field"><label for="cFBtn">Filter</label>
+            <div class="fdd">
+              <button type="button" class="fdd-btn" id="cFBtn" aria-haspopup="listbox" aria-expanded="false"><canvas width="112" height="76"></canvas><span class="nm">Không</span><span class="chev">▾</span></button>
+              <div class="fdd-list" id="cFList" role="listbox" aria-label="Filter" hidden></div>
+            </div>
+            <input type="hidden" id="cFilter" value="none">
+          </div>
+          <div class="field"><div class="row"><label for="cFStr">Mức</label><span class="val" id="cFStrV"></span></div><input type="range" id="cFStr" min="0" max="100" step="1" value="100"></div>
+        </div>
+        <details class="more">
+          <summary>Tùy chọn khác</summary>
+          <div class="more-body">
+            <div class="grid2 aend">
+              <div class="field"><div class="row"><label for="cN">Số ảnh</label><span class="val" id="cNV"></span></div><input type="range" id="cN" min="2" max="2" step="1" value="2"></div>
+              <div class="field"><label for="cCols">Cột</label><select id="cCols"><option value="0">Tự động</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>8</option></select></div>
+            </div>
+            <div class="grid2 aend">
+              <div class="field"><div class="row"><label for="cBorder">Viền</label><span class="val" id="cBorderV"></span></div><input type="range" id="cBorder" min="0" max="200" step="1" value="24"></div>
+              <div class="field"><label for="cColor">Màu</label><input type="color" id="cColor" value="#ffffff"></div>
+            </div>
+            <div class="grid2 aend">
+              <div class="field"><div class="row"><label for="cGap">Khoảng cách</label><span class="val" id="cGapV"></span></div><input type="range" id="cGap" min="0" max="100" step="1" value="12"></div>
+              <div class="field"><div class="row"><label for="cRadius">Bo góc</label><span class="val" id="cRadiusV"></span></div><input type="range" id="cRadius" min="0" max="100" step="1" value="0"></div>
+            </div>
+            <div class="grid2">
+              <div class="field"><label for="cFmt">Định dạng</label><select id="cFmt"><option value="jpeg">JPEG</option><option value="png">PNG</option></select></div>
+              <div class="field"><label for="cName">Tên file</label><input type="text" id="cName" value="collage" autocomplete="off"></div>
+            </div>
+          </div>
+        </details>
+
+        <button class="btn primary action" id="btnCol" type="button" disabled>Xuất collage</button>
+        <div class="status" id="stCol"></div>
+      </div>
+    </details>
+
+    <div class="notes">
+      <p><b>Preset:</b> lưu nhóm ảnh (ngang/đứng), nguồn watermark và các thông số để nạp lại lần sau, khỏi chỉnh lại.</p>
+      <p><b>Màu thứ 2</b> (text watermark): xài thay cho màu thứ 1 khi nền tại đó giống màu thứ 1, để chữ luôn đọc được.</p>
+      <p><b>Resize:</b> thu nhỏ ảnh xuất ra theo % kích thước gốc (100% = giữ nguyên).</p>
+    </div>
+  </aside>
+
+  <main class="stage-wrap">
+    <section class="selbar" aria-label="Ảnh đã chọn">
+      <div class="selmain">
+        <strong id="selCount">Chưa chọn ảnh</strong>
+        <span id="selChips"></span>
+        <span class="spacer"></span>
+        <button class="linkbtn" id="btnList" type="button" disabled aria-expanded="false">Danh sách ▾</button>
+        <button class="linkbtn" id="btnClear" type="button" disabled>Xóa hết</button>
+      </div>
+      <div class="listbox" id="listBox" hidden></div>
+    </section>
+
+    <div class="viewtabs" role="tablist" aria-label="Xem trước">
+      <button class="tab" role="tab" data-view="wm" aria-selected="true" type="button">Watermark</button>
+      <button class="tab" role="tab" data-view="collage" aria-selected="false" type="button" disabled>Collage</button>
+      <div class="pvpick" id="pvPickWrap">
+        <button class="tbtn2" id="pvPrev" type="button" aria-label="Ảnh trước" title="Ảnh trước" disabled>‹</button>
+        <select id="pvPick" aria-label="Ảnh xem trước" disabled></select>
+        <button class="tbtn2" id="pvNext" type="button" aria-label="Ảnh sau" title="Ảnh sau" disabled>›</button>
+      </div>
+    </div>
+
+    <div class="stage empty" id="stage">
+      <div class="drop" id="drop" tabindex="0" role="button" aria-label="Chọn hoặc thả ảnh, thư mục">
+        <div class="big">THẢ ẢNH / THƯ MỤC VÀO ĐÂY</div>
+        <div class="small">hoặc bấm để chọn ảnh</div>
+      </div>
+      <div class="pvwrap" id="pvwrap">
+        <canvas id="pv" hidden></canvas>
+        <div class="pvmsg" id="pvMsg"></div>
+        <div class="pvinfo" id="pvInfo"></div>
+      </div>
+    </div>
+
+    <div class="progress" id="prog" hidden>
+      <span class="txt" id="progTxt"></span>
+      <div class="bar"><i id="progBar"></i></div>
+      <button class="btn" id="btnCancel" type="button">Hủy</button>
+    </div>
+  </main>
+</div>
+
+<script src="lib/piexif.js"></script>
+<script>
+(() => {
+"use strict";
+
+/* =====================================================
+   TIỆN ÍCH
+   ===================================================== */
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const isOn = id => $(id).getAttribute("aria-pressed") === "true";
+const setOn = (id, v) => $(id).setAttribute("aria-pressed", v ? "true" : "false");
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+const fmtBytes = n => n < 1024 ? n + " B" : n < 1048576 ? (n / 1024).toFixed(1) + " KB" : (n / 1048576).toFixed(2) + " MB";
+const enc = new TextEncoder(), dec = new TextDecoder();
+const extOf = n => ((n.match(/\.([^./\\]+)$/) || [])[1] || "").toLowerCase();
+const baseOf = n => n.replace(/\.[^./\\]+$/, "");
+const IMG_EXT = /\.(jpe?g|png|webp|gif|bmp|avif)$/i;
+const isImageFile = f => (f.type && f.type.startsWith("image/") && f.type !== "image/svg+xml") || IMG_EXT.test(f.name);
+const KIND_LABEL = { jpeg: "JPEG", png: "PNG", webp: "WebP", gif: "GIF", bmp: "BMP", avif: "AVIF" };
+function kindOf(f) {
+  const e = extOf(f.name), t = f.type || "";
+  if (t === "image/jpeg" || e === "jpg" || e === "jpeg") return "jpeg";
+  if (t === "image/png" || e === "png") return "png";
+  if (t === "image/webp" || e === "webp") return "webp";
+  return e || "khác";
+}
+const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, "0"); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`; };
+const canvasToBlob = (c, type, q) => new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error("Không mã hóa được ảnh (có thể do kích thước quá lớn)")), type, q));
+const u8ToBin = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 8192) s += String.fromCharCode.apply(null, u8.subarray(i, i + 8192)); return s; };
+const binToU8 = s => { const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i) & 255; return u; };
+function concatU8(parts) { let n = 0; parts.forEach(p => n += p.length); const o = new Uint8Array(n); let k = 0; parts.forEach(p => { o.set(p, k); k += p.length; }); return o; }
+
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+
+const JPEG_Q = 0.9;          // chất lượng JPEG cố định 90%
+const MIN_COLLAGE = 2;     // số ảnh tối thiểu để mở nhóm Tạo collage
+const hasPiexif = typeof piexif !== "undefined";
+
+/* =====================================================
+   STATE
+   ===================================================== */
+const defProf = () => ({ size: 20, mr: 8, mb: 3, opacity: 70, resize: 100 });   // size: % chiều rộng (watermark ảnh); mr/mb: lề phải/dưới (%)
+const state = {
+  files: [], view: "wm", editOri: "landscape", srcType: "text",
+  prof: { landscape: defProf(), portrait: defProf() },
+  wmUp: null, wmUrl: null, colAuto: true, pvId: 0,
+  busy: false, cancel: false, pv: null, thumbs: new Map(), listOpen: false,
+};
+let uid = 0;
+
+/* =====================================================
+   ĐỌC KÍCH THƯỚC ẢNH NHANH TỪ HEADER (kèm hướng EXIF)
+   ===================================================== */
+function exifOrientation(b, t) {
+  const le = b[t] === 0x49;
+  const r16 = o => le ? b[o] | (b[o+1] << 8) : (b[o] << 8) | b[o+1];
+  const r32 = o => le ? (b[o] | (b[o+1] << 8) | (b[o+2] << 16) | (b[o+3] << 24)) >>> 0 : ((b[o] << 24) | (b[o+1] << 16) | (b[o+2] << 8) | b[o+3]) >>> 0;
+  if (t + 8 > b.length || r16(t + 2) !== 42) return 1;
+  const ifd = t + r32(t + 4); if (ifd + 2 > b.length) return 1;
+  const n = r16(ifd);
+  for (let i = 0; i < n; i++) { const e = ifd + 2 + i * 12; if (e + 12 > b.length) break; if (r16(e) === 0x0112) return r16(e + 8); }
+  return 1;
+}
+function probeJpeg(b) {
+  if (b[0] !== 0xFF || b[1] !== 0xD8) return null;
+  let p = 2, orient = 1;
+  while (p + 4 <= b.length) {
+    if (b[p] !== 0xFF) { p++; continue; }
+    const m = b[p+1];
+    if (m === 0xFF) { p++; continue; }
+    if (m === 0xD8 || (m >= 0xD0 && m <= 0xD7) || m === 0x01) { p += 2; continue; }
+    if (m === 0xD9 || m === 0xDA) break;
+    const len = (b[p+2] << 8) | b[p+3];
+    if (m === 0xE1 && b[p+4] === 0x45 && b[p+5] === 0x78 && b[p+6] === 0x69 && b[p+7] === 0x66) orient = exifOrientation(b, p + 10);
+    if (m >= 0xC0 && m <= 0xCF && m !== 0xC4 && m !== 0xC8 && m !== 0xCC) {
+      const h = (b[p+5] << 8) | b[p+6], w = (b[p+7] << 8) | b[p+8];
+      if (!w || !h) return null;
+      return orient >= 5 && orient <= 8 ? { w: h, h: w } : { w, h };
+    }
+    p += 2 + len;
+  }
+  return null;
+}
+function probePng(b) {
+  if (b[0] !== 0x89 || b[1] !== 0x50 || b[2] !== 0x4E || b[3] !== 0x47 || b.length < 24) return null;
+  const u32 = o => ((b[o] << 24) | (b[o+1] << 16) | (b[o+2] << 8) | b[o+3]) >>> 0;
+  return { w: u32(16), h: u32(20) };
+}
+function probeWebp(b) {
+  const tag = (o, s) => [...s].every((c, i) => b[o + i] === c.charCodeAt(0));
+  if (b.length < 30 || !tag(0, "RIFF") || !tag(8, "WEBP")) return null;
+  if (tag(12, "VP8X")) return { w: 1 + (b[24] | (b[25] << 8) | (b[26] << 16)), h: 1 + (b[27] | (b[28] << 8) | (b[29] << 16)) };
+  if (tag(12, "VP8 ")) return { w: (b[26] | (b[27] << 8)) & 0x3FFF, h: (b[28] | (b[29] << 8)) & 0x3FFF };
+  if (tag(12, "VP8L")) { const b0 = b[21], b1 = b[22], b2 = b[23], b3 = b[24]; return { w: 1 + (((b1 & 0x3F) << 8) | b0), h: 1 + (((b3 & 0xF) << 10) | (b2 << 2) | ((b1 & 0xC0) >> 6)) }; }
+  return null;
+}
+async function probeFile(file) {
+  try {
+    const head = new Uint8Array(await file.slice(0, 262144).arrayBuffer());
+    const d = probeJpeg(head) || probePng(head) || probeWebp(head);
+    if (d && d.w > 0 && d.h > 0) return d;
+  } catch (e) { /* chuyển sang giải mã đầy đủ */ }
+  const dd = await decodeBlob(file); const r = { w: dd.width, h: dd.height }; dd.close(); return r;
+}
+
+/* =====================================================
+   GIẢI MÃ ẢNH
+   ===================================================== */
+async function decodeBlob(blob) {
+  try { const b = await createImageBitmap(blob, { imageOrientation: "from-image" }); return { src: b, width: b.width, height: b.height, close: () => b.close() }; }
+  catch (e1) {
+    try { const b = await createImageBitmap(blob); return { src: b, width: b.width, height: b.height, close: () => b.close() }; }
+    catch (e2) {
+      const url = URL.createObjectURL(blob), img = new Image(); img.src = url;
+      try { await img.decode(); } catch (e3) { URL.revokeObjectURL(url); throw new Error("Không đọc được ảnh"); }
+      return { src: img, width: img.naturalWidth, height: img.naturalHeight, close: () => URL.revokeObjectURL(url) };
+    }
+  }
+}
+async function getPv(f) {
+  if (state.pv && state.pv.id === f.id) return state.pv;
+  const d = await decodeBlob(f.file), s = Math.min(1, 1400 / Math.max(d.width, d.height));
+  const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(d.width * s)); c.height = Math.max(1, Math.round(d.height * s));
+  const ctx = c.getContext("2d"); ctx.imageSmoothingQuality = "high"; ctx.drawImage(d.src, 0, 0, c.width, c.height); d.close();
+  state.pv = { id: f.id, canvas: c }; return state.pv;
+}
+async function getThumb(f) {
+  const hit = state.thumbs.get(f.id);
+  if (hit) { state.thumbs.delete(f.id); state.thumbs.set(f.id, hit); return hit; }
+  const d = await decodeBlob(f.file), s = Math.min(1, 1000 / Math.max(d.width, d.height));
+  const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(d.width * s)); c.height = Math.max(1, Math.round(d.height * s));
+  const ctx = c.getContext("2d"); ctx.imageSmoothingQuality = "high"; ctx.drawImage(d.src, 0, 0, c.width, c.height); d.close();
+  const t = { src: c, w: c.width, h: c.height };
+  state.thumbs.set(f.id, t);
+  while (state.thumbs.size > 60) state.thumbs.delete(state.thumbs.keys().next().value);
+  return t;
+}
+
+/* =====================================================
+   NHẬP ẢNH (thư mục / nhiều file / kéo-thả)
+   ===================================================== */
+let addMode = false;
+async function importFiles(list, append) {
+  const all = [...list], arr = all.filter(isImageFile);
+  const notImg = all.length - arr.length;
+  if (!append) { state.files = []; state.thumbs.clear(); state.pv = null; }
+  const have = new Set(state.files.map(f => f.path + "|" + f.size));
+  const items = [];
+  for (const file of arr) {
+    const path = file.webkitRelativePath || file._relPath || file.name;
+    if (have.has(path + "|" + file.size)) continue;
+    have.add(path + "|" + file.size);
+    items.push({ id: ++uid, file, path, name: file.name, size: file.size, kind: kindOf(file), w: 0, h: 0, ori: "landscape", inCol: true });
+  }
+  let done = 0, bad = [], idx = 0;
+  showProg(`Đang đọc ảnh 0/${items.length}…`, 0);
+  const worker = async () => {
+    while (idx < items.length) {
+      const it = items[idx++];
+      try { const d = await probeFile(it.file); it.w = d.w; it.h = d.h; it.ori = it.h > it.w ? "portrait" : "landscape"; it.ok = true; }
+      catch (e) { bad.push(it.name); }
+      done++;
+      if (done % 8 === 0 || done === items.length) showProg(`Đang đọc ảnh ${done}/${items.length}…`, done / items.length);
+    }
+  };
+  await Promise.all(Array.from({ length: 6 }, worker));
+  hideProg();
+  state.files.push(...items.filter(i => i.ok));
+  state.files.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true, sensitivity: "base" }));
+  const msgs = [];
+  msgs.push(`Thêm ${items.length - bad.length} ảnh.`);
+  if (notImg) msgs.push(`Bỏ qua ${notImg} file khác.`);
+  if (bad.length) msgs.push(`${bad.length} ảnh không đọc được.`);
+  setStat("stImport", msgs.join("\n"), bad.length > 0);
+  if (!state.files.some(f => f.ori === state.editOri)) { const o = state.files[0] && state.files[0].ori; if (o) setEditOri(o); }
+  updateAll();
+}
+async function collectDropped(dt) {
+  const entries = [...dt.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
+  if (!entries.length) return [...dt.files];
+  const out = [];
+  async function walk(entry, prefix) {
+    if (entry.isFile) { const f = await new Promise((res, rej) => entry.file(res, rej)); f._relPath = prefix + entry.name; out.push(f); }
+    else if (entry.isDirectory) {
+      const reader = entry.createReader(); let batch;
+      do { batch = await new Promise((res, rej) => reader.readEntries(res, rej)); for (const e of batch) await walk(e, prefix + entry.name + "/"); } while (batch.length);
+    }
+  }
+  for (const e of entries) await walk(e, "");
+  return out;
+}
+$("btnFolder").addEventListener("click", () => { addMode = false; $("inFolder").click(); });
+$("btnFiles").addEventListener("click", () => { addMode = false; $("inFiles").click(); });
+$("btnAdd").addEventListener("click", () => { addMode = true; $("inFiles").click(); });
+$("drop").addEventListener("click", () => { addMode = false; $("inFiles").click(); });
+$("drop").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); addMode = false; $("inFiles").click(); } });
+for (const id of ["inFolder", "inFiles"]) $(id).addEventListener("change", e => { const l = [...e.target.files]; e.target.value = ""; if (l.length) importFiles(l, addMode && state.files.length > 0); });
+["dragenter", "dragover"].forEach(t => window.addEventListener(t, e => { e.preventDefault(); $("drop").classList.add("over"); }));
+["dragleave", "drop"].forEach(t => window.addEventListener(t, e => { e.preventDefault(); $("drop").classList.remove("over"); }));
+window.addEventListener("drop", async e => { if (state.busy) return; const l = await collectDropped(e.dataTransfer); if (l.length) importFiles(l, e.shiftKey && state.files.length > 0); });
+
+/* =====================================================
+   THANH CHỌN ẢNH & DANH SÁCH
+   ===================================================== */
+const countOri = o => state.files.filter(f => f.ori === o).length;
+const firstOfOri = o => state.files.find(f => f.ori === o);
+const collagePool = () => state.files.filter(f => f.inCol !== false);
+function renderChips() {
+  const n = state.files.length, land = countOri("landscape"), port = countOri("portrait"), total = state.files.reduce((a, f) => a + f.size, 0), pool = collagePool().length;
+  $("selChips").innerHTML = n ? `<span class="chip">Ngang ${land}</span> <span class="chip">Đứng ${port}</span> <span class="chip">${fmtBytes(total)}</span>` +
+    (n >= MIN_COLLAGE ? ` <button type="button" class="chip chipbtn${state.view === "collage" ? " on" : ""}" id="chipCol" title="Chọn ảnh đưa vào collage trong danh sách">Collage ${pool}/${n}</button>` : "") : "";
+  const cb = $("chipCol"); if (cb) cb.addEventListener("click", () => { state.listOpen = true; renderSelection(); $("listBox").scrollIntoView({ block: "nearest" }); });
+  const lc = $("lihCount"); if (lc) lc.textContent = `${pool}/${n}`;
+}
+function afterPoolChange() { syncCollageReadouts(); updateEnable(); if (state.view === "collage") refreshPreviewSoon(); }
+function setPool(v) { state.files.forEach(f => { f.inCol = v; }); renderSelection(); afterPoolChange(); }
+function renderSelection() {
+  const n = state.files.length;
+  $("selCount").textContent = n ? `Đã chọn ${n} ảnh` : "Chưa chọn ảnh";
+  renderChips();
+  $("btnList").disabled = !n; $("btnClear").disabled = !n;
+  const box = $("listBox");
+  if (!n) state.listOpen = false;
+  box.hidden = !state.listOpen;
+  $("btnList").textContent = state.listOpen ? "Danh sách ▴" : "Danh sách ▾";
+  $("btnList").setAttribute("aria-expanded", state.listOpen ? "true" : "false");
+  if (!state.listOpen) return;
+  const MAX = 400, frag = document.createDocumentFragment();
+  const head = document.createElement("div"); head.className = "lih";
+  head.innerHTML = `<span>Đưa vào collage: <b id="lihCount"></b></span><span class="spacer"></span><button type="button" class="linkbtn" id="lihAll">Tất cả</button><button type="button" class="linkbtn" id="lihNone">Không</button>`;
+  head.querySelector("#lihAll").addEventListener("click", () => setPool(true)); head.querySelector("#lihNone").addEventListener("click", () => setPool(false));
+  frag.appendChild(head);
+  state.files.slice(0, MAX).forEach((f, i) => {
+    const row = document.createElement("div"); row.className = "li" + (f.inCol === false ? " off" : "");
+    const ck = document.createElement("input"); ck.type = "checkbox"; ck.checked = f.inCol !== false; ck.title = "Đưa vào collage"; ck.setAttribute("aria-label", "Đưa " + f.name + " vào collage");
+    ck.addEventListener("change", () => { f.inCol = ck.checked; row.classList.toggle("off", !ck.checked); renderChips(); afterPoolChange(); });
+    const a = document.createElement("span"); a.className = "n"; a.textContent = i + 1;
+    const b = document.createElement("span"); b.className = "nm"; b.textContent = f.path; b.title = f.path;
+    const c = document.createElement("span"); c.className = "meta"; c.textContent = `${f.w}×${f.h}`;
+    const d = document.createElement("span"); d.className = "meta"; d.textContent = fmtBytes(f.size);
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.title = "Bỏ ảnh này"; x.setAttribute("aria-label", "Bỏ " + f.name);
+    x.addEventListener("click", () => { state.files = state.files.filter(g => g.id !== f.id); state.thumbs.delete(f.id); if (state.pv && state.pv.id === f.id) state.pv = null; updateAll(); });
+    row.append(ck, a, b, c, d, x); frag.appendChild(row);
+  });
+  box.replaceChildren(frag);
+  if (n > MAX) { const note = document.createElement("div"); note.className = "listnote"; note.textContent = `… và ${n - MAX} ảnh nữa (chỉ hiện ${MAX} ảnh đầu).`; box.appendChild(note); }
+  renderChips();
+}
+$("btnList").addEventListener("click", () => { state.listOpen = !state.listOpen; renderSelection(); });
+$("btnClear").addEventListener("click", () => { state.files = []; state.thumbs.clear(); state.pv = null; setStat("stImport", ""); updateAll(); });
+
+/* =====================================================
+   METADATA: XMP / EXIF / JPEG / PNG
+   ===================================================== */
+const NS = { rdf: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", dc: "http://purl.org/dc/elements/1.1/", rights: "http://ns.adobe.com/xap/1.0/rights/", ps: "http://ns.adobe.com/photoshop/1.0/", iptc: "http://iptc.org/std/Iptc4xmpCore/1.0/xmlns/", xml: "http://www.w3.org/XML/1998/namespace", xmlns: "http://www.w3.org/2000/xmlns/" };
+const XMP_JPEG_HDR = enc.encode("http://ns.adobe.com/xap/1.0/\0");
+const EXIF_HDR = [0x45, 0x78, 0x69, 0x66, 0, 0];
+const XMP_FRESH = '<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Foto Batch"><rdf:RDF xmlns:rdf="' + NS.rdf + '"><rdf:Description rdf:about=""/></rdf:RDF></x:xmpmeta>';
+
+function readMeta() {
+  const v = id => $(id).value.trim();
+  return { author: v("mAuthor"), contact: v("mContact"), location: v("mLocation"), city: v("mCity"), country: v("mCountry"), terms: v("mTerms"), exif: true };
+}
+const hasMeta = m => !!(m.author || m.contact || m.location || m.city || m.country || m.terms);
+
+function parseXml(text) {
+  try { const d = new DOMParser().parseFromString(text, "application/xml"); return d.getElementsByTagName("parsererror").length ? null : d; } catch (e) { return null; }
+}
+function buildXmpPacket(m, existing) {
+  let doc = existing ? parseXml(existing) : null;
+  if (doc && !doc.getElementsByTagNameNS(NS.rdf, "Description").length) doc = null;
+  if (!doc) doc = parseXml(XMP_FRESH);
+  const descs = [...doc.getElementsByTagNameNS(NS.rdf, "Description")], d = descs[0];
+  const ensure = (prefix, ns) => { if (d.lookupNamespaceURI(prefix) !== ns) d.setAttributeNS(NS.xmlns, "xmlns:" + prefix, ns); };
+  const clear = (ns, local) => { for (const x of descs) { if (x.hasAttributeNS(ns, local)) x.removeAttributeNS(ns, local); for (const ch of [...x.children]) if (ch.namespaceURI === ns && ch.localName === local) x.removeChild(ch); } };
+  const mk = (ns, prefix, local) => { ensure(prefix, ns); return doc.createElementNS(ns, prefix + ":" + local); };
+  const text = (ns, prefix, local, val) => { clear(ns, local); const e = mk(ns, prefix, local); e.textContent = val; d.appendChild(e); };
+  const container = (ns, prefix, local, kind, val, lang) => {
+    clear(ns, local); const e = mk(ns, prefix, local), c = doc.createElementNS(NS.rdf, "rdf:" + kind), li = doc.createElementNS(NS.rdf, "rdf:li");
+    if (lang) li.setAttributeNS(NS.xml, "xml:lang", "x-default");
+    li.textContent = val; c.appendChild(li); e.appendChild(c); d.appendChild(e);
+  };
+  if (m.author) container(NS.dc, "dc", "creator", "Seq", m.author, false);
+  if (m.terms) container(NS.rights, "xmpRights", "UsageTerms", "Alt", m.terms, true);
+  if (m.city) text(NS.ps, "photoshop", "City", m.city);
+  if (m.country) text(NS.ps, "photoshop", "Country", m.country);
+  if (m.location) text(NS.iptc, "Iptc4xmpCore", "Location", m.location);
+  if (m.contact) {
+    let ci = null;
+    for (const x of descs) for (const ch of x.children) if (ch.namespaceURI === NS.iptc && ch.localName === "CreatorContactInfo") ci = ch;
+    if (!ci) { ci = mk(NS.iptc, "Iptc4xmpCore", "CreatorContactInfo"); ci.setAttributeNS(NS.rdf, "rdf:parseType", "Resource"); d.appendChild(ci); }
+    const local = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.contact) ? "CiEmailWork" : "CiUrlWork";
+    for (const ch of [...ci.children]) if (ch.namespaceURI === NS.iptc && ch.localName === local) ci.removeChild(ch);
+    const e = doc.createElementNS(NS.iptc, "Iptc4xmpCore:" + local); e.textContent = m.contact; ci.appendChild(e);
+  }
+  const xml = new XMLSerializer().serializeToString(doc.documentElement);
+  return enc.encode('<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?>\n' + xml + '\n<?xpacket end="w"?>');
+}
+
+/* ----- JPEG ----- */
+function parseJpegSegs(u8) {
+  if (u8[0] !== 0xFF || u8[1] !== 0xD8) throw new Error("Không phải JPEG");
+  const segs = []; let p = 2;
+  while (p + 4 <= u8.length) {
+    if (u8[p] !== 0xFF) throw new Error("JPEG lỗi cấu trúc");
+    const m = u8[p+1];
+    if (m === 0xFF) { p++; continue; }
+    if (m === 0xDA || m === 0xD9) break;
+    if ((m >= 0xD0 && m <= 0xD7) || m === 0x01) { segs.push({ m, s: p, e: p + 2 }); p += 2; continue; }
+    const len = (u8[p+2] << 8) | u8[p+3];
+    segs.push({ m, s: p, e: p + 2 + len }); p += 2 + len;
+  }
+  return { segs, scan: p };
+}
+const segIsExif = (u8, s) => s.m === 0xE1 && EXIF_HDR.every((c, i) => u8[s.s + 4 + i] === c);
+const segIsXmp = (u8, s) => s.m === 0xE1 && XMP_JPEG_HDR.every((c, i) => u8[s.s + 4 + i] === c);
+const app1 = payload => { const len = payload.length + 2, o = new Uint8Array(payload.length + 4); o[0] = 0xFF; o[1] = 0xE1; o[2] = len >> 8; o[3] = len & 255; o.set(payload, 4); return o; };
+function getJpegXmp(u8) {
+  const { segs } = parseJpegSegs(u8);
+  const s = segs.find(g => segIsXmp(u8, g) && g.e <= u8.length);
+  return s ? dec.decode(u8.subarray(s.s + 4 + XMP_JPEG_HDR.length, s.e)) : null;
+}
+function loadExifObj(u8) {
+  if (!hasPiexif) return null;
+  const { segs } = parseJpegSegs(u8);
+  const s = segs.find(g => segIsExif(u8, g) && g.e <= u8.length);
+  if (!s) return null;
+  return piexif.load("\xFF\xD8" + u8ToBin(u8.subarray(s.s, s.e)) + "\xFF\xDA");   // piexif cần gặp marker SOS sau APP1
+}
+const blankExif = () => ({ "0th": {}, "Exif": {}, "GPS": {}, "Interop": {}, "1st": {}, "thumbnail": null });
+const utf8Bin = s => u8ToBin(enc.encode(s));
+function applyExifFields(obj, m) {
+  obj["0th"] = obj["0th"] || {};
+  if (m.author) {
+    obj["0th"][piexif.ImageIFD.Artist] = utf8Bin(m.author);
+    const u = []; for (const ch of m.author) { const c = ch.codePointAt(0); if (c > 0xFFFF) { const h = ((c - 0x10000) >> 10) + 0xD800, l = ((c - 0x10000) & 1023) + 0xDC00; u.push(h & 255, h >> 8, l & 255, l >> 8); } else u.push(c & 255, c >> 8); }
+    u.push(0, 0); obj["0th"][piexif.ImageIFD.XPAuthor] = u;
+  }
+}
+function dumpExifSeg(obj) { const s = binToU8(piexif.dump(obj)); if (s.length + 2 > 65535) throw new Error("EXIF quá lớn"); return app1(s); }
+function assembleJpeg(u8, add) {
+  const { segs, scan } = parseJpegSegs(u8);
+  const kept = segs.filter(s => !(add.exif && segIsExif(u8, s)) && !(add.xmp && segIsXmp(u8, s)));
+  const out = [u8.subarray(0, 2)]; let i = 0;
+  while (i < kept.length && kept[i].m === 0xE0) { out.push(u8.subarray(kept[i].s, kept[i].e)); i++; }
+  if (add.exif) out.push(add.exif);
+  else if (i < kept.length && segIsExif(u8, kept[i])) { out.push(u8.subarray(kept[i].s, kept[i].e)); i++; }
+  if (add.xmp) out.push(add.xmp);
+  for (; i < kept.length; i++) out.push(u8.subarray(kept[i].s, kept[i].e));
+  out.push(u8.subarray(scan));
+  return concatU8(out);
+}
+/* o: { mode: "edit" | "derive", head: Uint8Array|null, keepExif, stripGps, w, h } */
+function finalizeJpeg(u8, m, o, report) {
+  let exif = null, xmp = null;
+  const wantExifFields = !!(m && m.exif && m.author && hasPiexif);
+  try {
+    if (o.mode === "edit") {
+      if (wantExifFields) { const obj = loadExifObj(u8) || blankExif(); applyExifFields(obj, m); exif = dumpExifSeg(obj); }
+    } else if ((o.keepExif && hasPiexif) || wantExifFields) {
+      let obj = o.keepExif && o.head ? loadExifObj(o.head) : null;
+      if (obj) {
+        obj["0th"][piexif.ImageIFD.Orientation] = 1; obj.thumbnail = null; obj["1st"] = {};
+        if (obj.Exif) { if (obj.Exif[piexif.ExifIFD.PixelXDimension] !== undefined) obj.Exif[piexif.ExifIFD.PixelXDimension] = o.w; if (obj.Exif[piexif.ExifIFD.PixelYDimension] !== undefined) obj.Exif[piexif.ExifIFD.PixelYDimension] = o.h; }
+        if (o.stripGps) obj.GPS = {};
+      } else if (wantExifFields) obj = blankExif();
+      if (obj) { if (wantExifFields) applyExifFields(obj, m); exif = dumpExifSeg(obj); }
+    }
+  } catch (e) { console.warn("EXIF:", e); exif = null; if (report) report.exifFail = (report.exifFail || 0) + 1; }
+  if (m && hasMeta(m)) {
+    try {
+      let packet = buildXmpPacket(m, o.mode === "edit" ? getJpegXmp(u8) : null);
+      if (packet.length + XMP_JPEG_HDR.length + 2 > 65535) { packet = buildXmpPacket(m, null); if (report) report.xmpReplaced = (report.xmpReplaced || 0) + 1; }
+      if (packet.length + XMP_JPEG_HDR.length + 2 <= 65535) xmp = app1(concatU8([XMP_JPEG_HDR, packet]));
+    } catch (e) { console.warn("XMP:", e); }
+  }
+  return exif || xmp ? assembleJpeg(u8, { exif, xmp }) : u8;
+}
+
+/* ----- PNG ----- */
+const PNG_XMP_KEY = enc.encode("XML:com.adobe.xmp");
+function parsePngChunks(u8) {
+  const chunks = []; let p = 8;
+  const u32 = o => ((u8[o] << 24) | (u8[o+1] << 16) | (u8[o+2] << 8) | u8[o+3]) >>> 0;
+  while (p + 12 <= u8.length) { const len = u32(p), type = String.fromCharCode(u8[p+4], u8[p+5], u8[p+6], u8[p+7]); chunks.push({ type, s: p, e: p + 12 + len, len }); p += 12 + len; }
+  return chunks;
+}
+const isPngXmp = (u8, c) => c.type === "iTXt" && PNG_XMP_KEY.every((k, i) => u8[c.s + 8 + i] === k) && u8[c.s + 8 + PNG_XMP_KEY.length] === 0;
+function getPngXmp(u8) {
+  const c = parsePngChunks(u8).find(x => isPngXmp(u8, x)); if (!c) return null;
+  let p = c.s + 8 + PNG_XMP_KEY.length + 1; const comp = u8[p]; p += 2;
+  if (comp) return null;
+  while (u8[p] !== 0 && p < c.e) p++; p++;
+  while (u8[p] !== 0 && p < c.e) p++; p++;
+  return dec.decode(u8.subarray(p, c.e - 4));
+}
+function finalizePng(u8, m, o) {
+  if (!m || !hasMeta(m)) return u8;
+  const packet = buildXmpPacket(m, o.mode === "edit" ? getPngXmp(u8) : null);
+  const data = concatU8([PNG_XMP_KEY, new Uint8Array([0, 0, 0, 0, 0]), packet]);
+  const typeData = concatU8([enc.encode("iTXt"), data]);
+  const chunk = new Uint8Array(12 + data.length), dv = new DataView(chunk.buffer);
+  dv.setUint32(0, data.length); chunk.set(typeData, 4); dv.setUint32(8 + data.length, crc32(typeData));
+  const chunks = parsePngChunks(u8).filter(c => !isPngXmp(u8, c));
+  const out = [u8.subarray(0, 8)]; chunks.forEach((c, i) => { out.push(u8.subarray(c.s, c.e)); if (i === 0) out.push(chunk); });
+  return concatU8(out);
+}
+function sniff(u8) {
+  if (u8[0] === 0xFF && u8[1] === 0xD8 && u8[2] === 0xFF) return "jpeg";
+  if (u8[0] === 0x89 && u8[1] === 0x50 && u8[2] === 0x4E && u8[3] === 0x47) return "png";
+  return null;
+}
+
+/* =====================================================
+   ZIP (không nén) & TẢI XUỐNG
+   ===================================================== */
+function buildZip(entries) {
+  const parts = [], cd = []; let off = 0;
+  const d = new Date(), dt = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate(), tm = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  for (const e of entries) {
+    const nb = enc.encode(e.path), lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true); lh.setUint16(10, tm, true); lh.setUint16(12, dt, true);
+    lh.setUint32(14, e.crc, true); lh.setUint32(18, e.size, true); lh.setUint32(22, e.size, true); lh.setUint16(26, nb.length, true); lh.setUint16(28, 0, true);
+    parts.push(lh.buffer, nb, e.blob);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, tm, true); ch.setUint16(14, dt, true);
+    ch.setUint32(16, e.crc, true); ch.setUint32(20, e.size, true); ch.setUint32(24, e.size, true); ch.setUint16(28, nb.length, true); ch.setUint32(42, off, true);
+    cd.push(ch.buffer, nb);
+    off += 30 + nb.length + e.size;
+  }
+  const cdSize = cd.reduce((a, b) => a + b.byteLength, 0);
+  const eo = new DataView(new ArrayBuffer(22));
+  eo.setUint32(0, 0x06054b50, true); eo.setUint16(8, entries.length, true); eo.setUint16(10, entries.length, true); eo.setUint32(12, cdSize, true); eo.setUint32(16, off, true);
+  if (off + cdSize > 0xFFFFFFFF - 1024 || entries.length > 65000) throw new Error("Tổng dung lượng/số file quá lớn cho một file ZIP. Hãy xử lý theo từng đợt nhỏ hơn.");
+  return new Blob([...parts, ...cd, eo.buffer], { type: "application/zip" });
+}
+function saveBlob(blob, name) {
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const makeEntry = (path, u8, mime) => ({ path, blob: new Blob([u8], { type: mime }), size: u8.length, crc: crc32(u8) });
+function uniquePath(path, used) {
+  if (!used.has(path)) { used.add(path); return path; }
+  const dot = path.lastIndexOf("."), b = dot > path.lastIndexOf("/") ? path.slice(0, dot) : path, e = dot > path.lastIndexOf("/") ? path.slice(dot) : "";
+  for (let i = 2; ; i++) { const p = `${b}-${i}${e}`; if (!used.has(p)) { used.add(p); return p; } }
+}
+function deliver(entries, zipBase) {
+  if (entries.length === 1) { saveBlob(entries[0].blob, entries[0].path.split("/").pop()); return; }
+  saveBlob(buildZip(entries), `${zipBase}-${stamp()}.zip`);
+}
+function outPath(f, suffix, ext) {
+  const i = f.path.lastIndexOf("/"), dir = i >= 0 ? f.path.slice(0, i + 1) : "";
+  return dir + baseOf(f.name) + suffix + "." + ext;
+}
+const cleanSuffix = s => s.replace(/[\\/:*?"<>|]+/g, "_");
+
+/* =====================================================
+   TIẾN TRÌNH & TRẠNG THÁI
+   ===================================================== */
+function showProg(text, frac) { $("prog").hidden = false; $("progTxt").textContent = text; $("progBar").style.width = Math.round(clamp(frac, 0, 1) * 100) + "%"; }
+function hideProg() { $("prog").hidden = true; }
+function setStat(id, msg, err, ok) { const e = $(id); e.textContent = msg; e.classList.toggle("err", !!err); e.classList.toggle("ok", !!ok); }
+$("btnCancel").addEventListener("click", () => { state.cancel = true; $("progTxt").textContent = "Đang hủy…"; });
+
+/* =====================================================
+   BỘ LỌC ẢNH (tự xử lý từng pixel, chạy được ở mọi trình duyệt)
+   ===================================================== */
+const FILTERS = {
+  none:    { name: "Không" },
+  bw:      { name: "Đen trắng", gray: 1, con: 0.15 },
+  sepia:   { name: "Sepia", sepia: 0.9, con: 0.05 },
+  vintage: { name: "Cổ điển", sat: -0.2, temp: 0.35, fade: 0.12, con: -0.05, vig: 0.25, grain: 0.03 },
+  film:    { name: "Phim", con: 0.12, sat: -0.08, fade: 0.05, sh: [0, 60, 80], shA: 0.12, hi: [255, 190, 130], hiA: 0.1, grain: 0.04 },
+  vivid:   { name: "Rực rỡ", sat: 0.35, con: 0.12 },
+  warm:    { name: "Ấm", temp: 0.5, sat: 0.05 },
+  cool:    { name: "Lạnh", temp: -0.5 },
+  matte:   { name: "Matte (mờ)", con: -0.15, fade: 0.18, sat: -0.1 },
+  drama:   { name: "Kịch tính", con: 0.35, sat: -0.1, bri: -0.05, vig: 0.35 },
+};
+function applyFilter(ctx, w, h, id, strength) {
+  const f = FILTERS[id]; if (!f || id === "none" || !(strength > 0)) return;
+  const k = Math.min(1, strength / 100), img = ctx.getImageData(0, 0, w, h), d = img.data;
+  const bri = (f.bri || 0) * 255, con = 1 + (f.con || 0), sat = 1 + (f.sat || 0), gray = f.gray || 0, sep = f.sepia || 0;
+  const temp = (f.temp || 0) * 35, fade = f.fade || 0, vig = f.vig || 0, grain = (f.grain || 0) * 255;
+  const shA = f.shA || 0, hiA = f.hiA || 0, split = shA > 0 || hiA > 0, sh = f.sh || [0, 0, 0], hi = f.hi || [0, 0, 0];
+  for (let y = 0; y < h; y++) {
+    const dy = (y / h - 0.5) * 2;
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      let r = d[i], g = d[i+1], b = d[i+2]; const r0 = r, g0 = g, b0 = b;
+      if (temp) { r += temp; b -= temp; }
+      if (con !== 1 || bri) { r = (r - 128) * con + 128 + bri; g = (g - 128) * con + 128 + bri; b = (b - 128) * con + 128 + bri; }
+      let l = 0.299 * r + 0.587 * g + 0.114 * b;
+      if (sat !== 1) { r = l + (r - l) * sat; g = l + (g - l) * sat; b = l + (b - l) * sat; }
+      if (gray) { l = 0.299 * r + 0.587 * g + 0.114 * b; r += (l - r) * gray; g += (l - g) * gray; b += (l - b) * gray; }
+      if (sep) {
+        const tr = 0.393 * r + 0.769 * g + 0.189 * b, tg = 0.349 * r + 0.686 * g + 0.168 * b, tb = 0.272 * r + 0.534 * g + 0.131 * b;
+        r += (tr - r) * sep; g += (tg - g) * sep; b += (tb - b) * sep;
+      }
+      if (fade) { r = r * (1 - fade) + fade * 255; g = g * (1 - fade) + fade * 255; b = b * (1 - fade) + fade * 255; }
+      if (split) {
+        const lum = clamp((0.299 * r + 0.587 * g + 0.114 * b) / 255, 0, 1), ws = (1 - lum) * (1 - lum) * shA, wh = lum * lum * hiA;
+        r += (sh[0] - r) * ws + (hi[0] - r) * wh; g += (sh[1] - g) * ws + (hi[1] - g) * wh; b += (sh[2] - b) * ws + (hi[2] - b) * wh;
+      }
+      if (vig) {
+        const dx = (x / w - 0.5) * 2, dd = Math.sqrt(dx * dx + dy * dy), t = dd > 0.45 ? dd - 0.45 : 0, m = 1 - vig * Math.min(1, t * t * 1.4);
+        r *= m; g *= m; b *= m;
+      }
+      if (grain) {
+        let n = Math.imul(x * 374761393 + y * 668265263, 1274126177); n = (n ^ (n >>> 13)) >>> 0;
+        const v = ((n & 1023) / 1023 - 0.5) * grain; r += v; g += v; b += v;
+      }
+      d[i] = r0 + (r - r0) * k; d[i+1] = g0 + (g - g0) * k; d[i+2] = b0 + (b - b0) * k;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+/* ảnh minh họa vẽ bằng canvas: trời, mặt trời, đồi, nhà, cây, người (có màu da) để thấy rõ tác động của từng filter */
+function drawSample(ctx, w, h) {
+  const sky = ctx.createLinearGradient(0, 0, 0, h * 0.75); sky.addColorStop(0, "#4a8fd8"); sky.addColorStop(1, "#f7dca8");
+  ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "#ffe27a"; ctx.beginPath(); ctx.arc(w * 0.8, h * 0.24, h * 0.12, 0, 7); ctx.fill();
+  ctx.fillStyle = "#6aa84f"; ctx.beginPath(); ctx.ellipse(w * 0.25, h * 1.02, w * 0.62, h * 0.46, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = "#3d7a35"; ctx.beginPath(); ctx.ellipse(w * 0.9, h * 1.08, w * 0.7, h * 0.42, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = "#e9d3a6"; ctx.fillRect(w * 0.4, h * 0.5, w * 0.24, h * 0.24);
+  ctx.fillStyle = "#c0392b"; ctx.beginPath(); ctx.moveTo(w * 0.37, h * 0.5); ctx.lineTo(w * 0.52, h * 0.32); ctx.lineTo(w * 0.67, h * 0.5); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "#7b4a2a"; ctx.fillRect(w * 0.49, h * 0.6, w * 0.06, h * 0.14);
+  ctx.fillStyle = "#6b4a2b"; ctx.fillRect(w * 0.76, h * 0.6, w * 0.03, h * 0.16);
+  ctx.fillStyle = "#2e7d32"; ctx.beginPath(); ctx.arc(w * 0.775, h * 0.55, h * 0.12, 0, 7); ctx.fill();
+  ctx.fillStyle = "#3b6fd4"; ctx.fillRect(w * 0.08, h * 0.66, w * 0.1, h * 0.2);
+  ctx.fillStyle = "#e0a97c"; ctx.beginPath(); ctx.arc(w * 0.13, h * 0.58, h * 0.075, 0, 7); ctx.fill();
+}
+const FILTER_THUMBS = {};   // id -> canvas 112×76 đã áp filter (dùng chung cho cả hai dropdown)
+(function () {
+  const base = document.createElement("canvas"); base.width = 112; base.height = 76; drawSample(base.getContext("2d"), 112, 76);
+  for (const id of Object.keys(FILTERS)) {
+    const c = document.createElement("canvas"); c.width = 112; c.height = 76;
+    const cx = c.getContext("2d", { willReadFrequently: true }); cx.drawImage(base, 0, 0); applyFilter(cx, 112, 76, id, 100);
+    FILTER_THUMBS[id] = c;
+  }
+})();
+const filterDDs = [];
+function buildFilterDD(btnId, listId, inputId) {
+  const btn = $(btnId), list = $(listId), dd = btn.parentElement;
+  const close = (focusBtn) => { list.hidden = true; btn.setAttribute("aria-expanded", "false"); if (focusBtn) btn.focus(); };
+  const open = () => {
+    list.hidden = false; btn.setAttribute("aria-expanded", "true");
+    const sel = list.querySelector('[aria-selected="true"]') || list.firstChild; sel.focus({ preventScroll: true });
+    list.scrollIntoView({ block: "nearest" }); sel.scrollIntoView({ block: "nearest" });
+  };
+  for (const [id, f] of Object.entries(FILTERS)) {
+    const o = document.createElement("button"); o.type = "button"; o.className = "fopt"; o.dataset.id = id; o.setAttribute("role", "option"); o.setAttribute("aria-selected", "false");
+    const c = document.createElement("canvas"); c.width = 112; c.height = 76; c.getContext("2d").drawImage(FILTER_THUMBS[id], 0, 0);
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = f.name;
+    o.append(c, nm);
+    o.addEventListener("click", () => { $(inputId).value = id; $(inputId).dispatchEvent(new Event("input", { bubbles: true })); close(true); });
+    list.appendChild(o);
+  }
+  btn.addEventListener("click", () => list.hidden ? open() : close(false));
+  list.addEventListener("keydown", e => {
+    const items = [...list.children], i = items.indexOf(document.activeElement);
+    if (e.key === "ArrowDown") { e.preventDefault(); items[Math.min(items.length - 1, i + 1)].focus(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); items[Math.max(0, i - 1)].focus(); }
+    else if (e.key === "Escape") { e.preventDefault(); close(true); }
+    else if (e.key === "Tab") close(false);
+  });
+  filterDDs.push({ dd, close });
+}
+document.addEventListener("mousedown", e => filterDDs.forEach(f => { if (!f.dd.contains(e.target)) f.close(false); }));
+buildFilterDD("wFBtn", "wFList", "wFilter"); buildFilterDD("cFBtn", "cFList", "cFilter");
+function syncFilterUI() {
+  for (const [inp, btn, list, rng, val] of [["wFilter", "wFBtn", "wFList", "wFStr", "wFStrV"], ["cFilter", "cFBtn", "cFList", "cFStr", "cFStrV"]]) {
+    const cur = $(inp).value, none = cur === "none";
+    $(rng).disabled = none; $(val).textContent = none ? "" : $(rng).value + "%";
+    $(list).querySelectorAll(".fopt").forEach(o => o.setAttribute("aria-selected", o.dataset.id === cur ? "true" : "false"));
+    const c = $(btn).querySelector("canvas"); c.getContext("2d").drawImage(FILTER_THUMBS[cur], 0, 0);
+    $(btn).querySelector(".nm").textContent = FILTERS[cur].name;
+  }
+}
+const filterLabel = (id, k) => id === "none" || !(k > 0) ? "" : ` · bộ lọc ${FILTERS[id].name} ${k}%`;
+["wFilter", "wFStr"].forEach(id => $(id).addEventListener("input", () => { syncFilterUI(); setView("wm"); refreshPreviewSoon(); }));
+
+/* =====================================================
+   WATERMARK
+   ===================================================== */
+let textWmCache = { key: "", val: null };
+const hexRgb = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const frameMode = () => isOn("wmFrameSq") ? "square" : isOn("wmFrameRd") ? "round" : "none";
+/* vẽ text (kèm khung nếu có) ở cỡ 160 px; mọi kích thước tính theo em để co giãn đều khi đặt lên ảnh */
+function renderTextWm(text, font, bold, color, shadow, frame) {
+  const px = 160, lines = text.split(/\r?\n/);
+  const fam = /,/.test(font) ? font : `"${font.replace(/"/g, "")}", sans-serif`;
+  const fontStr = `${bold ? "bold " : ""}${px}px ${fam}`;
+  const c = document.createElement("canvas"), ctx = c.getContext("2d");
+  ctx.font = fontStr;
+  const lh = px * 1.2, pad = px * 0.1, wmax = Math.max(...lines.map(l => ctx.measureText(l).width));
+  const framed = frame !== "none";
+  const lw = framed ? px * (bold ? 0.11 : 0.085) : 0;                 // nét khung: vừa bằng nét chữ, không mảnh cũng không dày
+  const padX = framed ? px * 0.5 : 0, padY = framed ? px * 0.12 : 0;   // khoảng cách chữ → khung (ngoài lề dòng sẵn có)
+  const boxW = wmax + padX * 2, boxH = lh * lines.length + padY * 2, off = pad + lw / 2;
+  c.width = Math.max(1, Math.ceil(boxW + off * 2)); c.height = Math.max(1, Math.ceil(boxH + off * 2));
+  ctx.font = fontStr; ctx.textBaseline = "middle"; ctx.textAlign = "center"; ctx.fillStyle = color; ctx.strokeStyle = color;
+  if (shadow) { ctx.shadowColor = "rgba(0,0,0,.55)"; ctx.shadowBlur = px * 0.06; ctx.shadowOffsetY = px * 0.025; }
+  if (framed) { ctx.lineWidth = lw; ctx.lineJoin = frame === "round" ? "round" : "miter"; roundRectPath(ctx, off, off, boxW, boxH, frame === "round" ? px * 0.32 : 0); ctx.stroke(); }
+  lines.forEach((l, i) => ctx.fillText(l, off + boxW / 2, off + padY + lh * i + lh / 2));
+  return c;
+}
+function makeTextWm() {
+  const text = $("wmText").value;
+  if (!text.trim()) return null;
+  const font = $("wmFont").value.trim() || "Arial", bold = isOn("wmBold"), c1 = $("wmColor").value, c2 = $("wmColor2").value, shadow = isOn("wmShadow"), frame = frameMode();
+  const key = JSON.stringify([text, font, bold, c1, c2, shadow, frame]);
+  if (textWmCache.key === key) return textWmCache.val;
+  const a = renderTextWm(text, font, bold, c1, shadow, frame);
+  const alt = c2.toLowerCase() !== c1.toLowerCase() ? renderTextWm(text, font, bold, c2, shadow, frame) : null;
+  const val = { src: a, alt, w: a.width, h: a.height, isText: true, basePx: 160, c1: hexRgb(c1), c2: hexRgb(c2) };
+  textWmCache = { key, val }; return val;
+}
+function getWatermark() {
+  if (state.srcType === "text") return makeTextWm();
+  return state.srcType === "image" ? state.wmUp : state.wmUrl;
+}
+/* cỡ chữ (1–100) = chiều cao font tính theo % cạnh ngắn hơn của ảnh nên mọi kích thước ảnh đều có tỷ lệ như nhau */
+function rgbToLab(r, g, b) {
+  const lin = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); }, f = t => t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
+  const R = lin(r), G = lin(g), B = lin(b);
+  const fx = f((0.4124564 * R + 0.3575761 * G + 0.1804375 * B) / 0.95047), fy = f(0.2126729 * R + 0.7151522 * G + 0.072175 * B), fz = f((0.0193339 * R + 0.119192 * G + 0.9503041 * B) / 1.08883);
+  return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+}
+const deltaE = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+/* nếu vùng ảnh nơi đặt text gần màu chữ (ΔE < 35) và màu thay thế xa hơn thì dùng màu thay thế */
+function pickWmImage(ctx, x, y, ww, wh, W, H, wm) {
+  if (!wm.alt) return wm.src;
+  const sx = clamp(Math.floor(x), 0, W - 1), sy = clamp(Math.floor(y), 0, H - 1), sw = clamp(Math.ceil(ww), 1, W - sx), sh = clamp(Math.ceil(wh), 1, H - sy);
+  const d = ctx.getImageData(sx, sy, sw, sh).data, step = Math.max(1, Math.floor(Math.sqrt(sw * sh / 2500)));
+  let r = 0, g = 0, b = 0, n = 0;
+  for (let j = 0; j < sh; j += step) for (let i = 0; i < sw; i += step) { const k = (j * sw + i) * 4; r += d[k]; g += d[k + 1]; b += d[k + 2]; n++; }
+  const bg = rgbToLab(r / n, g / n, b / n), d1 = deltaE(bg, rgbToLab(...wm.c1)), d2 = deltaE(bg, rgbToLab(...wm.c2));
+  return d1 < 35 && d2 > d1 ? wm.alt : wm.src;
+}
+function drawWm(ctx, W, H, prof, wm) {
+  let ww, wh;
+  if (wm.isText) { const k = clamp(+$("wmSize").value || 12, 1, 100) / 100 * Math.min(W, H) / wm.basePx; ww = wm.w * k; wh = wm.h * k; }
+  else { ww = prof.size / 100 * W; wh = ww * wm.h / wm.w; }
+  const fit = Math.min(1, W / ww, H / wh); ww *= fit; wh *= fit;
+  const x = Math.max(0, W - prof.mr / 100 * W - ww), y = Math.max(0, H - prof.mb / 100 * H - wh);
+  const img = wm.isText ? pickWmImage(ctx, x, y, ww, wh, W, H, wm) : wm.src;
+  ctx.save(); ctx.globalAlpha = prof.opacity / 100; ctx.imageSmoothingQuality = "high"; ctx.drawImage(img, x, y, ww, wh); ctx.restore();
+}
+
+/* ----- giao diện watermark ----- */
+const oriName = o => o === "landscape" ? "ngang" : "đứng";
+function loadProfToUI() {
+  const p = state.prof[state.editOri];
+  $("wpSize").value = p.size; $("wpMr").value = p.mr; $("wpMb").value = p.mb; $("wpOpacity").value = p.opacity; $("wpResize").value = p.resize;
+  $("wpSizeV").textContent = p.size + "% chiều rộng"; $("wpMrV").textContent = p.mr + "%"; $("wpMbV").textContent = p.mb + "%"; $("wpOpacityV").textContent = p.opacity + "%"; $("wpResizeV").textContent = p.resize + "%";
+  $("oriSel").value = state.editOri;
+}
+function setEditOri(o) { state.editOri = o; loadProfToUI(); fillPvPick(); updateEnable(); }
+function readProfFromUI() {
+  const p = state.prof[state.editOri];
+  p.size = +$("wpSize").value; p.mr = +$("wpMr").value; p.mb = +$("wpMb").value; p.opacity = +$("wpOpacity").value; p.resize = +$("wpResize").value;
+  loadProfToUI();
+}
+// Với watermark văn bản, kích thước do "Cỡ chữ" quyết định nên ẩn thanh "Kích thước watermark"
+const updateSizeField = () => { $("fSize").hidden = state.srcType === "text"; };
+["wpSize", "wpMr", "wpMb", "wpOpacity", "wpResize"].forEach(id => $(id).addEventListener("input", () => { readProfFromUI(); setView("wm"); refreshPreviewSoon(); }));
+$("oriSel").addEventListener("change", () => { setEditOri($("oriSel").value); setView("wm"); refreshPreview(); });
+function setSrcType(t) {
+  state.srcType = t;
+  [...$("srcTabs").querySelectorAll(".tab")].forEach(x => x.setAttribute("aria-selected", x.dataset.src === t ? "true" : "false"));
+  updateSizeField(); $("srcText").hidden = t !== "text"; $("srcImage").hidden = t !== "image"; $("srcUrl").hidden = t !== "url";
+}
+$("srcTabs").addEventListener("click", e => { const t = e.target.closest(".tab"); if (!t) return; setSrcType(t.dataset.src); setView("wm"); refreshPreviewSoon(); });
+["wmText", "wmFont", "wmSize", "wmColor", "wmColor2"].forEach(id => $(id).addEventListener("input", () => { setView("wm"); refreshPreviewSoon(); }));
+["wmBold", "wmShadow"].forEach(id => $(id).addEventListener("click", () => { setOn(id, !isOn(id)); setView("wm"); refreshPreviewSoon(); }));
+["wmFrameSq", "wmFrameRd"].forEach(id => $(id).addEventListener("click", () => {   // chỉ chọn một kiểu khung (bấm lại để bỏ)
+  const on = !isOn(id); setOn("wmFrameSq", false); setOn("wmFrameRd", false); setOn(id, on); setView("wm"); refreshPreviewSoon();
+}));
+$("wmFontBtn").addEventListener("click", () => $("wmFontFile").click());
+
+function showWmThumb(boxId, wm, label) {
+  const box = $(boxId); box.innerHTML = "";
+  if (!wm) return;
+  const c = document.createElement("canvas"); c.width = 40; c.height = 40;
+  const x = c.getContext("2d"), s = Math.min(40 / wm.w, 40 / wm.h);
+  x.drawImage(wm.src, (40 - wm.w * s) / 2, (40 - wm.h * s) / 2, wm.w * s, wm.h * s);
+  const t = document.createElement("span"); t.textContent = `${label} · ${wm.w}×${wm.h}`;
+  box.append(c, t);
+}
+$("wmFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const d = await decodeBlob(f); state.wmUp = { src: d.src, w: d.width, h: d.height, name: f.name }; showWmThumb("wmFileInfo", state.wmUp, f.name); }
+  catch (err) { state.wmUp = null; $("wmFileInfo").textContent = "Không đọc được ảnh này."; }
+  setView("wm"); refreshPreview();
+});
+async function loadWmUrl() {
+  const url = $("wmUrl").value.trim(); if (!url) { setStat("stWmUrl", "Nhập URL ảnh.", true); return; }
+  setStat("stWmUrl", "Đang tải…"); $("btnWmUrl").disabled = true;
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const blob = await res.blob();
+    if (!/^image\//.test(blob.type)) throw new Error("URL không trả về ảnh");
+    const d = await decodeBlob(blob); state.wmUrl = { src: d.src, w: d.width, h: d.height };
+    showWmThumb("wmUrlInfo", state.wmUrl, "Đã tải"); setStat("stWmUrl", "Đã tải.", false, true);
+  } catch (err) {
+    state.wmUrl = null; $("wmUrlInfo").innerHTML = "";
+    setStat("stWmUrl", "Không tải được (URL sai hoặc máy chủ chặn CORS). Hãy tải ảnh về rồi dùng tab Ảnh.", true);
+  } finally { $("btnWmUrl").disabled = false; }
+  setView("wm"); refreshPreview();
+}
+$("btnWmUrl").addEventListener("click", loadWmUrl);
+$("wmFontFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const name = "FB-" + baseOf(f.name).replace(/[^\w-]/g, "_");
+    const ff = new FontFace(name, await f.arrayBuffer()); await ff.load(); document.fonts.add(ff);
+    $("wmFont").value = name; setView("wm"); refreshPreview();
+  } catch (err) { alert("Không đọc được file font này."); }
+});
+
+/* ----- lưu / nạp thông số watermark ----- */
+const SETTINGS_KIND = "watermark-settings";
+const srcLabel = t => ({ text: "text", image: "ảnh", url: "URL" })[t];
+function wmToDataUrl(wm) {
+  const s = Math.min(1, 800 / Math.max(wm.w, wm.h)), c = document.createElement("canvas");
+  c.width = Math.max(1, Math.round(wm.w * s)); c.height = Math.max(1, Math.round(wm.h * s));
+  c.getContext("2d").drawImage(wm.src, 0, 0, c.width, c.height);
+  return c.toDataURL("image/png");
+}
+function dataUrlToBlob(u) {
+  const m = /^data:([^;,]+)(;base64)?,(.*)$/s.exec(u); if (!m) throw new Error("data URL không hợp lệ");
+  const bin = m[2] ? atob(m[3]) : decodeURIComponent(m[3]), a = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+  return new Blob([a], { type: m[1] });
+}
+function saveWmSettings() {
+  const o = state.editOri, t = state.srcType, src = { type: t }, notes = [];
+  if (t === "text") {
+    Object.assign(src, { text: $("wmText").value, font: $("wmFont").value.trim(), size: clamp(+$("wmSize").value || 12, 1, 100), color: $("wmColor").value, color2: $("wmColor2").value, bold: isOn("wmBold"), shadow: isOn("wmShadow"), frame: frameMode() });
+    if (/^FB-/.test(src.font)) notes.push("Font tải từ file không lưu được, hãy tải lại khi dùng.");
+  } else if (t === "image") {
+    if (!state.wmUp) { setStat("stWm", "Chưa có ảnh watermark.", true); return; }
+    src.name = state.wmUp.name || ""; src.dataUrl = wmToDataUrl(state.wmUp);
+  } else {
+    src.url = $("wmUrl").value.trim();
+    if (!src.url) { setStat("stWm", "Chưa nhập URL.", true); return; }
+  }
+  const data = { app: "foto-batch", kind: SETTINGS_KIND, version: 2, savedAt: new Date().toISOString(), orientation: o, source: src, profile: { ...state.prof[o] },
+    filter: { preset: $("wFilter").value, strength: +$("wFStr").value }, export: { suffix: $("wSuffix").value, applyMeta: $("wApplyMeta").checked } };
+  saveBlob(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), `foto-watermark-${o}-${t}.json`);
+  setStat("stWm", `Đã lưu preset: ảnh ${oriName(o)} · ${srcLabel(t)}.` + (notes.length ? "\n" + notes.join("\n") : ""), false, true);
+}
+async function loadWmSettings(file) {
+  let data;
+  try { data = JSON.parse(await file.text()); } catch (e) { setStat("stWmCfg", "File không phải JSON hợp lệ.", true); return; }
+  const t = data && data.source && data.source.type;
+  if (!data || data.kind !== SETTINGS_KIND || !data.profile || !["text", "image", "url"].includes(t)) { setStat("stWmCfg", "Không phải preset của Foto Batch.", true); return; }
+  const o = data.orientation === "portrait" ? "portrait" : "landscape", s = data.source, pr = data.profile, def = defProf(), notes = [];
+  const num = (v, d, a, b) => { v = parseFloat(v); return clamp(isFinite(v) ? v : d, a, b); };
+  state.prof[o] = { size: num(pr.size, def.size, 2, 100), mr: num(pr.mr, def.mr, 0, 50), mb: num(pr.mb, def.mb, 0, 50), opacity: num(pr.opacity, def.opacity, 5, 100), resize: num(pr.resize, def.resize, 5, 100) };
+  setEditOri(o); setSrcType(t);
+  if (t === "text") {
+    $("wmText").value = String(s.text || ""); $("wmSize").value = (data.version || 1) >= 2 ? num(s.size, 12, 1, 100) : 12; $("wmColor").value = /^#[0-9a-f]{6}$/i.test(s.color) ? s.color : "#ffffff";
+    setOn("wmBold", !!s.bold); setOn("wmShadow", s.shadow !== false);
+    $("wmColor2").value = /^#[0-9a-f]{6}$/i.test(s.color2) ? s.color2 : $("wmColor").value;   // preset cũ không có màu 2: giữ nguyên hành vi cũ
+    setOn("wmFrameSq", s.frame === "square"); setOn("wmFrameRd", s.frame === "round");
+    if ((data.version || 1) < 2) notes.push("Preset cũ: cỡ chữ đặt lại 12 (nay tính theo % cạnh ngắn).");
+    if (/^FB-/.test(s.font || "")) { $("wmFont").value = "Arial"; notes.push("Font tùy chỉnh không nạp được, đang dùng Arial."); } else $("wmFont").value = s.font || "Arial";
+  } else if (t === "image") {
+    try {
+      if (typeof s.dataUrl !== "string" || !s.dataUrl.startsWith("data:image/")) throw new Error("thiếu ảnh");
+      const d = await decodeBlob(dataUrlToBlob(s.dataUrl)); state.wmUp = { src: d.src, w: d.width, h: d.height, name: s.name || "" };
+      showWmThumb("wmFileInfo", state.wmUp, s.name || "Ảnh đã nạp");
+    } catch (e) { state.wmUp = null; $("wmFileInfo").innerHTML = ""; notes.push("Không đọc được ảnh trong preset."); }
+  } else {
+    $("wmUrl").value = String(s.url || "");
+    if (s.url) { await loadWmUrl(); if (!state.wmUrl) notes.push("Chưa tải được ảnh từ URL."); }
+  }
+  if (data.filter && FILTERS[data.filter.preset]) { $("wFilter").value = data.filter.preset; $("wFStr").value = num(data.filter.strength, 100, 0, 100); }
+  if (data.export) { if (typeof data.export.suffix === "string") $("wSuffix").value = cleanSuffix(data.export.suffix); if (typeof data.export.applyMeta === "boolean") $("wApplyMeta").checked = data.export.applyMeta; }
+  syncFilterUI(); setView("wm"); refreshPreview();
+  const lines = [`Đã nạp preset: ảnh ${oriName(o)} · ${srcLabel(t)}.`];
+  if (!countOri(o)) lines.push(`Danh sách chưa có ảnh ${oriName(o)}.`);
+  setStat("stWmCfg", lines.concat(notes).join("\n"), notes.length > 0, notes.length === 0);
+}
+$("btnCfgSave").addEventListener("click", saveWmSettings);
+$("btnCfgLoad").addEventListener("click", () => $("wmCfgFile").click());
+$("wmCfgFile").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) loadWmSettings(f); });
+
+/* =====================================================
+   COLLAGE
+   ===================================================== */
+const canCollage = () => state.files.length >= MIN_COLLAGE;
+function collageParams() {
+  const num = (id, d, a, b) => { const v = parseFloat($(id).value); return clamp(isFinite(v) ? v : d, a, b); };
+  return {
+    W: Math.round(num("cW", 1080, 64, 12000)), H: Math.round(num("cH", 1080, 64, 12000)),
+    layout: $("cLayout").value, cols: +$("cCols").value,
+    gap: num("cGap", 12, 0, 500), border: num("cBorder", 24, 0, 500), radius: num("cRadius", 0, 0, 500), color: $("cColor").value,
+    n: Math.round(num("cN", MIN_COLLAGE, MIN_COLLAGE, Math.max(MIN_COLLAGE, collagePool().length))), fmt: $("cFmt").value, fxId: $("cFilter").value, fxK: +$("cFStr").value,
+  };
+}
+const pickFiles = p => collagePool().slice(0, p.n);   // trong các ảnh được tick, lấy từ đầu danh sách
+function bestCols(n, rect, gap, avgAR) {
+  let best = 1, bc = Infinity;
+  for (let c = 1; c <= n; c++) {
+    const r = Math.ceil(n / c), cw = (rect.w - gap * (c - 1)) / c, ch = (rect.h - gap * (r - 1)) / r;
+    if (cw <= 0 || ch <= 0) continue;
+    const cost = Math.abs(Math.log((cw / ch) / avgAR)) + 0.25 * (c * r - n) / n;
+    if (cost < bc) { bc = cost; best = c; }
+  }
+  return best;
+}
+function gridCells(n, rect, gap, cols, avgAR) {
+  if (n <= 0) return [];
+  const c = cols > 0 ? Math.min(cols, n) : bestCols(n, rect, gap, avgAR), r = Math.ceil(n / c), ch = (rect.h - gap * (r - 1)) / r, cells = [];
+  for (let row = 0; row < r; row++) {
+    const inRow = row < r - 1 ? c : n - c * (r - 1), cw = (rect.w - gap * (inRow - 1)) / inRow;
+    for (let k = 0; k < inRow; k++) cells.push({ x: rect.x + k * (cw + gap), y: rect.y + row * (ch + gap), w: cw, h: ch });
+  }
+  return cells;
+}
+function heroCells(n, inner, gap, cols, avgAR) {
+  if (n === 1) return [{ ...inner }];
+  const horiz = inner.w >= inner.h; let hero, rest;
+  if (horiz) { const hw = (inner.w - gap) * 0.6; hero = { x: inner.x, y: inner.y, w: hw, h: inner.h }; rest = { x: inner.x + hw + gap, y: inner.y, w: inner.w - hw - gap, h: inner.h }; }
+  else { const hh = (inner.h - gap) * 0.6; hero = { x: inner.x, y: inner.y, w: inner.w, h: hh }; rest = { x: inner.x, y: inner.y + hh + gap, w: inner.w, h: inner.h - hh - gap }; }
+  return [hero, ...gridCells(n - 1, rest, gap, cols, avgAR)];
+}
+function justifiedCells(ars, W, border, gap, colsHint) {
+  const n = ars.length, innerW = W - 2 * border, avg = ars.reduce((a, b) => a + b, 0) / n;
+  const cols = colsHint > 0 ? Math.min(colsHint, n) : Math.max(1, Math.round(Math.sqrt(n * avg)));
+  const target = (innerW - gap * (cols - 1)) / cols / avg;
+  const rows = []; let cur = [], sum = 0, flushed = true;
+  ars.forEach((ar, i) => { cur.push(i); sum += ar; flushed = false; if (sum * target + gap * (cur.length - 1) >= innerW) { rows.push({ idx: cur, full: true }); cur = []; sum = 0; flushed = true; } });
+  if (!flushed && cur.length) rows.push({ idx: cur, full: false });
+  const cells = new Array(n); let y = border;
+  rows.forEach((row, ri) => {
+    const s = row.idx.reduce((a, i) => a + ars[i], 0), gaps = gap * (row.idx.length - 1);
+    const h = row.full ? (innerW - gaps) / s : Math.min(target, (innerW - gaps) / s);
+    const rowW = s * h + gaps; let x = border + (innerW - rowW) / 2;
+    row.idx.forEach(i => { const w = ars[i] * h; cells[i] = { x, y, w, h }; x += w + gap; });
+    y += h + (ri < rows.length - 1 ? gap : 0);
+  });
+  return { cells, H: Math.round(y + border) };
+}
+function computeLayout(p, picked) {
+  const ars = picked.map(f => f.w / f.h), avg = ars.reduce((a, b) => a + b, 0) / ars.length;
+  const b = Math.min(p.border, (Math.min(p.W, p.H) - 16) / 2), g = p.gap;
+  if (p.layout === "justified") { const r = justifiedCells(ars, p.W, b, g, p.cols); return { W: p.W, H: Math.max(16, r.H), cells: r.cells }; }
+  const inner = { x: b, y: b, w: p.W - 2 * b, h: p.H - 2 * b };
+  const cells = p.layout === "hero" ? heroCells(picked.length, inner, g, p.cols, avg) : gridCells(picked.length, inner, g, p.cols, avg);
+  return { W: p.W, H: p.H, cells };
+}
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  if (r <= 0) { ctx.rect(x, y, w, h); return; }
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function paintCell(ctx, cell, src, sw, sh, p, sc) {
+  ctx.save();
+  roundRectPath(ctx, cell.x, cell.y, cell.w, cell.h, Math.min(p.radius, cell.w / 2, cell.h / 2)); ctx.clip();
+  if (p.fxId !== "none" && p.fxK > 0) {      // vẽ ảnh vào canvas tạm, lọc, rồi mới đặt vào ô
+    const tw = Math.max(1, Math.round(cell.w * (sc || 1))), th = Math.max(1, Math.round(cell.h * (sc || 1)));
+    const t = document.createElement("canvas"); t.width = tw; t.height = th;
+    const tx = t.getContext("2d", { willReadFrequently: true }), s = Math.max(tw / sw, th / sh), cw = tw / s, ch = th / s;
+    tx.imageSmoothingQuality = "high"; tx.drawImage(src, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, tw, th);
+    applyFilter(tx, tw, th, p.fxId, p.fxK);
+    ctx.drawImage(t, cell.x, cell.y, cell.w, cell.h);
+  } else {
+    const s = Math.max(cell.w / sw, cell.h / sh), cw = cell.w / s, ch = cell.h / s;
+    ctx.drawImage(src, (sw - cw) / 2, (sh - ch) / 2, cw, ch, cell.x, cell.y, cell.w, cell.h);
+  }
+  ctx.restore();
+}
+const paintBg = (ctx, L, p) => { ctx.fillStyle = p.color; ctx.fillRect(0, 0, L.W, L.H); };
+
+/* ----- giao diện collage ----- */
+function syncCollageReadouts() {
+  const total = collagePool().length, nSlider = $("cN");
+  nSlider.min = MIN_COLLAGE; nSlider.max = Math.max(MIN_COLLAGE, total);
+  if (state.colAuto) nSlider.value = nSlider.max;           // mặc định lấy tất cả (từ đầu danh sách)
+  else nSlider.value = Math.min(+nSlider.value, +nSlider.max);
+  $("cNV").textContent = `${Math.min(+nSlider.value, total)}/${total}`;
+  $("cBorderV").textContent = $("cBorder").value + " px"; $("cGapV").textContent = $("cGap").value + " px"; $("cRadiusV").textContent = $("cRadius").value + " px";
+  $("cH").disabled = $("cRatio").disabled = $("cLayout").value === "justified";   // chiều cao tự động
+}
+const RATIOS = { "1:1": 1, "4:5": 4 / 5, "5:4": 5 / 4, "3:2": 3 / 2, "2:3": 2 / 3, "4:3": 4 / 3, "3:4": 3 / 4, "16:9": 16 / 9, "9:16": 9 / 16 };
+function applyRatio(from) {            // khóa tỷ lệ: sửa Rộng thì Cao đổi theo và ngược lại
+  const r = RATIOS[$("cRatio").value]; if (!r) return;
+  const w = +$("cW").value || 1080, h = +$("cH").value || 1080;
+  if (from === "h") $("cW").value = clamp(Math.round(h * r), 64, 12000); else $("cH").value = clamp(Math.round(w / r), 64, 12000);
+}
+$("cRatio").addEventListener("change", () => { applyRatio("w"); colChanged(); });
+$("cW").addEventListener("input", () => { applyRatio("w"); colChanged(); });
+$("cH").addEventListener("input", () => { applyRatio("h"); colChanged(); });
+["cLayout", "cCols", "cBorder", "cGap", "cRadius", "cColor"].forEach(id => $(id).addEventListener("input", colChanged));
+["cFilter", "cFStr"].forEach(id => $(id).addEventListener("input", () => { syncFilterUI(); colChanged(); }));
+$("cN").addEventListener("input", () => { state.colAuto = +$("cN").value >= +$("cN").max; colChanged(); });
+function colChanged() { syncCollageReadouts(); if (canCollage()) setView("collage"); refreshPreviewSoon(); }
+$("gCol").querySelector("summary").addEventListener("click", e => { if ($("gCol").classList.contains("locked")) e.preventDefault(); });
+
+/* =====================================================
+   XEM TRƯỚC
+   ===================================================== */
+let rtoken = 0;
+function setView(v) {
+  if (v === "collage" && !canCollage()) v = "wm";
+  state.view = v; $("pvPickWrap").hidden = v !== "wm";
+  const chip = $("chipCol"); if (chip) chip.classList.toggle("on", v === "collage");
+  [...document.querySelectorAll(".viewtabs .tab")].forEach(t => t.setAttribute("aria-selected", t.dataset.view === v ? "true" : "false"));
+}
+document.querySelectorAll(".viewtabs .tab").forEach(t => t.addEventListener("click", () => {
+  setView(t.dataset.view);
+  const g = $(t.dataset.view === "wm" ? "gWm" : "gCol");
+  if (g.open) refreshPreview(); else g.open = true;      // mở nhóm tương ứng; sự kiện toggle sẽ thu các nhóm khác và làm mới xem trước
+}));
+/* accordion: mở một nhóm thì các nhóm khác thu lại (không ảnh hưởng vùng "Tùy chọn khác" bên trong) */
+document.querySelectorAll("details.adv").forEach(g => g.addEventListener("toggle", () => {
+  if (g.open) document.querySelectorAll("details.adv").forEach(o => { if (o !== g) o.open = false; });
+}));
+$("gWm").addEventListener("toggle", () => { if ($("gWm").open) { setView("wm"); refreshPreview(); } });
+$("gCol").addEventListener("toggle", () => { if ($("gCol").open) { setView("collage"); refreshPreview(); } });
+const setPvMsg = (t) => { $("pvMsg").textContent = t || ""; };
+const fmtLabel = f => KIND_LABEL[f.kind] || String(f.kind).toUpperCase();
+
+async function refreshPreview() {
+  const tok = ++rtoken, stage = $("stage");
+  if (!state.files.length) { stage.classList.add("empty"); return; }
+  stage.classList.remove("empty");
+  try { if (state.view === "collage" && canCollage()) await renderCollagePreview(tok); else await renderWmPreview(tok); }
+  catch (e) { console.error(e); if (tok === rtoken) { $("pv").hidden = true; $("pvInfo").textContent = ""; setPvMsg("Không hiển thị được xem trước: " + (e.message || e)); } }
+}
+const refreshPreviewSoon = debounce(refreshPreview, 70);
+
+/* chọn ảnh xem trước trong nhóm ngang/đứng đang áp dụng */
+const oriFiles = () => state.files.filter(f => f.ori === state.editOri);
+function previewFile() { const l = oriFiles(); return l.find(f => f.id === state.pvId) || l[0] || null; }
+function fillPvPick() {
+  const l = oriFiles(), sel = $("pvPick"), cur = previewFile();
+  sel.innerHTML = "";
+  l.forEach((f, i) => { const o = document.createElement("option"); o.value = f.id; o.textContent = `${i + 1}. ${f.path}`; sel.appendChild(o); });
+  if (cur) { state.pvId = cur.id; sel.value = String(cur.id); }
+  sel.disabled = !l.length; $("pvPrev").disabled = $("pvNext").disabled = l.length < 2;
+}
+$("pvPick").addEventListener("change", () => { state.pvId = +$("pvPick").value; refreshPreview(); });
+function stepPv(d) { const l = oriFiles(); if (l.length < 2) return; const i = l.findIndex(f => f.id === state.pvId); state.pvId = l[(i + d + l.length) % l.length].id; $("pvPick").value = String(state.pvId); refreshPreview(); }
+$("pvPrev").addEventListener("click", () => stepPv(-1)); $("pvNext").addEventListener("click", () => stepPv(1));
+
+async function renderWmPreview(tok) {
+  const c = $("pv"), f = previewFile(), prof = state.prof[state.editOri];
+  if (!f) { c.hidden = true; $("pvInfo").textContent = ""; setPvMsg(`Không có ảnh ${oriName(state.editOri)}.`); return; }
+  const pv = await getPv(f); if (tok !== rtoken) return;
+  c.width = pv.canvas.width; c.height = pv.canvas.height;
+  const ctx = c.getContext("2d"); ctx.drawImage(pv.canvas, 0, 0);
+  const fid = $("wFilter").value, fk = +$("wFStr").value;
+  applyFilter(ctx, c.width, c.height, fid, fk);
+  const wm = getWatermark(), ow = Math.max(1, Math.round(f.w * prof.resize / 100)), oh = Math.max(1, Math.round(f.h * prof.resize / 100));
+  if (wm) drawWm(ctx, c.width, c.height, prof, wm);
+  c.hidden = false;
+  setPvMsg("");
+  const info = $("pvInfo"); info.textContent = "";
+  const b = document.createElement("b"); b.textContent = f.name;
+  info.append(b, ` · ${f.w}×${f.h} px · ${fmtBytes(f.size)} · ${fmtLabel(f)}` + (prof.resize < 100 ? ` · xuất ra ${ow}×${oh} px` : "") + filterLabel(fid, fk) + (wm ? "" : " · chưa có watermark"));
+}
+async function renderCollagePreview(tok) {
+  if (collagePool().length < MIN_COLLAGE) { $("pv").hidden = true; $("pvInfo").textContent = ""; setPvMsg(`Tick ít nhất ${MIN_COLLAGE} ảnh trong Danh sách để làm collage.`); return; }
+  const p = collageParams(), picked = pickFiles(p), L = computeLayout(p, picked);
+  const srcs = [];
+  for (let i = 0; i < picked.length; i++) {
+    if (tok !== rtoken) return;
+    if (!state.thumbs.has(picked[i].id)) setPvMsg(`Đang tải ${i + 1}/${picked.length}…`);
+    srcs.push(await getThumb(picked[i]));
+  }
+  if (tok !== rtoken) return;
+  const s = Math.min(1, 1400 / Math.max(L.W, L.H)), c = $("pv");
+  c.width = Math.max(1, Math.round(L.W * s)); c.height = Math.max(1, Math.round(L.H * s));
+  const ctx = c.getContext("2d"); ctx.setTransform(s, 0, 0, s, 0, 0); ctx.imageSmoothingQuality = "high";
+  paintBg(ctx, L, p);
+  L.cells.forEach((cell, i) => paintCell(ctx, cell, srcs[i].src, srcs[i].w, srcs[i].h, p, s));
+  c.hidden = false; setPvMsg("");
+  const names = { grid: "lưới", hero: "ảnh chính + ảnh phụ", justified: "giữ nguyên tỷ lệ" };
+  const info = $("pvInfo"); info.textContent = "";
+  const b = document.createElement("b"); b.textContent = "Collage";
+  info.append(b, ` · ${L.W}×${L.H} px · ${picked.length}/${state.files.length} ảnh · bố cục ${names[p.layout]}` + (p.layout === "justified" ? " · chiều cao tự động" : "") + filterLabel(p.fxId, p.fxK));
+}
+
+/* =====================================================
+   HÀNH ĐỘNG
+   ===================================================== */
+function updateEnable() {
+  const n = state.files.length, busy = state.busy;
+  $("btnMeta").disabled = !n || busy; $("btnWm").disabled = !countOri(state.editOri) || busy;
+  $("btnWm").textContent = countOri(state.editOri) ? `Xuất ${countOri(state.editOri)} ảnh ${oriName(state.editOri)}` : `Xuất ảnh ${oriName(state.editOri)}`; $("btnCol").disabled = !canCollage() || collagePool().length < MIN_COLLAGE || busy;
+  [$("btnFolder"), $("btnFiles"), $("btnAdd"), $("btnClear")].forEach(b => b.disabled = busy || (b === $("btnClear") && !n));
+  const ok = canCollage(), g = $("gCol");
+  g.classList.toggle("locked", !ok);
+  if (!ok) g.open = false;
+  $("colBadge").textContent = ok ? "" : "≥ " + MIN_COLLAGE + " ảnh";
+  document.querySelector('.viewtabs .tab[data-view="collage"]').disabled = !ok;
+  if (!ok && state.view === "collage") setView("wm");
+}
+function updateAll() {
+  $("oriSel").options[0].textContent = `Ảnh ngang (${countOri("landscape")})`; $("oriSel").options[1].textContent = `Ảnh đứng (${countOri("portrait")})`;
+  fillPvPick();
+  syncCollageReadouts(); renderSelection(); updateEnable(); refreshPreview();
+}
+async function runAction(statId, fn) {
+  if (state.busy) return;
+  state.busy = true; state.cancel = false; updateEnable(); setStat(statId, "");
+  try { const r = await fn(); if (r) setStat(statId, r.msg, r.err, !r.err); }
+  catch (e) { console.error(e); setStat(statId, "Lỗi: " + (e.message || e), true); }
+  finally { state.busy = false; hideProg(); updateEnable(); }
+}
+const CANCELLED = { msg: "Đã hủy.", err: true };
+
+/* ----- Đặt metadata ----- */
+$("btnMeta").addEventListener("click", () => runAction("stMeta", async () => {
+  const m = readMeta();
+  if (!hasMeta(m)) return { msg: "Chưa nhập thông tin nào.", err: true };
+  const entries = [], used = new Set(), skipped = [], report = {};
+  const n = state.files.length;
+  for (let i = 0; i < n; i++) {
+    if (state.cancel) return CANCELLED;
+    const f = state.files[i]; showProg(`Ghi metadata ${i + 1}/${n}: ${f.name}`, i / n);
+    const buf = new Uint8Array(await f.file.arrayBuffer()), kind = sniff(buf);
+    if (!kind) { skipped.push(f.name); continue; }
+    try {
+      const out = kind === "jpeg" ? finalizeJpeg(buf, m, { mode: "edit" }, report) : finalizePng(buf, m, { mode: "edit" });
+      entries.push(makeEntry(uniquePath(f.path, used), out, kind === "jpeg" ? "image/jpeg" : "image/png"));
+    } catch (e) { console.warn(f.name, e); skipped.push(f.name); }
+    if (i % 4 === 3) await sleep(0);
+  }
+  if (!entries.length) return { msg: "Không có JPEG/PNG để ghi.", err: true };
+  showProg("Đang đóng gói…", 1); await sleep(10);
+  deliver(entries, "metadata");
+  const lines = [`Đã ghi ${entries.length} ảnh.`];
+  if (skipped.length) lines.push(`Bỏ qua ${skipped.length} ảnh (không phải JPEG/PNG).`);
+  if (report.exifFail) lines.push(`${report.exifFail} ảnh chỉ có XMP (lỗi EXIF).`);
+  if (report.xmpReplaced) lines.push(`${report.xmpReplaced} ảnh bị thay XMP cũ (quá lớn).`);
+  return { msg: lines.join("\n") };
+}));
+
+/* ----- Chèn watermark ----- */
+const WEBP_OK = (() => { try { return document.createElement("canvas").toDataURL("image/webp").startsWith("data:image/webp"); } catch (e) { return false; } })();
+const MIME = { jpeg: "image/jpeg", png: "image/png", webp: "image/webp" };
+/* giữ định dạng gốc; GIF/BMP/AVIF (hoặc WebP nếu trình duyệt không mã hóa được) buộc phải xuất PNG */
+function outKind(f) { if (f.kind === "jpeg" || f.kind === "png") return f.kind; if (f.kind === "webp" && WEBP_OK) return "webp"; return "png"; }
+$("btnWm").addEventListener("click", () => runAction("stWm", async () => {
+  const wm = getWatermark(), fid = $("wFilter").value, fk = +$("wFStr").value, suffix = cleanSuffix($("wSuffix").value);
+  const m = $("wApplyMeta").checked ? readMeta() : null, keepExif = true, stripGps = false;   // EXIF gốc luôn được giữ
+  const targets = state.files.filter(f => f.ori === state.editOri), prof0 = state.prof[state.editOri];
+  if (!targets.length) return { msg: `Không có ảnh ${oriName(state.editOri)}.`, err: true };
+  if (!wm && prof0.resize >= 100) return { msg: "Chưa có watermark.", err: true };
+  const entries = [], used = new Set(), failed = [], report = {}, n = targets.length;
+  for (let i = 0; i < n; i++) {
+    if (state.cancel) return CANCELLED;
+    const f = targets[i], prof = state.prof[f.ori]; showProg(`Chèn watermark ${i + 1}/${n}: ${f.name}`, i / n);
+    let d = null;
+    try {
+      d = await decodeBlob(f.file);
+      const ow = Math.max(1, Math.round(d.width * prof.resize / 100)), oh = Math.max(1, Math.round(d.height * prof.resize / 100));
+      const c = document.createElement("canvas"); c.width = ow; c.height = oh;
+      const ctx = c.getContext("2d"), kind = outKind(f);
+      if (kind !== f.kind) report.converted = (report.converted || 0) + 1;
+      if (kind === "jpeg") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, ow, oh); }
+      ctx.imageSmoothingQuality = "high"; ctx.drawImage(d.src, 0, 0, ow, oh);
+      applyFilter(ctx, ow, oh, fid, fk);
+      if (wm) drawWm(ctx, ow, oh, prof, wm);
+      const blob = await canvasToBlob(c, MIME[kind], JPEG_Q);
+      let out = new Uint8Array(await blob.arrayBuffer());
+      if (kind === "jpeg") {
+        const head = f.kind === "jpeg" && keepExif ? new Uint8Array(await f.file.slice(0, 262144).arrayBuffer()) : null;
+        out = finalizeJpeg(out, m, { mode: "derive", head, keepExif, stripGps, w: ow, h: oh }, report);
+      } else if (kind === "png") out = finalizePng(out, m, { mode: "derive" });
+      else if (m && hasMeta(m)) report.noMeta = (report.noMeta || 0) + 1;   // WebP: chưa ghi được metadata
+      const ext = kind === "jpeg" ? (["jpg", "jpeg"].includes(extOf(f.name)) ? extOf(f.name) : "jpg") : kind;
+      entries.push(makeEntry(uniquePath(outPath(f, suffix, ext), used), out, MIME[kind]));
+    } catch (e) { console.warn(f.name, e); failed.push(f.name); }
+    finally { if (d) d.close(); }
+    await sleep(0);
+  }
+  if (!entries.length) return { msg: "Không xử lý được ảnh nào.", err: true };
+  showProg("Đang đóng gói…", 1); await sleep(10);
+  deliver(entries, "watermark");
+  const lines = [`Đã xuất ${entries.length} ảnh ${oriName(state.editOri)}.`], skippedOri = state.files.length - targets.length;
+  if (skippedOri) lines.push(`Còn ${skippedOri} ảnh ${oriName(state.editOri === "landscape" ? "portrait" : "landscape")} chưa xử lý.`);
+  if (failed.length) lines.push(`${failed.length} ảnh lỗi, đã bỏ qua.`);
+  if (report.exifFail) lines.push(`${report.exifFail} ảnh mất EXIF.`);
+  if (report.converted) lines.push(`${report.converted} ảnh GIF/BMP/AVIF xuất thành PNG.`);
+  if (report.noMeta) lines.push(`${report.noMeta} ảnh WebP chưa có metadata.`);
+  return { msg: lines.join("\n") };
+}));
+
+/* ----- Tạo collage ----- */
+$("btnCol").addEventListener("click", () => runAction("stCol", async () => {
+  if (collagePool().length < MIN_COLLAGE) return { msg: `Tick ít nhất ${MIN_COLLAGE} ảnh trong Danh sách.`, err: true };
+  const p = collageParams(), picked = pickFiles(p), L = computeLayout(p, picked);
+  if (L.W * L.H > 120e6) return { msg: "Collage quá lớn (trên 120 MP).", err: true };
+  const c = document.createElement("canvas"); c.width = L.W; c.height = L.H;
+  const ctx = c.getContext("2d"); ctx.imageSmoothingQuality = "high";
+  paintBg(ctx, L, p);
+  for (let i = 0; i < picked.length; i++) {
+    if (state.cancel) return CANCELLED;
+    showProg(`Ghép ảnh ${i + 1}/${picked.length}: ${picked[i].name}`, i / picked.length);
+    const d = await decodeBlob(picked[i].file);
+    try { paintCell(ctx, L.cells[i], d.src, d.width, d.height, p, 1); } finally { d.close(); }
+    await sleep(0);
+  }
+  showProg("Đang mã hóa ảnh…", 1); await sleep(10);
+  const blob = await canvasToBlob(c, p.fmt === "jpeg" ? "image/jpeg" : "image/png", JPEG_Q);
+  let out = new Uint8Array(await blob.arrayBuffer());
+  const name = (cleanSuffix($("cName").value.trim()) || "collage") + "." + (p.fmt === "jpeg" ? "jpg" : "png");
+  saveBlob(new Blob([out], { type: p.fmt === "jpeg" ? "image/jpeg" : "image/png" }), name);
+  return { msg: `Đã xuất ${name} · ${L.W}×${L.H} · ${picked.length} ảnh · ${fmtBytes(out.length)}` };
+}));
+
+/* =====================================================
+   KHỞI TẠO
+   ===================================================== */
+loadProfToUI(); updateSizeField(); syncFilterUI();
+syncCollageReadouts();
+updateEnable();
+if (!hasPiexif) console.warn("Thiếu lib/piexif.js: sẽ chỉ ghi XMP, không ghi/giữ EXIF.");
+})();
+</script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
