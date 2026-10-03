@@ -80,8 +80,8 @@
   .info .stagger > * { opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease; transition-delay: calc(var(--i, 0) * 140ms); }
   .info.in .stagger > * { opacity: 1; transform: none; }
   .poem h1 { font-size: clamp(48px, 6.2vw, 76px); margin-bottom: 22px; }
-  .verse { margin: 0; font-family: var(--verse); font-style: italic; font-weight: 500; font-size: clamp(21px, 2.2vw, 29px); line-height: 1.55; }
-  .verse.six { padding-left: 2.2ch; }
+  .verse { margin: 0; font-family: var(--verse); font-style: italic; font-weight: 500; font-size: clamp(20px, 2vw, 25px); line-height: 1.55; }
+  .verse.six { padding-left: 2.3ch; }
   .cite { margin: 24px 0 10px; padding-top: 16px; border-top: 1px solid var(--line); font-weight: 600; }
   .cite span { font-weight: 400; color: var(--muted); }
   .quoted { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; font-size: 14px; }
@@ -105,7 +105,7 @@
   .award { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(18px, 4vw, 44px); align-items: start; background: #fff; border: 2px solid var(--ink); padding: clamp(16px, 3vw, 30px); }
   .award.no-img { grid-template-columns: 1fr; }
   .award-fig { margin: 0; }
-  .award-fig img { display: block; width: 100%; height: auto; max-height: 440px; object-fit: contain; background: var(--mist); border: 1px solid var(--line); }
+  .award-fig img { display: block; width: 100%; height: auto; max-height: 390px; object-fit: contain; }
   .award-body { max-width: 64ch; }
   .award h3 { font-size: clamp(32px, 3.6vw, 42px); }
   .award .when { margin: 6px 0 16px; color: var(--sea); font-weight: 600; }
@@ -117,12 +117,12 @@
 
   /* ---------- 3. drawings: pinned to the wall ---------- */
   /* every frame is sized from its own drawing: width = aspect x row height (+ mat and border) */
-  .wall { --row-h: 300px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 44px 34px; padding-top: 10px; }
-  .drawing { position: relative; display: block; flex: 0 1 calc(var(--ar, 0.8) * var(--row-h) + 28px); max-width: 100%; margin: 0; padding: 12px 12px 10px; background: #fff; border: 2px solid var(--ink); font: inherit; color: inherit; text-align: left; cursor: zoom-in; transform: rotate(var(--tilt, 0deg)); transition: transform .2s ease; }
+  .wall { --row-h: 150px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 44px 34px; padding-top: 10px; }
+  .drawing { position: relative; display: block; flex: 0 1 calc(var(--ar, 0.8) * var(--row-h) + 28px); max-width: 100%; margin: 0; padding: 12px 12px 10px; background: #fff; border: 2px solid var(--ink); font: inherit; color: inherit; text-align: center; cursor: zoom-in; transform: rotate(var(--tilt, 0deg)); transition: transform .2s ease; }
   .drawing::before { content: ""; position: absolute; top: -10px; left: 50%; width: 58px; height: 18px; transform: translateX(-50%) rotate(-3deg); background: rgba(123,205,232,.72); }
   .drawing:hover, .drawing:focus-visible { transform: rotate(0deg) translateY(-3px); }
   .drawing img { display: block; width: 100%; height: auto; }
-  .drawing .cap { display: block; margin-top: 8px; font-weight: 600; font-size: 15px; line-height: 1.4; }
+  .drawing .cap { display: block; margin-top: 8px; font-size: 15px; line-height: 1.4; }
   .ph { display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
   .drawing .ph { aspect-ratio: var(--ar, 0.8); background: repeating-linear-gradient(45deg, var(--mist) 0 8px, #fff 8px 16px); }
   .empty { color: var(--muted); }
@@ -139,7 +139,7 @@
   #photos { background: var(--mist); }
   .print-stage { display: flex; justify-content: center; align-items: center; }
   .print { display: table; margin: 0; background: var(--frame); padding: clamp(10px, 1.6vw, 18px) clamp(10px, 1.6vw, 18px) 0; }
-  .print-img { display: block; width: auto; height: auto; max-height: 70vh; max-width: min(1000px, calc(100vw - 2 * var(--pad-x) - 2 * clamp(10px, 1.6vw, 18px))); transition: opacity .25s ease; }
+  .print-img { display: block; width: auto; height: auto; max-height: 60vh; max-width: min(1000px, calc(100vw - 2 * var(--pad-x) - 2 * clamp(10px, 1.6vw, 18px))); transition: opacity .25s ease; }
   .print-img.loading { opacity: 0; }
   .print .ph { width: min(720px, calc(100vw - 2 * var(--pad-x) - 2 * clamp(10px, 1.6vw, 18px))); aspect-ratio: 3 / 2; color: var(--frame-muted); background: repeating-linear-gradient(45deg, #3d4046 0 8px, #33363b 8px 16px); font-size: 14px; }
   .print figcaption { display: table-caption; caption-side: bottom; background: var(--frame); color: var(--frame-ink); padding: clamp(12px, 1.6vw, 16px) clamp(12px, 1.8vw, 20px) clamp(26px, 4vw, 44px); }
@@ -148,10 +148,10 @@
   .exif:first-child { margin-top: 0; }
   .exif li { display: flex; align-items: baseline; gap: 8px; }
   .exif b { font: 400 21px/1.1 var(--pixel-vi); color: var(--frame-ink); }
-  .strip { display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 1000px; margin: 24px auto 0; }
+  .strip { display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 800px; margin: 24px auto 0; }
   .strip .tab { flex: none; padding: 8px 14px; }
   .thumbs { flex: 0 1 auto; min-width: 0; display: flex; gap: 8px; overflow-x: auto; padding: 4px 6px 8px 4px; scrollbar-width: thin; justify-content: safe center; }
-  .thumb { flex: none; width: 84px; height: 62px; padding: 0; border: 2px solid transparent; background: var(--frame); cursor: pointer; }
+  .thumb { flex: none; width: 70px; height: 50px; padding: 0; border: 2px solid transparent; background: var(--frame); cursor: pointer; }
   .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .6; transition: opacity .15s; }
   .thumb:hover img { opacity: .9; }
   .thumb[aria-current="true"] { border-color: var(--ink); box-shadow: 3px 3px 0 var(--sea); }
@@ -251,32 +251,32 @@
         </article>
 
         <article class="award" data-tab="Video 2021" data-img="lib/awards/award--video-2021.jpg" data-alt="Giải nhất cuộc thi video 2021">
-          <h3>Giải nhất, cuộc thi video dành cho SV quốc tế tại Kyoto</h3>
+          <h3>Giải nhất, cuộc thi video ngắn dành cho SV quốc tế tại Kyoto</h3>
           <p class="when">Nhật Bản, 2021</p>
           <dl>
-            <dt>Giải</dt>
-            <dd>Giải nhất và Giải do sinh viên bình chọn</dd>
+            <dt>Giải kép</dt>
+            <dd>Giải nhất + Giải do sinh viên bình chọn</dd>
             <dt>Cuộc thi</dt>
-            <dd>Short Video Contest 2021 for International Students, Kyoto, Japan</dd>
-            <dt>Video đạt giải</dt>
-            <dd><a href="https://www.youtube.com/watch?v=hIPR7CNQPMI" target="_blank" rel="noopener">Xem trên YouTube</a></dd>
+            <dd>Short Video Contest 2021 for Int'l Students, Kyoto JP</dd>
+            <dt>Video</dt>
+            <dd><a href="https://www.youtube.com/watch?v=hIPR7CNQPMI" target="_blank" rel="noopener">KYOTO CAN (YouTube)</a></dd>
             <dt>Chi tiết</dt>
-            <dd>studykyoto.jp/contest2021 <span class="gone">(trang không còn hoạt động)</span></dd>
+            <dd>studykyoto.jp/contest2021 <span class="gone">(không còn hoạt động)</span></dd>
           </dl>
         </article>
 
         <article class="award" data-tab="Video 2020" data-img="lib/awards/award--video-2020.jpg" data-alt="Giải ba cuộc thi video 2020">
-          <h3>Giải ba, cuộc thi video dành cho SV quốc tế tại Kyoto</h3>
+          <h3>Giải ba, cuộc thi video ngắn dành cho SV quốc tế tại Kyoto</h3>
           <p class="when">Nhật Bản, 2020</p>
           <dl>
             <dt>Giải</dt>
             <dd>Đồng giải ba (Best Judge's Prize)</dd>
             <dt>Cuộc thi</dt>
-            <dd>Short Video Contest 2020 for International Students, Kyoto, Japan</dd>
-            <dt>Video đạt giải</dt>
-            <dd><a href="https://www.youtube.com/watch?v=du8ixrtpFUM" target="_blank" rel="noopener">Xem trên YouTube</a></dd>
+            <dd>Short Video Contest 2020 for Int'l Students, Kyoto JP</dd>
+            <dt>Video</dt>
+            <dd><a href="https://www.youtube.com/watch?v=du8ixrtpFUM" target="_blank" rel="noopener">STUDY IN KYOTO (YouTube)</a></dd>
             <dt>Chi tiết</dt>
-            <dd>studykyoto.jp/contest2020 <span class="gone">(trang không còn hoạt động)</span></dd>
+            <dd>studykyoto.jp/contest2020 <span class="gone">(không còn hoạt động)</span></dd>
           </dl>
         </article>
 
@@ -735,14 +735,14 @@ hero.ctx = hero.canvas.getContext('2d');
 const STILL_T = 3.3;   // scene time shown when reduced motion is on
 
 /* ---------- greeting text above the lady when the circle is clicked ---------- */
-const WAVE_TEXT = 'CHỢ MỚI';                 // EDIT: the text that pops up (any length, Vietnamese is fine)
+const WAVE_TEXT = 'An Giang';                 // EDIT: the text that pops up (any length, Vietnamese is fine)
 const WAVE_TEXT_STYLE = {                     // EDIT: look of the text
   font: '"VT323", "Courier New", monospace',
-  size: 0.2,                                  // font size as a share of the circle radius
-  fill: '#0ba346',                            // plain text, no outline or shadow
-  spacing: 0.08,                              // extra space between letters (em)
+  size: 0.25,                                  // font size as a share of the circle radius
+  fill: '#FFFFFF',                            // plain text, no outline or shadow
+  spacing: 0.05,                              // extra space between letters (em)
 };
-const WAVE_TEXT_LIFT = 30;                     // EDIT: baseline height above the top of her hat (scene px)
+const WAVE_TEXT_LIFT = 20;                     // EDIT: baseline height above the top of her hat (scene px)
 const LETTERS = (() => {                      // split into letters, keeping Vietnamese marks with their letter
   const t = WAVE_TEXT.normalize('NFC');
   if (window.Intl && Intl.Segmenter) return [...new Intl.Segmenter('vi', { granularity: 'grapheme' }).segment(t)].map(x => x.segment);
@@ -893,6 +893,12 @@ const DRAWINGS = [
   { src: 'lib/drawings/cho-my-luong-2020.jpg', caption: 'Chợ Mỹ Luông (2020)' },
   { src: 'lib/drawings/truong-cvl.jpg',           caption: 'Trường Châu Văn Liêm' },
   { src: 'lib/drawings/long-dien.jpg', caption: 'Long Điền' },
+  { src: 'lib/drawings/drw-note01.jpg', caption: 'Vẽ tay' },
+  { src: 'lib/drawings/drw-note02.jpg', caption: 'Vẽ tay (viết chì)' },
+  { src: 'lib/drawings/drw-note03.jpg', caption: 'Vẽ tay' },
+  { src: 'lib/drawings/drw-note04.jpg', caption: 'Vẽ tay' },
+  { src: 'lib/drawings/drw-note05.jpg', caption: 'Vẽ tay' },
+  
 ];
 
 // Hình chụp: { src, caption, meta }
@@ -901,11 +907,19 @@ const DRAWINGS = [
 // EXIF is read from the JPEG itself, so keep the metadata when exporting
 // (some editors and upload tools strip it). Example files below; replace them.
 const PHOTOS = [
-  { src: 'lib/photos/photo-condo.jpg', caption: 'Con đò quê' },
-  { src: 'lib/photos/photo-chuaphuocthanh.jpg', caption: 'Trên Cù lao Giêng' },
-  { src: 'lib/photos/photo-03.jpg', caption: 'Nhà thờ Giêng' },
-  { src: 'lib/photos/photo-01.jpg', caption: 'Núi Phú Sĩ' },
-  { src: 'lib/photos/photo-02.jpg', caption: 'Mùa thu chùa Nanzenji' },  
+  { src: 'lib/photos/photo-jp08.jpg', caption: 'Núi Phú Sĩ (Nhật Bổn)' }, 
+  { src: 'lib/photos/photo-jp01.jpg', caption: 'Vành khuyên & Hoa mơ (Nhật Bổn)' },
+  { src: 'lib/photos/photo-jp02.jpg', caption: 'Mùa hè Kyoto (Nhật Bổn)' },
+  { src: 'lib/photos/photo-jp03.jpg', caption: 'Đảo Miyajima (Nhật Bổn)' },
+  { src: 'lib/photos/photo-jp04.jpg', caption: 'TP. Hiroshima (Nhật Bổn)' },
+  { src: 'lib/photos/photo-jp05.jpg', caption: 'Trăng & Núi' },
+  { src: 'lib/photos/photo-jp06.jpg', caption: 'Sắc thu ở chùa Nanzenji (Nhật Bổn)' },
+  { src: 'lib/photos/photo-jp07.jpg', caption: 'Hươu & mùa thu (Nhật Bổn)' },
+  { src: 'lib/photos/photo-tw01.jpg', caption: 'ĐHQG Chiao Tung (Đài Loan)' },
+  { src: 'lib/photos/photo-tw02.jpg', caption: 'ĐHQG Chiao Tung (Đài Loan)' }, 
+  { src: 'lib/photos/photo-vn01.jpg', caption: 'Con đò quê' },
+  { src: 'lib/photos/photo-vn02.jpg', caption: 'Trên Cù lao Giêng' },
+  { src: 'lib/photos/photo-vn03.jpg', caption: 'Nhà thờ Giêng' },
 ];
 
 /* =====================================================================
