@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lưu niệm | My N. Nguyen</title>
+<meta name="description" content="Nguyễn Ngọc Mỹ, quê Mỹ Luông & Cù lao Giêng, An Giang. Trang này lưu lại một số kỷ niệm của bản thân.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,500;1,500&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (luu-niem/index.html, "Lưu niệm" in My Library)
+  - Poem: the "THƠ VỀ QUÊ HƯƠNG" block. Lines with class "six" are the
+    6-syllable lines of the lục bát couplets (they are indented).
+  - Hero scene: the pixel-art river inside the circle is drawn by code;
+    its colors are in the C palette (search "EDIT: scene palette").
+  - Awards ("Giải thưởng"): append one <article class="award"> inside
+    #awardList. Tabs are built automatically, in the same order.
+        data-tab  = short tab label (falls back to the <h3> text)
+        data-img  = optional image path; omit it for a text-only award
+        data-alt  = optional alt text for that image
+    Anything inside the <article> is free HTML.
+  - Drawings ("Hình vẽ"): edit the DRAWINGS list in the last script.
+    Portrait and landscape both work; each frame follows its drawing.
+  - Photos ("Hình chụp"): edit the PHOTOS list in the last script.
+    Date / camera / lens are read from each JPEG's EXIF. Set meta:false
+    to hide them for one photo, or set date / camera / lens by hand.
+  - Images live in this folder: lib/awards, lib/drawings, lib/photos.
+  - Navbar, footer and the cat minigame come from ../common
+    (site.css, site.js), shared with the library homepage.
+  =====================================================================
+-->
+<style>
+  :root {
+    --sky: #7bcde8;
+    --sea: #3787c4;
+    --ink: #1B1920;
+    --paper: #FBFCFD;
+    --mist: #EEF6FA;
+    --line: #DCE6EC;
+    --muted: #59606B;
+    --frame: #35383D;        /* photo print border */
+    --frame-ink: #ECEEF0;
+    --frame-muted: #A3A9B1;
+    --pixel-vi: "VT323", "Courier New", monospace;            /* pixel face with Vietnamese glyphs */
+    --body: "Be Vietnam Pro", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --verse: "Lora", Georgia, "Times New Roman", serif;     /* poem */
+    --nav-h: 60px;
+    --pad-x: clamp(16px, 5vw, 64px);
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { scroll-behavior: smooth; scroll-padding-top: var(--nav-h); }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  h1, h2, h3 { font-family: var(--pixel-vi); font-weight: 400; line-height: 1; margin: 0; }
+  a { color: var(--sea); }
+  :focus-visible { outline: 3px solid var(--sea); outline-offset: 3px; }
+
+  section { padding: clamp(64px, 9vw, 120px) var(--pad-x); }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  .section-head { margin-bottom: 28px; }
+  .section-head h2 { font-size: clamp(42px, 6vw, 66px); }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- 1. poem + river scene ---------- */
+  #poem { min-height: calc(100svh - var(--nav-h)); padding-top: 24px; padding-bottom: 48px; display: flex; align-items: center; position: relative; }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(8px, 4vw, 56px); align-items: center; width: 100%; }
+  .stage { position: relative; height: min(76vh, 640px); min-height: 380px; }
+  .stage canvas { width: 100%; height: 100%; display: block; }
+  .info .stagger > * { opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease; transition-delay: calc(var(--i, 0) * 140ms); }
+  .info.in .stagger > * { opacity: 1; transform: none; }
+  .poem h1 { font-size: clamp(48px, 6.2vw, 76px); margin-bottom: 22px; }
+  .verse { margin: 0; font-family: var(--verse); font-style: italic; font-weight: 500; font-size: clamp(21px, 2.2vw, 29px); line-height: 1.55; }
+  .verse.six { padding-left: 2.2ch; }
+  .cite { margin: 24px 0 10px; padding-top: 16px; border-top: 1px solid var(--line); font-weight: 600; }
+  .cite span { font-weight: 400; color: var(--muted); }
+  .quoted { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; font-size: 14px; }
+  .quoted a { display: block; padding: 2px 10px; background: var(--mist); border: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+  .quoted a:hover { border-color: var(--sea); color: var(--sea); }
+  .scroll-hint { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); width: 20px; height: 12px; animation: hint 1.8s ease-in-out infinite; }
+  @keyframes hint { 50% { transform: translate(-50%, 6px); } }
+
+  /* ---------- tabs (same as index.html) ---------- */
+  .tabbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 24px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tab { font: 600 16px var(--body); color: var(--ink); background: #fff; border: 2px solid var(--ink); padding: 9px 16px; cursor: pointer; transition: background .2s, color .2s, transform .15s; }
+  .tab:hover { transform: translateY(-2px); }
+  .tab[aria-selected="true"] { background: var(--ink); color: #fff; box-shadow: 4px 4px 0 var(--sea); }
+  .tabpanel[hidden] { display: none; }
+  .tabpanel.enter { animation: enter .45s ease; }
+  @keyframes enter { from { opacity: 0; transform: translateY(10px); } }
+
+  /* ---------- 2. awards ---------- */
+  #awards { background: var(--mist); }
+  .award { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(18px, 4vw, 44px); align-items: start; background: #fff; border: 2px solid var(--ink); padding: clamp(16px, 3vw, 30px); }
+  .award.no-img { grid-template-columns: 1fr; }
+  .award-fig { margin: 0; }
+  .award-fig img { display: block; width: 100%; height: auto; max-height: 440px; object-fit: contain; background: var(--mist); border: 1px solid var(--line); }
+  .award-body { max-width: 64ch; }
+  .award h3 { font-size: clamp(32px, 3.6vw, 42px); }
+  .award .when { margin: 6px 0 16px; color: var(--sea); font-weight: 600; }
+  .award p { margin: 0 0 12px; }
+  .award dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; margin: 0; padding-top: 16px; border-top: 1px solid var(--line); }
+  .award dt { font-weight: 600; font-size: 15px; color: var(--muted); }
+  .award dd { margin: 0; overflow-wrap: anywhere; }
+  .award .gone { color: var(--muted); font-size: 14px; }
+
+  /* ---------- 3. drawings: pinned to the wall ---------- */
+  /* every frame is sized from its own drawing: width = aspect x row height (+ mat and border) */
+  .wall { --row-h: 300px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 44px 34px; padding-top: 10px; }
+  .drawing { position: relative; display: block; flex: 0 1 calc(var(--ar, 0.8) * var(--row-h) + 28px); max-width: 100%; margin: 0; padding: 12px 12px 10px; background: #fff; border: 2px solid var(--ink); font: inherit; color: inherit; text-align: left; cursor: zoom-in; transform: rotate(var(--tilt, 0deg)); transition: transform .2s ease; }
+  .drawing::before { content: ""; position: absolute; top: -10px; left: 50%; width: 58px; height: 18px; transform: translateX(-50%) rotate(-3deg); background: rgba(123,205,232,.72); }
+  .drawing:hover, .drawing:focus-visible { transform: rotate(0deg) translateY(-3px); }
+  .drawing img { display: block; width: 100%; height: auto; }
+  .drawing .cap { display: block; margin-top: 8px; font-weight: 600; font-size: 15px; line-height: 1.4; }
+  .ph { display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+  .drawing .ph { aspect-ratio: var(--ar, 0.8); background: repeating-linear-gradient(45deg, var(--mist) 0 8px, #fff 8px 16px); }
+  .empty { color: var(--muted); }
+
+  .lightbox { border: 0; padding: 0; background: transparent; max-width: min(94vw, 1200px); max-height: 96vh; overflow: visible; }
+  .lightbox::backdrop { background: rgba(27,25,32,.88); }
+  .lightbox figure { margin: 0; display: grid; justify-items: center; gap: 10px; }
+  .lightbox img { display: block; max-width: 100%; max-height: 80vh; background: #fff; border: 10px solid #fff; }
+  .lightbox figcaption { color: #fff; font-weight: 600; text-align: center; }
+  .lb-bar { display: flex; justify-content: center; gap: 10px; margin-top: 12px; }
+  .lb-bar .tab { min-width: 48px; }
+
+  /* ---------- 4. photos: one print at a time ---------- */
+  #photos { background: var(--mist); }
+  .print-stage { display: flex; justify-content: center; align-items: center; }
+  .print { display: table; margin: 0; background: var(--frame); padding: clamp(10px, 1.6vw, 18px) clamp(10px, 1.6vw, 18px) 0; }
+  .print-img { display: block; width: auto; height: auto; max-height: 70vh; max-width: min(1000px, calc(100vw - 2 * var(--pad-x) - 2 * clamp(10px, 1.6vw, 18px))); transition: opacity .25s ease; }
+  .print-img.loading { opacity: 0; }
+  .print .ph { width: min(720px, calc(100vw - 2 * var(--pad-x) - 2 * clamp(10px, 1.6vw, 18px))); aspect-ratio: 3 / 2; color: var(--frame-muted); background: repeating-linear-gradient(45deg, #3d4046 0 8px, #33363b 8px 16px); font-size: 14px; }
+  .print figcaption { display: table-caption; caption-side: bottom; background: var(--frame); color: var(--frame-ink); padding: clamp(12px, 1.6vw, 16px) clamp(12px, 1.8vw, 20px) clamp(26px, 4vw, 44px); }
+  .print .caption { margin: 0; font-weight: 500; line-height: 1.45; }
+  .exif { display: flex; flex-wrap: wrap; gap: 4px 26px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--frame-muted); }
+  .exif:first-child { margin-top: 0; }
+  .exif li { display: flex; align-items: baseline; gap: 8px; }
+  .exif b { font: 400 21px/1.1 var(--pixel-vi); color: var(--frame-ink); }
+  .strip { display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 1000px; margin: 24px auto 0; }
+  .strip .tab { flex: none; padding: 8px 14px; }
+  .thumbs { flex: 0 1 auto; min-width: 0; display: flex; gap: 8px; overflow-x: auto; padding: 4px 6px 8px 4px; scrollbar-width: thin; justify-content: safe center; }
+  .thumb { flex: none; width: 84px; height: 62px; padding: 0; border: 2px solid transparent; background: var(--frame); cursor: pointer; }
+  .thumb img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .6; transition: opacity .15s; }
+  .thumb:hover img { opacity: .9; }
+  .thumb[aria-current="true"] { border-color: var(--ink); box-shadow: 3px 3px 0 var(--sea); }
+  .thumb[aria-current="true"] img { opacity: 1; }
+  .thumb .ph { height: 100%; padding: 4px; color: var(--frame-muted); font: 400 20px var(--pixel-vi); }
+
+  @media (min-width: 861px) {
+    .print-stage { min-height: calc(70vh + 140px); }
+  }
+  @media (max-width: 860px) {
+    .scroll-hint { display: none; }
+    .hero, .award { grid-template-columns: 1fr; }
+    .stage { height: clamp(300px, 92vw, 60vh); min-height: 0; }
+    .award-fig { max-width: 460px; }
+  }
+  @media (max-width: 560px) {
+    .wall { --row-h: 210px; gap: 36px 24px; }
+    .tab { padding: 8px 11px; font-size: 15px; }
+    .award dl { grid-template-columns: 1fr; gap: 2px; }
+    .award dd { margin-bottom: 10px; }
+    .strip .tab { padding: 7px 10px; }
+    .thumb { width: 64px; height: 48px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal, .info .stagger > *, .tabpanel.enter, .print-img { transition: none; animation: none; opacity: 1; transform: none; }
+    .scroll-hint { animation: none; }
+    .drawing { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="site-nav" aria-label="Site">
+  <a class="site-mark" href="../index.html"><img src="https://nnmy.github.io/lib/logo-my.svg" alt="" width="30" height="30"><span>My Library</span></a>
+  <ul>
+    <li><a href="https://nnmy.github.io/">Profile</a></li>
+    <li><a href="../index.html">Library</a></li>
+  </ul>
+</nav>
+
+<main>
+<!-- ================= 1. THƠ VỀ QUÊ HƯƠNG ================= -->
+<section id="poem">
+  <div class="wrap hero">
+    <div class="stage">
+      <canvas id="heroCanvas" role="img" aria-label="Tranh pixel: người phụ nữ đội nón lá chèo xuồng ba lá trên sông quê miền Tây, hai bên bờ là hàng dừa và cây xanh"></canvas>
+    </div>
+
+    <!-- EDIT: poem -->
+    <div class="info poem" id="info">
+      <div class="stagger">
+        <h1 style="--i:0">Thơ về quê hương</h1>
+        <p class="verse six" style="--i:1">Lung linh bóng nước con đò</p>
+        <p class="verse" style="--i:2">Nhớ sao Chợ Mới câu hò thủy chung</p>
+        <p class="verse six" style="--i:3">Quê tôi miền đất anh hùng</p>
+        <p class="verse" style="--i:4">Hôm nay vẫn đẹp vô cùng ai ơi.</p>
+        <p class="cite" style="--i:5">Nguyễn Ngọc Mỹ <span>(7/2007), được trích bởi</span></p>
+        <ul class="quoted" style="--i:6">
+          <li><a href="https://www.youtube.com/watch?v=3_Ij2y-kayU" target="_blank" rel="noopener">VTV2</a></li>
+          <li><a href="https://youtu.be/JWkgVNKNrlE?t=148" target="_blank" rel="noopener">ATV</a></li>
+          <li><a href="https://youtu.be/C1mw3gG8FAg?t=1013" target="_blank" rel="noopener">Lễ kỷ niệm tại Chợ Mới</a></li>
+          <li><a href="https://youtu.be/RojxxzpPdJI?t=154" target="_blank" rel="noopener">Bài hát “Về Chợ Mới quê tôi”</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <svg class="scroll-hint" viewBox="0 0 5 3" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h1v1h1v-1h1v-1h1v1h-1v1h-1v1h-1v-1h-1v-1h-1z" fill="#3787c4"/></svg>
+</section>
+
+<!-- ================= 2. GIẢI THƯỞNG ================= -->
+<section id="awards">
+  <div class="wrap">
+    <div class="section-head reveal"><h2>Giải thưởng</h2></div>
+
+    <div class="reveal">
+      <div class="tabbar">
+        <div class="tabs" role="tablist" aria-label="Giải thưởng" id="awardTabs"></div>
+      </div>
+
+      <!-- EDIT: one <article class="award"> per award, newest first. Tabs are generated from these. -->
+      <div id="awardList">
+
+        <article class="award" data-tab="Uchida 2025" data-img="lib/awards/uchida-2025.jpg" data-alt="Giải thưởng Uchida lần thứ 40">
+          <h3>Giải thưởng Uchida lần thứ 40</h3>
+          <p class="when">Nhật Bản, 2025</p>
+          <dl>
+            <dt>Trao tặng bởi</dt>
+            <dd>Hiệp hội khoa học thông tin &amp; ảnh y khoa Nhật Bản</dd>
+            <dt>Cho nghiên cứu</dt>
+            <dd><a href="https://doi.org/10.11318/mii.41.46" target="_blank" rel="noopener">Discrimination of probe-stabilized scene from neonatal cranial ultrasonic movies by supervised learning for selective detection of pulsatile tissues</a></dd>
+            <dt>Đồng tác giả</dt>
+            <dd>My N. Nguyen, Ryosuke Kawamidori, Yoshiki Kitsunezuka, Masayuki Fukuzawa</dd>
+            <dt>Chi tiết</dt>
+            <dd><a href="https://www.mii-sciences.jp/about/winner.html" target="_blank" rel="noopener">mii-sciences.jp</a></dd>
+          </dl>
+        </article>
+
+        <article class="award" data-tab="Video 2021" data-img="lib/awards/video-2021.jpg" data-alt="Giải nhất cuộc thi video 2021">
+          <h3>Giải nhất, cuộc thi video dành cho SV quốc tế tại Kyoto</h3>
+          <p class="when">Nhật Bản, 2021</p>
+          <dl>
+            <dt>Giải</dt>
+            <dd>Giải nhất và Giải do sinh viên bình chọn</dd>
+            <dt>Cuộc thi</dt>
+            <dd>Short Video Contest 2021 for International Students, Kyoto, Japan</dd>
+            <dt>Video đạt giải</dt>
+            <dd><a href="https://www.youtube.com/watch?v=hIPR7CNQPMI" target="_blank" rel="noopener">Xem trên YouTube</a></dd>
+            <dt>Chi tiết</dt>
+            <dd>studykyoto.jp/contest2021 <span class="gone">(trang không còn hoạt động)</span></dd>
+          </dl>
+        </article>
+
+        <article class="award" data-tab="Video 2020" data-img="lib/awards/video-2020.jpg" data-alt="Giải ba cuộc thi video 2020">
+          <h3>Giải ba, cuộc thi video dành cho SV quốc tế tại Kyoto</h3>
+          <p class="when">Nhật Bản, 2020</p>
+          <dl>
+            <dt>Giải</dt>
+            <dd>Đồng giải ba (Best Judge's Prize)</dd>
+            <dt>Cuộc thi</dt>
+            <dd>Short Video Contest 2020 for International Students, Kyoto, Japan</dd>
+            <dt>Video đạt giải</dt>
+            <dd><a href="https://www.youtube.com/watch?v=du8ixrtpFUM" target="_blank" rel="noopener">Xem trên YouTube</a></dd>
+            <dt>Chi tiết</dt>
+            <dd>studykyoto.jp/contest2020 <span class="gone">(trang không còn hoạt động)</span></dd>
+          </dl>
+        </article>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. HÌNH VẼ ================= -->
+<section id="drawings">
+  <div class="wrap">
+    <div class="section-head reveal"><h2>Hình vẽ</h2></div>
+    <div class="wall reveal" id="drawingWall"></div>
+  </div>
+</section>
+
+<dialog class="lightbox" id="lightbox" aria-label="Xem hình vẽ">
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption id="lbCap"></figcaption>
+  </figure>
+  <div class="lb-bar">
+    <button class="tab" id="lbPrev" aria-label="Hình trước">&lt;</button>
+    <button class="tab" id="lbClose">Đóng</button>
+    <button class="tab" id="lbNext" aria-label="Hình sau">&gt;</button>
+  </div>
+</dialog>
+
+<!-- ================= 4. HÌNH CHỤP ================= -->
+<section id="photos">
+  <div class="wrap">
+    <div class="section-head reveal"><h2>Hình chụp</h2></div>
+    <div class="reveal" id="photoViewer">
+      <div class="print-stage">
+        <figure class="print" aria-live="polite">
+          <img class="print-img" id="photoImg" alt="">
+          <div class="ph" id="photoMissing" hidden></div>
+          <figcaption>
+            <p class="caption" id="photoCap"></p>
+            <ul class="exif" id="photoExif" hidden></ul>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="strip">
+        <button class="tab" id="photoPrev" aria-label="Ảnh trước">&lt;</button>
+        <div class="thumbs" id="photoThumbs" role="group" aria-label="Chọn ảnh"></div>
+        <button class="tab" id="photoNext" aria-label="Ảnh sau">&gt;</button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Make the cat jump (hold to jump further)" title="Tap to jump, hold to jump further">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>&copy; 2026 My N. Nguyen</span></div>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+const easeOutBack = t => { const c = 1.7; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+function fitCanvas(canvas, state) {
+  const r = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  state.W = r.width; state.H = r.height; state.dpr = dpr;
+  canvas.width = Math.max(1, Math.round(r.width * dpr));
+  canvas.height = Math.max(1, Math.round(r.height * dpr));
+}
+
+/* =====================================================================
+   HERO: pixel-art scene inside the circle
+   A lady in nón lá rows a xuồng ba lá along a Mekong-delta river at
+   morning. The camera follows the boat, so the banks, water and
+   foreground drift past at different speeds (parallax).
+   The scene is drawn on a 96 x 96 canvas, then scaled up without
+   smoothing and clipped to the circle.
+   ===================================================================== */
+const SC = 96;                  // scene resolution (pixels per side)
+const SCENE_FPS = 12;           // pixel-art step rate
+const HORIZON = 50, WATER = 53; // far-tree base and water line (scene px)
+const C = {                     // EDIT: scene palette
+  sky: ['#9FD6EA', '#B4E0EC', '#C9E9EC', '#DDEFE5', '#ECEFD6', '#F6E7C0'],
+  sun: '#FFF3C9', halo: '#FAEBC6',
+  cloud: '#FFFFFF', cloudShade: '#E2F0F2',
+  far: '#88B68D', farPalm: '#79AA83',
+  bush: '#4E8F57', bushDark: '#3D7848', bushLight: '#71AE69', mud: '#8E7E52',
+  trunk: '#7B6040', trunkDark: '#5E4A31', frond: '#3B7A48', frondLight: '#5C9C55', coconut: '#6B5A2A',
+  water: ['#5C9A8E', '#7CBEC8', '#6CB0C2', '#5DA2B8', '#4F94AD', '#44879F'],
+  ripple: '#AADDE6', rippleDark: '#3E7F96', glitter: '#FFF0C8', reflTree: '#4E8578',
+  hyacinth: '#4D9A4B', hyacinthDark: '#2E6E3C', flower: '#B89BDB', flowerLight: '#E3D6F5',
+  rim: '#4A2E16', hull: '#80522A', plank: '#A06A35', keel: '#6A4322', innerRim: '#5E3B1C',
+  hat: '#EAD9A0', hatEdge: '#C9B276', brim: '#A88F57', hair: '#231D22', skin: '#E2A985',
+  shirt: '#F4F0E6', shirtShade: '#D8D2C2', pants: '#2C2832',
+  oar: '#6E4A2A', blade: '#7E5632', splash: '#E4F6F8', wake: '#D3EEF2',
+  boatRefl: '#55706B', ladyRefl: '#C4D6CF', hatRefl: '#C6C49E',
+  nipa: '#2E6A3B', nipaLeaf: '#3F8248', nipaLight: '#5E9E52',
+  bird: '#FFFFFF', birdShade: '#9AA6AE',
+};
+
+const scene = document.createElement('canvas');
+scene.width = scene.height = SC;
+const g = scene.getContext('2d');
+const px = (x, y, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), 1, 1); };
+const col = (x, y0, y1, c) => { if (y1 < y0) return; g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y0), 1, Math.round(y1) - Math.round(y0) + 1); };
+const hash = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+const BAYER = [[0, 0.5], [0.75, 0.25]];
+function line(x0, y0, x1, y1, c) {
+  x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+  const dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy;
+  for (;;) {
+    px(x0, y0, c);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) { err += dy; x0 += sx; }
+    if (e2 <= dx) { err += dx; y0 += sy; }
+  }
+}
+// world-space repeating objects: calls fn(screenX, index) for every copy visible on screen
+function repeat(scroll, period, margin, fn) {
+  const first = Math.floor((scroll - margin) / period), last = Math.floor((scroll + SC + margin) / period);
+  for (let k = first; k <= last; k++) fn(k * period - scroll + hash(k * 3.1 + period) * period * 0.5, k);
+}
+
+/* ---------- static layer: sky, sun, water base (drawn once) ---------- */
+const backdrop = document.createElement('canvas');
+backdrop.width = backdrop.height = SC;
+(() => {
+  const b = backdrop.getContext('2d');
+  const put = (x, y, c) => { b.fillStyle = c; b.fillRect(x, y, 1, 1); };
+  for (let y = 0; y < WATER; y++) for (let x = 0; x < SC; x++) {
+    const v = (y / HORIZON) * (C.sky.length - 0.01) + (BAYER[y % 2][x % 2] - 0.375) * 0.9;
+    put(x, y, C.sky[Math.max(0, Math.min(C.sky.length - 1, Math.floor(v)))]);
+  }
+  const sx = 70, sy = 35;
+  for (let y = sy - 10; y <= sy + 10; y++) for (let x = sx - 10; x <= sx + 10; x++) {
+    const d = Math.hypot(x - sx, y - sy);
+    if (d <= 5.2) put(x, y, C.sun);
+    else if (d <= 8 && (x + y) % 2 === 0) put(x, y, C.halo);
+  }
+  for (let y = WATER; y < SC; y++) for (let x = 0; x < SC; x++) {
+    let i;
+    if (y < WATER + 4) i = 0;
+    else {
+      const v = 1 + ((y - WATER - 4) / (SC - WATER - 4)) * (C.water.length - 1.01) + (BAYER[y % 2][x % 2] - 0.375) * 0.8;
+      i = Math.max(1, Math.min(C.water.length - 1, Math.floor(v)));
+    }
+    put(x, y, C.water[i]);
+  }
+})();
+
+/* ---------- layers ---------- */
+function drawClouds(t) {
+  const clouds = [[14, 11, 7], [54, 7, 9], [88, 17, 6]];
+  clouds.forEach(([x0, cy, w], i) => {
+    const cx = ((x0 - t * 0.6 + 400) % (SC + 40)) - 20;
+    for (let dy = -3; dy <= 1; dy++) for (let dx = -w; dx <= w; dx++) {
+      const bump = dx < 0 ? 0.75 : 1;                       // a smaller puff on the left
+      if ((dx / w) ** 2 + (dy / (3 * bump)) ** 2 > 1) continue;
+      px(cx + dx, cy + dy, dy === 1 ? C.cloudShade : C.cloud);
+    }
+  });
+}
+
+function drawFarTrees(t) {
+  const s = t * 1.2;
+  for (let x = 0; x < SC; x++) {
+    const w = x + s;
+    const h = 4 + 1.6 * Math.sin(w * 0.09) + 1.2 * Math.sin(w * 0.23 + 2) + hash(Math.floor(w / 2));
+    col(x, HORIZON - h, WATER - 1, C.far);
+  }
+  repeat(s, 31, 10, sx => {                              // distant coconut palms
+    col(sx, HORIZON - 12, HORIZON - 4, C.farPalm);
+    for (let k = 1; k <= 3; k++) { px(sx - k, HORIZON - 12 + (k > 1 ? 1 : 0), C.farPalm); px(sx + k, HORIZON - 12 + (k > 1 ? 1 : 0), C.farPalm); }
+    px(sx, HORIZON - 13, C.farPalm);
+  });
+}
+
+function drawPalm(bx, k) {
+  const H = 19 + Math.round(hash(k * 5.3) * 6), lean = hash(k * 2.7) < 0.5 ? -1 : 1, baseY = WATER - 3;
+  let tx = bx, ty = baseY;
+  for (let s = 0; s <= H; s++) {
+    tx = bx + lean * Math.round((s / H) ** 2 * 5);
+    ty = baseY - s;
+    px(tx, ty, s % 3 === 0 ? C.trunkDark : C.trunk);
+    if (s % 2 === 0 && s < H - 2) px(tx, WATER + 1 + Math.round(s * 0.45), C.reflTree);   // reflection in the water
+  }
+  const angles = [0.15, 0.6, 1.2, 1.6, 2.0, 2.55, 3.0];
+  for (const a of angles) {
+    const L = 7 + Math.round(hash(k + a) * 2);
+    for (let i = 1; i <= L; i++) {
+      const fx = tx + Math.cos(a) * i, fy = ty - Math.sin(a) * i * 0.8 + 0.045 * i * i;
+      px(fx, fy, i > L - 2 ? C.frondLight : C.frond);
+      if (i > 2 && i % 2 === 0) px(fx, fy + 1, C.frond);              // leaflets
+    }
+  }
+  px(tx - 1, ty + 1, C.coconut); px(tx + 1, ty + 2, C.coconut);
+}
+
+function drawBank(t) {
+  const s = t * 3;
+  for (let x = 0; x < SC; x++) {
+    const w = x + s;
+    const h = 4 + 2.4 * Math.sin(w * 0.06) + 1.5 * Math.sin(w * 0.16 + 1) + 1.2 * hash(Math.floor(w / 3));
+    const top = WATER - 1 - h;
+    col(x, top, WATER - 1, C.bush);
+    px(x, top, C.bushLight);
+    col(x, WATER - 2, WATER - 1, hash(Math.floor(w / 4) + 7) > 0.45 ? C.mud : C.bushDark);
+  }
+  repeat(s, 40, 30, (sx, k) => drawPalm(sx, k));
+}
+
+function drawWater(t, step) {
+  for (let y = WATER + 2; y < SC; y += 2) {
+    const v = 2 + (y - WATER) * 0.16, off = y * 7.1;
+    for (let x = 0; x < SC; x++) {
+      const w = x + t * v, cell = Math.floor(w / 7), r = hash(cell * 13.7 + off), m = w - cell * 7;
+      if (r > 0.88 && m < 3) px(x, y, C.ripple);
+      else if (r < 0.025 && m < 2) px(x, y, C.rippleDark);
+    }
+  }
+  for (let y = WATER + 1; y < 68; y++) {                  // sun glitter, a narrow column under the sun
+    const r = hash(step * 0.37 + y * 3.3);
+    if (r > 0.5) px(70 + Math.round((hash(r * 9 + y) - 0.5) * (2 + (y - WATER) / 6)), y, C.glitter);
+  }
+}
+
+function drawHyacinths(t, y, speed, period) {
+  repeat(t * speed, period, 10, (sx, k) => {
+    const w = 3 + Math.round(hash(k * 4.1 + y) * 2);
+    for (let dx = -w; dx <= w; dx++) {
+      px(sx + dx, y, C.hyacinthDark);
+      if (Math.abs(dx) < w) px(sx + dx, y - 1, (dx + k) % 2 ? C.hyacinth : C.hyacinthDark);
+      if (Math.abs(dx) < w - 1 && dx % 2 === 0) px(sx + dx, y - 2, C.hyacinth);
+    }
+    if (hash(k * 1.7 + y) > 0.35) { px(sx, y - 3, C.flower); px(sx + 1, y - 3, C.flowerLight); px(sx, y - 4, C.flower); }
+    for (let dx = -w + 1; dx < w; dx += 2) px(sx + dx, y + 1, C.reflTree);
+  });
+}
+
+// lady: 11 x 20, facing right (toward the bow); the near arm and the oar are drawn separately
+const LADY = [
+  '.....n.....',
+  '....nNn....',
+  '...nNNNn...',
+  '..nNNNNNn..',
+  '.nNNNNNNNn.',
+  'bbbbbbbbbbb',
+  '....kSSS...',
+  '....kSSS...',
+  '.....SS....',
+  '....AAAA...',
+  '...aAAAA...',
+  '...aAAAA...',
+  '...aAAAA...',
+  '...aAAAA...',
+  '....AAAA...',
+  '....PPPP...',
+  '....PP.P...',
+  '....PP.P...',
+  '....PP.P...',
+  '....PP.P...',
+];
+const LADY_C = { n: C.hatEdge, N: C.hat, b: C.brim, k: C.hair, S: C.skin, A: C.shirt, a: C.shirtShade, P: C.pants };
+
+function drawBoat(t) {
+  const L = 40;
+  const bx = 46 + Math.round(2 * Math.sin(t * 0.3));
+  const wy = 74 + (Math.sin(t * 1.7) > 0.55 ? 1 : 0);
+  const x0 = bx - L / 2;
+  const lx = x0 + 6, top = wy - LADY.length;         // lady stands on the floor near the stern
+  const p = (1 + Math.sin(t * 2.0)) / 2;              // rowing stroke 0..1
+
+  // reflections first (under everything)
+  for (let i = 3; i < L - 3; i++) for (let r = 1; r <= 2; r++)
+    if ((i + r + Math.floor(t * 4)) % 2 === 0) px(x0 + i, wy + r, C.boatRefl);
+  // wake behind the stern, bow wave in front
+  const drift = (t * 7) % 3;
+  for (let k = 1; k <= 7; k++) {
+    const x = x0 - k * 3 + drift;
+    px(x, wy + 1 + Math.floor(k * 0.3), C.wake);
+    if (k > 2) px(x - 1, wy + 2 + Math.floor(k * 0.55), C.ripple);
+  }
+  px(x0 + L + 1, wy, C.wake); px(x0 + L + 2, wy + 1, C.ripple);
+
+  // lady (feet hidden behind the hull)
+  LADY.forEach((row, r) => [...row].forEach((ch, c) => { if (LADY_C[ch]) px(lx + c, top + r, LADY_C[ch]); }));
+
+  // hull: xuồng ba lá, no roof, upturned bow and stern
+  for (let i = 0; i < L; i++) {
+    const u = i / (L - 1);
+    const rise = u > 0.8 ? ((u - 0.8) / 0.2) ** 2 * 5 : u < 0.13 ? ((0.13 - u) / 0.13) ** 2 * 3 : 0;
+    const x = x0 + i, yt = wy - 3 - Math.round(rise), yb = wy - Math.round(rise * 0.75);
+    if (u > 0.08 && u < 0.9) px(x, yt - 1, C.innerRim);
+    px(x, yt, C.rim);
+    if (yb > yt) col(x, yt + 1, yb, C.hull);
+    if (wy - 1 > yt && wy - 1 <= yb) px(x, wy - 1, C.plank);
+    if (yb === wy) px(x, wy, C.keel);
+  }
+
+  // near arm and oar (chèo): pushes forward while the blade sweeps back
+  const sh = [lx + 6, top + 9];
+  const hand = [lx + 6 + Math.round(-1 + 4 * p), top + 12 - Math.round(p)];
+  const blade = [x0 - 3 - Math.round(5 * p), wy + 2];
+  const tip = [hand[0] + (hand[0] - blade[0]) * 0.2, hand[1] + (hand[1] - blade[1]) * 0.2];
+  line(tip[0], tip[1], blade[0], blade[1], C.oar);
+  g.fillStyle = C.blade; g.fillRect(Math.round(blade[0]) - 1, wy, 3, 2);
+  line(sh[0], sh[1], hand[0], hand[1], C.shirt);
+  px(hand[0], hand[1], C.skin);
+  if (Math.sin(t * 2.0) > 0.2) { px(blade[0] - 2, wy, C.splash); px(blade[0] + 2, wy - 1, C.splash); px(blade[0] + 3, wy + 1, C.splash); }
+}
+
+function drawNipa(t) {                                   // dừa nước fronds in the foreground
+  repeat(t * 10, 130, 30, (fx, k) => {
+    for (let f = 0; f < 5; f++) {
+      const dir = f < 2 ? -1 : f > 2 ? 1 : (k % 2 ? 1 : -1);
+      const len = 15 + Math.round(hash(k * 7 + f) * 6), spread = 0.25 + 0.18 * Math.abs(f - 2);
+      for (let i = 0; i <= len; i++) {
+        const s = i / len;
+        const x = fx + dir * s * len * spread * 1.6, y = SC - s * len + s * s * len * 0.38;
+        px(x, y, C.nipa);
+        if (i > 3 && i % 2 === 0) { px(x - 1, y + 1, C.nipaLeaf); px(x + 1, y + 1, C.nipaLeaf); }
+        if (i === len) px(x, y, C.nipaLight);
+      }
+    }
+  });
+}
+
+function drawBirds(t) {                                  // cò trắng
+  [[0, 18], [70, 23]].forEach(([off, y0]) => {
+    const x = ((t * 4 + off) % 150) - 25, y = y0 + Math.round(3 * Math.sin(t * 0.4 + off));
+    const up = Math.floor(t * 3 + off) % 2 === 0;
+    px(x + 2, y, C.bird); px(x + 3, y, C.birdShade);
+    if (up) { px(x + 1, y - 1, C.bird); px(x, y - 2, C.bird); px(x + 3, y - 1, C.bird); px(x + 4, y - 2, C.bird); }
+    else { px(x + 1, y + 1, C.bird); px(x, y + 1, C.bird); px(x + 3, y + 1, C.bird); px(x + 4, y + 1, C.bird); }
+  });
+}
+
+let lastStep = -1;
+function renderScene(t) {
+  const step = Math.floor(t * SCENE_FPS);
+  if (step === lastStep) return scene;
+  lastStep = step;
+  const ts = step / SCENE_FPS;
+  g.drawImage(backdrop, 0, 0);
+  drawClouds(ts);
+  drawBirds(ts);
+  drawFarTrees(ts);
+  drawBank(ts);
+  drawWater(ts, step);
+  drawHyacinths(ts, 62, 3.2, 60);
+  drawBoat(ts);
+  drawHyacinths(ts, 89, 7, 85);
+  drawNipa(ts);
+  return scene;
+}
+
+/* =====================================================================
+   HERO: circle opens, the scene plays inside it, a blue ring settles around
+   ===================================================================== */
+const hero = { canvas: document.getElementById('heroCanvas'), W: 0, H: 0, dpr: 1, start: null, visible: false, infoShown: false };
+hero.ctx = hero.canvas.getContext('2d');
+const STILL_T = 3.3;   // scene time shown when reduced motion is on
+
+function drawHero(now) {
+  if (hero.start === null) hero.start = now - (REDUCED ? 60000 : 0);
+  const t = (now - hero.start) / 1000;
+  const { ctx, dpr, W, H } = hero;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, hero.canvas.width, hero.canvas.height);
+  if (!hero.infoShown && t > 0.5) { hero.infoShown = true; document.getElementById('info').classList.add('in'); }
+
+  // whole device pixels per scene pixel, so the pixel art stays crisp
+  const cell = Math.max(1, Math.floor((Math.min(W, H) * 0.43 * 2 * dpr) / SC));
+  const size = cell * SC, R = size / 2;                       // device px
+  const cx = Math.round(W * dpr / 2), cy = Math.round(H * dpr / 2);
+  const x0 = Math.round(cx - R), y0 = Math.round(cy - R);
+
+  const cr = R * easeOutBack(clamp01(t / 0.8));
+  if (cr > 0) {
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.clip();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(renderScene(REDUCED ? STILL_T : t), x0, y0, size, size);
+    ctx.restore();
+  }
+
+  const ringR = 1.07 * R, ringW = 0.03 * R, rp = clamp01((t - 0.7) / 0.85);
+  if (rp > 0) {
+    const ep = clamp01((t - 0.7) / 1.36);
+    if (ep < 1) {
+      ctx.strokeStyle = `rgba(55,135,196,${0.35 * (1 - ep)})`; ctx.lineWidth = ringW * 0.5;
+      ctx.beginPath(); ctx.arc(cx, cy, ringR * 1.3 * easeOutCubic(ep), 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.strokeStyle = '#3787c4'; ctx.lineWidth = ringW;
+    ctx.beginPath(); ctx.arc(cx, cy, Math.max(0.1, ringR * easeOutCubic(rp)), 0, Math.PI * 2); ctx.stroke();
+  }
+}
+
+/* =====================================================================
+   TABS
+   ===================================================================== */
+function setupTabs(list, onChange) {
+  const tabs = [...list.querySelectorAll('[role="tab"]')];
+  const select = (tab, focus) => {
+    tabs.forEach(b => {
+      const on = b === tab;
+      b.setAttribute('aria-selected', on);
+      b.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(b.getAttribute('aria-controls'));
+      panel.hidden = !on;
+      if (on) { panel.classList.remove('enter'); void panel.offsetWidth; panel.classList.add('enter'); }
+    });
+    if (focus) tab.focus();
+    onChange && onChange(tab);
+  };
+  tabs.forEach((b, i) => {
+    b.addEventListener('click', () => select(b));
+    b.addEventListener('keydown', e => {
+      const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
+    });
+  });
+}
+
+/* =====================================================================
+   SCROLL TRIGGERS, SIZING, MAIN LOOP
+   ===================================================================== */
+const revealIO = new IntersectionObserver(entries => entries.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('in'); revealIO.unobserve(e.target); }
+}), { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+
+new IntersectionObserver(entries => entries.forEach(e => { hero.visible = e.isIntersecting; }), { threshold: 0.2 }).observe(hero.canvas);
+new ResizeObserver(() => fitCanvas(hero.canvas, hero)).observe(hero.canvas);
+fitCanvas(hero.canvas, hero);
+(function loop(now) {
+  if (hero.visible) drawHero(now);
+  requestAnimationFrame(loop);
+})(performance.now());
+</script>
+
+<script>
+/* =====================================================================
+   EDIT: GALLERIES
+   Add, reorder or delete lines; the page follows this order.
+   ===================================================================== */
+
+// Hình vẽ: { src, caption }  (portrait or landscape; the frame takes the drawing's own shape)
+const DRAWINGS = [
+  { src: 'lib/drawings/tu-hoa.jpg',           caption: 'Tự họa' },
+  { src: 'lib/drawings/cho-my-luong-2020.jpg', caption: 'Chợ Mỹ Luông (2020)' },
+];
+
+// Hình chụp: { src, caption, meta }
+//   meta: false            -> hide date / camera / lens for this photo (shown by default)
+//   date / camera / lens   -> optional text that replaces what the EXIF says
+// EXIF is read from the JPEG itself, so keep the metadata when exporting
+// (some editors and upload tools strip it). Example files below; replace them.
+const PHOTOS = [
+  { src: 'lib/photos/photo-01.jpg', caption: 'Chú thích cho ảnh 1' },
+  { src: 'lib/photos/photo-02.jpg', caption: 'Chú thích cho ảnh 2' },
+  { src: 'lib/photos/photo-03.jpg', caption: 'Chú thích cho ảnh 3', meta: false },
+];
+
+/* =====================================================================
+   AWARDS: build one tab per <article class="award">
+   ===================================================================== */
+(function buildAwards() {
+  const list = document.getElementById('awardList');
+  const tablist = document.getElementById('awardTabs');
+  [...list.querySelectorAll(':scope > .award')].forEach((art, i) => {
+    const pid = 'p-award-' + i, tid = 't-award-' + i;
+    const body = document.createElement('div');
+    body.className = 'award-body';
+    while (art.firstChild) body.appendChild(art.firstChild);
+    art.appendChild(body);
+    if (art.dataset.img) {
+      const fig = document.createElement('figure');
+      fig.className = 'award-fig';
+      const img = new Image();
+      img.alt = art.dataset.alt || '';
+      img.loading = 'lazy';
+      img.onerror = () => { fig.remove(); art.classList.add('no-img'); };   // missing file: text-only layout
+      img.src = art.dataset.img;
+      fig.appendChild(img);
+      art.prepend(fig);
+    } else art.classList.add('no-img');
+    art.classList.add('tabpanel');
+    Object.assign(art, { id: pid, hidden: i > 0 });
+    art.setAttribute('role', 'tabpanel');
+    art.setAttribute('aria-labelledby', tid);
+
+    const h = art.querySelector('h3');
+    const b = document.createElement('button');
+    b.className = 'tab'; b.id = tid; b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-controls', pid);
+    b.setAttribute('aria-selected', i === 0);
+    b.tabIndex = i === 0 ? 0 : -1;
+    b.textContent = art.dataset.tab || (h ? h.textContent : 'Giải ' + (i + 1));
+    tablist.appendChild(b);
+  });
+  setupTabs(tablist);
+})();
+
+/* =====================================================================
+   DRAWINGS: pinned-paper wall + lightbox
+   ===================================================================== */
+const TILTS = [-1.2, 0.8, -0.4, 1.1, -0.9, 0.5];
+function placeholder(text) {
+  const d = document.createElement('div');
+  d.className = 'ph';
+  d.textContent = text;
+  return d;
+}
+(function buildDrawings() {
+  const wall = document.getElementById('drawingWall');
+  if (!DRAWINGS.length) { wall.innerHTML = '<p class="empty">Chưa có hình vẽ.</p>'; return; }
+  DRAWINGS.forEach((d, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'drawing';
+    b.style.setProperty('--tilt', TILTS[i % TILTS.length] + 'deg');
+    b.setAttribute('aria-label', 'Phóng to: ' + d.caption);
+    const img = new Image();
+    img.alt = d.caption || ''; img.loading = 'lazy';
+    img.onload = () => b.style.setProperty('--ar', (img.naturalWidth / img.naturalHeight).toFixed(4));   // frame follows the drawing
+    img.onerror = () => img.replaceWith(placeholder('Chưa có file: ' + d.src));
+    img.src = d.src;
+    const cap = document.createElement('span');
+    cap.className = 'cap'; cap.textContent = d.caption || '';
+    b.append(img, cap);
+    b.addEventListener('click', () => openLightbox(i));
+    wall.appendChild(b);
+  });
+})();
+
+const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lbImg'), lbCap = document.getElementById('lbCap');
+let lbIndex = 0;
+lbImg.addEventListener('error', () => { lbImg.hidden = true; });   // missing file: show the caption only
+function showLightbox(i) {
+  lbIndex = (i + DRAWINGS.length) % DRAWINGS.length;
+  const d = DRAWINGS[lbIndex];
+  lbImg.hidden = false;
+  lbImg.src = d.src; lbImg.alt = d.caption || ''; lbCap.textContent = d.caption || '';
+}
+function openLightbox(i) { showLightbox(i); lb.showModal(); }
+document.getElementById('lbPrev').addEventListener('click', () => showLightbox(lbIndex - 1));
+document.getElementById('lbNext').addEventListener('click', () => showLightbox(lbIndex + 1));
+document.getElementById('lbClose').addEventListener('click', () => lb.close());
+lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+lb.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') showLightbox(lbIndex - 1);
+  if (e.key === 'ArrowRight') showLightbox(lbIndex + 1);
+});
+if (DRAWINGS.length < 2) { document.getElementById('lbPrev').hidden = true; document.getElementById('lbNext').hidden = true; }
+
+/* =====================================================================
+   PHOTOS: EXIF reader (JPEG only, no library)
+   Reads Make, Model, DateTimeOriginal, LensModel from the APP1 segment.
+   Needs the page to be served over http(s); opening the file directly
+   (file://) blocks fetch, so only manual date / camera / lens will show.
+   ===================================================================== */
+async function readExif(src) {
+  const buf = await (await fetch(src)).arrayBuffer();
+  const v = new DataView(buf);
+  if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return null;
+  let o = 2;
+  while (o + 10 < v.byteLength) {
+    const marker = v.getUint16(o), len = v.getUint16(o + 2);
+    if ((marker & 0xFF00) !== 0xFF00) break;
+    if (marker === 0xFFE1 && v.getUint32(o + 4) === 0x45786966) return parseTiff(v, o + 10);
+    if (marker === 0xFFDA) break;                       // image data starts, no EXIF
+    o += 2 + len;
+  }
+  return null;
+}
+function parseTiff(v, t) {
+  const le = v.getUint16(t) === 0x4949;
+  const u16 = p => v.getUint16(p, le), u32 = p => v.getUint32(p, le);
+  const SIZE = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+  const text = (p, n) => { let s = ''; for (let i = 0; i < n && p + i < v.byteLength; i++) { const c = v.getUint8(p + i); if (!c) break; s += String.fromCharCode(c); } return s.trim(); };
+  const ifd = off => {
+    const out = {}, base = t + off, n = u16(base);
+    for (let k = 0; k < n; k++) {
+      const e = base + 2 + k * 12, tag = u16(e), type = u16(e + 2), cnt = u32(e + 4);
+      const p = (SIZE[type] || 1) * cnt > 4 ? t + u32(e + 8) : e + 8;
+      if (type === 2) out[tag] = text(p, cnt);
+      else if (type === 3) out[tag] = u16(p);
+      else if (type === 4) out[tag] = u32(p);
+    }
+    return out;
+  };
+  const ifd0 = ifd(u32(t + 4));
+  const ex = ifd0[0x8769] ? ifd(ifd0[0x8769]) : {};
+  return { make: ifd0[0x010F], model: ifd0[0x0110], date: ex[0x9003] || ex[0x9004] || ifd0[0x0132], lens: ex[0xA434] };
+}
+function fmtDate(s) {                                   // "2023:04:12 15:30:01" -> "12/04/2023"
+  const m = /^(\d{4}):(\d{2}):(\d{2})/.exec(s || '');
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+}
+function fmtCamera(make, model) {
+  make = (make || '').replace(/\b(corporation|corp\.?|co\.?,? ?ltd\.?|imaging|optical)\b/gi, '').trim();
+  model = (model || '').trim();
+  if (!model) return make;
+  const brand = make.split(/\s+/)[0] || '';
+  return brand && model.toLowerCase().startsWith(brand.toLowerCase()) ? model : `${make} ${model}`.trim();
+}
+const exifCache = new Map();
+const getExif = src => {
+  if (!exifCache.has(src)) exifCache.set(src, readExif(src).catch(() => null));
+  return exifCache.get(src);
+};
+
+/* =====================================================================
+   PHOTOS: print viewer + thumbnail strip
+   ===================================================================== */
+(function buildPhotos() {
+  const viewer = document.getElementById('photoViewer');
+  if (!PHOTOS.length) { viewer.innerHTML = '<p class="empty">Chưa có hình chụp.</p>'; return; }
+  const img = document.getElementById('photoImg'), missing = document.getElementById('photoMissing');
+  const cap = document.getElementById('photoCap'), exifList = document.getElementById('photoExif');
+  const thumbsEl = document.getElementById('photoThumbs');
+  let cur = 0, token = 0;
+
+  const thumbs = PHOTOS.map((p, i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'thumb';
+    b.setAttribute('aria-label', `Ảnh ${i + 1}: ${p.caption || ''}`);
+    const t = new Image();
+    t.alt = ''; t.loading = 'lazy';
+    t.onerror = () => t.replaceWith(placeholder(String(i + 1)));
+    t.src = p.src;
+    b.appendChild(t);
+    b.addEventListener('click', () => show(i));
+    thumbsEl.appendChild(b);
+    return b;
+  });
+  thumbsEl.addEventListener('keydown', e => {
+    const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+    if (d) { e.preventDefault(); show(cur + d); thumbs[cur].focus(); }
+  });
+  document.getElementById('photoPrev').addEventListener('click', () => show(cur - 1));
+  document.getElementById('photoNext').addEventListener('click', () => show(cur + 1));
+  if (PHOTOS.length < 2) viewer.querySelector('.strip').hidden = true;
+
+  img.addEventListener('load', () => img.classList.remove('loading'));
+  img.addEventListener('error', () => {
+    img.hidden = true; missing.hidden = false;
+    missing.textContent = 'Chưa có file: ' + PHOTOS[cur].src;
+  });
+
+  function renderMeta(p, ex, my) {
+    if (my !== token) return;
+    const rows = [
+      ['Ngày chụp', p.date ?? fmtDate(ex && ex.date)],
+      ['Máy ảnh',  p.camera ?? (ex ? fmtCamera(ex.make, ex.model) : '')],
+      ['Ống kính', p.lens ?? (ex && ex.lens) ?? ''],
+    ].filter(r => r[1]);
+    exifList.replaceChildren(...rows.map(([k, val]) => {
+      const li = document.createElement('li');
+      const b = document.createElement('b');
+      b.textContent = val;
+      li.append(k, b);
+      return li;
+    }));
+    exifList.hidden = !rows.length;
+  }
+
+  function show(i) {
+    cur = (i + PHOTOS.length) % PHOTOS.length;
+    const p = PHOTOS[cur], my = ++token;
+    img.hidden = false; missing.hidden = true;
+    if (!REDUCED) img.classList.add('loading');
+    img.alt = p.caption || '';
+    img.src = p.src;
+    if (img.complete && img.naturalWidth) img.classList.remove('loading');
+    cap.textContent = p.caption || '';
+    cap.hidden = !p.caption;
+    exifList.hidden = true;
+    if (p.meta !== false) getExif(p.src).then(ex => renderMeta(p, ex, my));
+    thumbs.forEach((b, k) => b.setAttribute('aria-current', k === cur));
+    const tb = thumbs[cur];                         // keep the active thumb in view without scrolling the page
+    const left = tb.offsetLeft - thumbsEl.offsetLeft, right = left + tb.offsetWidth;
+    if (left < thumbsEl.scrollLeft) thumbsEl.scrollLeft = left - 8;
+    else if (right > thumbsEl.scrollLeft + thumbsEl.clientWidth) thumbsEl.scrollLeft = right - thumbsEl.clientWidth + 8;
+  }
+  show(0);
+})();
+</script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -69,13 +69,13 @@ h1 .dot { display: inline-block; flex: none; width: 16px; height: 16px; backgrou
 <div class="wrap">
   <header>
     <h1><span class="dot"></span>MY LIBRARY</h1>
-    <p class="lead">Bộ sưu tập các tiện ích nhỏ và những sáng tác của mình.</p>
+    <p class="lead">Bộ sưu tập các tiện ích nhỏ, những sáng tác và kỷ niệm của mình.</p>
   </header>
 
   <div id="shelves"></div>
   <noscript><p>Cần bật JavaScript để hiển thị danh sách.
     Các tiện ích: <a href="nes-pixelator/index.html">NES Pixelator</a>, <a href="foto-batch/index.html">Foto Batch</a>, <a href="https://nnmy.github.io/game-joy/">Game: Joy</a>.
-    Sáng tác: <a href="chuyen-hoi-do/index.html">Chuyện hồi đó</a>.</p></noscript>
+    Sáng tác: <a href="luu-niem/index.html">Lưu niệm</a>, <a href="chuyen-hoi-do/index.html">Hồi đó</a>.</p></noscript>
 </div>
 
 <script>
@@ -155,6 +155,31 @@ const SECTIONS = [
   {
     title: "Sáng tác",
     items: [
+      {
+        name: "Lưu niệm",
+        href: "luu-niem/index.html",
+        desc: "Nhà kho của sự nghiệp & đam mê.",
+        tags: ["Archive", "Career", "Hobby"],
+        // pixel art: cô gái đội nón lá chèo xuồng ba lá
+        iconColors: { o: "#1d1d21", n: "#a88f57", N: "#ead9a0", S: "#e2a985", s: "#e2a985", A: "#f4f0e6", P: "#2c2832", b: "#8a5a2b", k: "#6e4a2a", w: "#3787c4" },
+        icon: [
+          "......n.......",
+          ".....nNn......",
+          "....nNNNn.....",
+          "...nNNNNNn....",
+          "..nnnnnnnnn...",
+          "......kSS.....",
+          ".....oAAAo..k.",
+          ".....oAAAAsk..",
+          ".....oAAAo.k..",
+          ".....oPPPo.k..",
+          "oo...oPPPo.k.o",
+          "obooooooooooob",
+          ".obbbbbbbbbkb.",
+          "..ooooooooook.",
+          "ww.wwww..wwkw.",
+        ],
+      },
       {
         name: "Chuyện hồi đó",
         href: "chuyen-hoi-do/index.html",
