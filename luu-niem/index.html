@@ -17,6 +17,11 @@
     6-syllable lines of the lục bát couplets (they are indented).
   - Hero scene: the pixel-art river inside the circle is drawn by code;
     its colors are in the C palette (search "EDIT: scene palette").
+    Size: HERO_SCALE (and the .stage height). Background blur: BLUR_RES
+    (lower = blurrier). Click / Enter on the circle makes her wave for
+    WAVE_DUR seconds, the WAVE_TEXT greeting pops up above her, and fish
+    jump out of the water (FISH list: spots,
+    timing, height).
   - Awards ("Giải thưởng"): append one <article class="award"> inside
     #awardList. Tabs are built automatically, in the same order.
         data-tab  = short tab label (falls back to the <h3> text)
@@ -69,8 +74,9 @@
   /* ---------- 1. poem + river scene ---------- */
   #poem { min-height: calc(100svh - var(--nav-h)); padding-top: 24px; padding-bottom: 48px; display: flex; align-items: center; position: relative; }
   .hero { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: clamp(8px, 4vw, 56px); align-items: center; width: 100%; }
-  .stage { position: relative; height: min(76vh, 640px); min-height: 380px; }
-  .stage canvas { width: 100%; height: 100%; display: block; }
+  .stage { position: relative; height: min(53vh, 448px); min-height: 266px; }   /* circle radius follows this box */
+  .stage canvas { width: 100%; height: 100%; display: block; -webkit-tap-highlight-color: transparent; }
+  .stage canvas.over { cursor: pointer; }
   .info .stagger > * { opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease; transition-delay: calc(var(--i, 0) * 140ms); }
   .info.in .stagger > * { opacity: 1; transform: none; }
   .poem h1 { font-size: clamp(48px, 6.2vw, 76px); margin-bottom: 22px; }
@@ -158,7 +164,7 @@
   @media (max-width: 860px) {
     .scroll-hint { display: none; }
     .hero, .award { grid-template-columns: 1fr; }
-    .stage { height: clamp(300px, 92vw, 60vh); min-height: 0; }
+    .stage { height: clamp(220px, 68vw, 45vh); min-height: 0; }
     .award-fig { max-width: 460px; }
   }
   @media (max-width: 560px) {
@@ -192,7 +198,7 @@
 <section id="poem">
   <div class="wrap hero">
     <div class="stage">
-      <canvas id="heroCanvas" role="img" aria-label="Tranh pixel: người phụ nữ đội nón lá chèo xuồng ba lá trên sông quê miền Tây, hai bên bờ là hàng dừa và cây xanh"></canvas>
+      <canvas id="heroCanvas" role="img" tabindex="0" aria-label="Tranh pixel: người phụ nữ đội nón lá chèo xuồng ba lá trên sông quê miền Tây, hai bên bờ là hàng dừa và cây xanh. Nhấn để cô vẫy tay chào."></canvas>
     </div>
 
     <!-- EDIT: poem -->
@@ -360,6 +366,8 @@ function fitCanvas(canvas, state) {
    ===================================================================== */
 const SC = 96;                  // scene resolution (pixels per side)
 const SCENE_FPS = 12;           // pixel-art step rate
+const WAVE_DUR = 2.4;           // seconds the lady waves after a click
+let ladyAt = [37.5, 54];        // set by drawBoat (scene px)
 const HORIZON = 50, WATER = 53; // far-tree base and water line (scene px)
 const C = {                     // EDIT: scene palette
   sky: ['#9FD6EA', '#B4E0EC', '#C9E9EC', '#DDEFE5', '#ECEFD6', '#F6E7C0'],
@@ -378,11 +386,12 @@ const C = {                     // EDIT: scene palette
   boatRefl: '#55706B', ladyRefl: '#C4D6CF', hatRefl: '#C6C49E',
   nipa: '#2E6A3B', nipaLeaf: '#3F8248', nipaLight: '#5E9E52',
   bird: '#FFFFFF', birdShade: '#9AA6AE',
+  fish: '#F2F6F7', fishBack: '#3F5A68', fishTail: '#2F4652', drop: '#FFFFFF',
 };
 
 const scene = document.createElement('canvas');
 scene.width = scene.height = SC;
-const g = scene.getContext('2d');
+let g = scene.getContext('2d');             // current drawing target (switched per layer)
 const px = (x, y, c) => { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), 1, 1); };
 const col = (x, y0, y1, c) => { if (y1 < y0) return; g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y0), 1, Math.round(y1) - Math.round(y0) + 1); };
 const hash = n => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
@@ -466,7 +475,7 @@ function drawPalm(bx, k) {
     tx = bx + lean * Math.round((s / H) ** 2 * 5);
     ty = baseY - s;
     px(tx, ty, s % 3 === 0 ? C.trunkDark : C.trunk);
-    if (s % 2 === 0 && s < H - 2) px(tx, WATER + 1 + Math.round(s * 0.45), C.reflTree);   // reflection in the water
+    if (s % 2 === 0 && s < H - 2 && g === gFar) px(tx, WATER + 1 + Math.round(s * 0.45), C.reflTree);   // reflection: only in the blurred layer
   }
   const angles = [0.15, 0.6, 1.2, 1.6, 2.0, 2.55, 3.0];
   for (const a of angles) {
@@ -546,13 +555,15 @@ const LADY = [
 ];
 const LADY_C = { n: C.hatEdge, N: C.hat, b: C.brim, k: C.hair, S: C.skin, A: C.shirt, a: C.shirtShade, P: C.pants };
 
-function drawBoat(t) {
+function drawBoat(t, wave) {
   const L = 40;
   const bx = 46 + Math.round(2 * Math.sin(t * 0.3));
   const wy = 74 + (Math.sin(t * 1.7) > 0.55 ? 1 : 0);
   const x0 = bx - L / 2;
   const lx = x0 + 6, top = wy - LADY.length;         // lady stands on the floor near the stern
-  const p = (1 + Math.sin(t * 2.0)) / 2;              // rowing stroke 0..1
+  ladyAt = [lx + 5.5, top];                           // hat centre and top, used to place the greeting text
+  const waving = wave >= 0 && wave < WAVE_DUR;       // she stops rowing to wave
+  const p = waving ? 0.4 : (1 + Math.sin(t * 2.0)) / 2;   // rowing stroke 0..1
 
   // reflections first (under everything)
   for (let i = 3; i < L - 3; i++) for (let r = 1; r <= 2; r++)
@@ -583,11 +594,22 @@ function drawBoat(t) {
 
   // near arm and oar (chèo): pushes forward while the blade sweeps back
   const sh = [lx + 6, top + 9];
-  const hand = [lx + 6 + Math.round(-1 + 4 * p), top + 12 - Math.round(p)];
+  const hand = waving ? [lx + 5, top + 12] : [lx + 6 + Math.round(-1 + 4 * p), top + 12 - Math.round(p)];
   const blade = [x0 - 3 - Math.round(5 * p), wy + 2];
   const tip = [hand[0] + (hand[0] - blade[0]) * 0.2, hand[1] + (hand[1] - blade[1]) * 0.2];
   line(tip[0], tip[1], blade[0], blade[1], C.oar);
   g.fillStyle = C.blade; g.fillRect(Math.round(blade[0]) - 1, wy, 3, 2);
+  if (waving) {
+    // the oar rests in the other hand; the near arm goes up beside the hat and waves
+    const k = Math.min(1, wave / 0.25);                         // raise the arm first
+    const sway = wave > 0.25 ? Math.floor(wave * 6) % 2 : 0;    // then wave side to side
+    const hx = lx + 9 + Math.round(2 * k) + sway, hy = top + 9 - Math.round(4 * k);
+    line(lx + 7, top + 9, lx + 9, top + 8, C.shirt);
+    line(lx + 9, top + 8, hx, hy + 1, C.shirt);
+    px(hx, hy, C.skin); px(hx, hy - 1, C.skin);
+    if (sway) px(hx + 1, hy - 1, C.skin);                       // open palm on the outer beat
+    return;
+  }
   line(sh[0], sh[1], hand[0], hand[1], C.shirt);
   px(hand[0], hand[1], C.skin);
   if (Math.sin(t * 2.0) > 0.2) { px(blade[0] - 2, wy, C.splash); px(blade[0] + 2, wy - 1, C.splash); px(blade[0] + 3, wy + 1, C.splash); }
@@ -609,6 +631,51 @@ function drawNipa(t) {                                   // dừa nước fronds
   });
 }
 
+/* ---------- fish jumping out of the water when the circle is clicked ----------
+   Each fish is at most 3 x 3 scene pixels (the lady's face is 3 x 3).
+   Spots are left and right of the boat so a fish never jumps in front of her. */
+let fishSeed = 0;                                        // changes on every click: new spots each time
+const FISH = [                                           // EDIT: [start s, surface y, x from, x to, jump height]
+  [0.10, 66, 74, 86, 10],
+  [0.45, 64, 10, 20, 9],
+  [0.80, 87, 30, 42, 7],
+];
+const FISH_JUMP = 0.9;                                   // seconds in the air
+function drawSplash(x, y, age, big) {                    // droplets thrown up, then a ring spreading on the surface
+  if (age < 0 || age > 0.6) return;
+  const n = big ? 5 : 3;
+  for (let k = 0; k < n; k++) {
+    const vx = (k - (n - 1) / 2) * 1.6, vy = 7 + (k % 2) * 3;
+    const dy = vy * age - 26 * age * age;
+    if (dy > -0.5 && age < 0.45) px(x + vx * age * 5, y - dy, C.drop);
+  }
+  const r = 1 + Math.round(age * 9);
+  px(x - r, y, C.ripple); px(x + r, y, C.ripple);
+  if (r > 2) { px(x - r + 1, y + 1, C.wake); px(x + r - 1, y + 1, C.wake); }
+}
+function drawFish(w) {
+  if (w < 0) return;
+  FISH.forEach(([start, ys, xa, xb, hgt], i) => {
+    const flip = hash(fishSeed * 7.3 + i) < 0.5;          // jump direction
+    const shift = Math.round((hash(fishSeed * 3.9 + i * 11) - 0.5) * 6);
+    const from = (flip ? xb : xa) + shift, to = (flip ? xa : xb) + shift, dir = Math.sign(to - from);
+    const h = hgt + Math.round(hash(fishSeed + i * 5.1) * 3);
+    const a = w - start, s = a / FISH_JUMP;
+    drawSplash(from, ys, a, true);                        // leaving the water
+    drawSplash(to, ys, a - FISH_JUMP, false);             // diving back in
+    if (s < 0 || s > 1) return;
+    const x = Math.round(from + (to - from) * s), y = Math.round(ys - 4 * h * s * (1 - s));
+    const P = (dx, dy, c) => px(x + dx * dir, y + dy, c);
+    if (s < 0.38) {                                       // nose up
+      P(-1, 1, C.fishTail); P(0, 0, C.fish); P(0, 1, C.fishBack); P(1, -1, C.fish);
+    } else if (s > 0.62) {                                // nose down
+      P(-1, -1, C.fishTail); P(0, 0, C.fish); P(0, -1, C.fishBack); P(1, 1, C.fish);
+    } else {                                              // level at the top of the arc
+      P(-1, 0, C.fishTail); P(0, 0, C.fish); P(1, 0, C.fish); P(0, -1, C.fishBack);
+    }
+  });
+}
+
 function drawBirds(t) {                                  // cò trắng
   [[0, 18], [70, 23]].forEach(([off, y0]) => {
     const x = ((t * 4 + off) % 150) - 25, y = y0 + Math.round(3 * Math.sin(t * 0.4 + off));
@@ -619,31 +686,97 @@ function drawBirds(t) {                                  // cò trắng
   });
 }
 
-let lastStep = -1;
-function renderScene(t) {
+/* Depth of field: everything above the water (sky, clouds, trees, banks) is also drawn on
+   sceneFar, then shrunk to BLUR_RES and scaled back up with smoothing, which blurs it.
+   The water, boat, lady and foreground stay crisp. Birds fly in front of the blur. */
+const BLUR_RES = 30;                                      // EDIT: lower = blurrier background
+const BLUR_LINE = WATER + 3;                              // rows above this are shown blurred (incl. the bank's reflection band)
+const sceneFar = document.createElement('canvas'); sceneFar.width = sceneFar.height = SC;
+const blurred = document.createElement('canvas'); blurred.width = blurred.height = BLUR_RES;
+const birds = document.createElement('canvas'); birds.width = birds.height = SC;
+const gMain = g, gFar = sceneFar.getContext('2d'), gBirds = birds.getContext('2d'), gBlur = blurred.getContext('2d');
+gBlur.imageSmoothingEnabled = true; gBlur.imageSmoothingQuality = 'high';
+
+let lastKey = '';
+function renderScene(t, wave) {
   const step = Math.floor(t * SCENE_FPS);
-  if (step === lastStep) return scene;
-  lastStep = step;
+  const waving = wave >= 0 && wave < WAVE_DUR;
+  const key = step + (waving ? ':' + fishSeed + ':' + Math.floor(wave * SCENE_FPS * 2) : '');   // twice the rate while fish are jumping
+  if (key === lastKey) return;
+  lastKey = key;
   const ts = step / SCENE_FPS;
-  g.drawImage(backdrop, 0, 0);
-  drawClouds(ts);
-  drawBirds(ts);
-  drawFarTrees(ts);
-  drawBank(ts);
+  for (const layer of [gFar, gMain]) {                    // the far layers are needed on both canvases
+    g = layer;
+    g.drawImage(backdrop, 0, 0);
+    drawClouds(ts);
+    drawFarTrees(ts);
+    drawBank(ts);
+  }
+  gBlur.clearRect(0, 0, BLUR_RES, BLUR_RES);
+  gBlur.drawImage(sceneFar, 0, 0, BLUR_RES, BLUR_RES);
+  g = gMain;
   drawWater(ts, step);
   drawHyacinths(ts, 62, 3.2, 60);
-  drawBoat(ts);
+  drawBoat(ts, waving ? wave : -1);
   drawHyacinths(ts, 89, 7, 85);
   drawNipa(ts);
-  return scene;
+  g = gBirds;
+  g.clearRect(0, 0, SC, SC);
+  drawBirds(ts);
+  drawFish(waving ? Math.floor(wave * SCENE_FPS * 2) / (SCENE_FPS * 2) : -1);   // on the crisp top layer
+  g = gMain;
 }
 
 /* =====================================================================
    HERO: circle opens, the scene plays inside it, a blue ring settles around
    ===================================================================== */
-const hero = { canvas: document.getElementById('heroCanvas'), W: 0, H: 0, dpr: 1, start: null, visible: false, infoShown: false };
+const hero = { canvas: document.getElementById('heroCanvas'), W: 0, H: 0, dpr: 1, start: null, visible: false, infoShown: false, waveStart: null, geom: null };
 hero.ctx = hero.canvas.getContext('2d');
 const STILL_T = 3.3;   // scene time shown when reduced motion is on
+
+/* ---------- greeting text above the lady when the circle is clicked ---------- */
+const WAVE_TEXT = 'CHỢ MỚI';                 // EDIT: the text that pops up (any length, Vietnamese is fine)
+const WAVE_TEXT_STYLE = {                     // EDIT: look of the text
+  font: '"VT323", "Courier New", monospace',
+  size: 0.2,                                  // font size as a share of the circle radius
+  fill: '#FFFFFF',                            // plain text, no outline or shadow
+  spacing: 0.08,                              // extra space between letters (em)
+};
+const WAVE_TEXT_LIFT = 30;                     // EDIT: baseline height above the top of her hat (scene px)
+const LETTERS = (() => {                      // split into letters, keeping Vietnamese marks with their letter
+  const t = WAVE_TEXT.normalize('NFC');
+  if (window.Intl && Intl.Segmenter) return [...new Intl.Segmenter('vi', { granularity: 'grapheme' }).segment(t)].map(x => x.segment);
+  return Array.from(t);
+})();
+if (document.fonts && document.fonts.load) document.fonts.load('40px VT323', WAVE_TEXT).catch(() => {});
+
+function drawWaveText(ctx, w, x, y, R) {
+  if (w < 0 || w > WAVE_DUR) return;
+  const st = WAVE_TEXT_STYLE, fs = Math.round(R * st.size), gap = fs * st.spacing;
+  ctx.save();
+  ctx.font = `${fs}px ${st.font}`;
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  const widths = LETTERS.map(ch => ctx.measureText(ch).width);
+  const total = widths.reduce((a, b) => a + b, 0) + gap * (LETTERS.length - 1);
+  const out = clamp01((w - (WAVE_DUR - 0.5)) / 0.5);           // fade and drift up at the end
+  let cx = Math.round(x - total / 2);
+  LETTERS.forEach((ch, i) => {
+    const a = REDUCED ? 1 : clamp01((w - 0.1 - i * 0.07) / 0.28);   // letters pop in one by one
+    if (a > 0 && ch.trim()) {
+      const k = REDUCED ? 1 : easeOutBack(a);
+      const lx = cx + widths[i] / 2, ly = y - fs * 0.32 * (1 - k) - out * fs * 0.5;
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, a * 2) * (1 - out);
+      ctx.translate(Math.round(lx), Math.round(ly));
+      ctx.scale(k, k);
+      ctx.fillStyle = st.fill; ctx.fillText(ch, -widths[i] / 2, 0);
+      ctx.restore();
+    }
+    cx += widths[i] + gap;
+  });
+  ctx.restore();
+}
+const HERO_SCALE = 0.375;   // circle radius as a share of the stage's shorter side
 
 function drawHero(now) {
   if (hero.start === null) hero.start = now - (REDUCED ? 60000 : 0);
@@ -653,20 +786,34 @@ function drawHero(now) {
   ctx.clearRect(0, 0, hero.canvas.width, hero.canvas.height);
   if (!hero.infoShown && t > 0.5) { hero.infoShown = true; document.getElementById('info').classList.add('in'); }
 
-  // whole device pixels per scene pixel, so the pixel art stays crisp
-  const cell = Math.max(1, Math.floor((Math.min(W, H) * 0.43 * 2 * dpr) / SC));
+  // circle diameter = 75% of the stage's shorter side (EDIT: HERO_SCALE to resize)
+  const cell = Math.max(1, (Math.min(W, H) * HERO_SCALE * 2 * dpr) / SC);
   const size = cell * SC, R = size / 2;                       // device px
   const cx = Math.round(W * dpr / 2), cy = Math.round(H * dpr / 2);
   const x0 = Math.round(cx - R), y0 = Math.round(cy - R);
 
   const cr = R * easeOutBack(clamp01(t / 0.8));
   if (cr > 0) {
+    const wave = hero.waveStart === null ? -1 : (now - hero.waveStart) / 1000;
+    renderScene(REDUCED ? STILL_T : t, wave);
+    const split = y0 + BLUR_LINE * cell;                   // device px: blurred above, crisp below
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, cr, 0, Math.PI * 2); ctx.clip();
+    ctx.save();
+    ctx.beginPath(); ctx.rect(x0, y0, size, split - y0); ctx.clip();
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(blurred, x0, y0, size, size);
+    ctx.restore();
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(renderScene(REDUCED ? STILL_T : t), x0, y0, size, size);
+    ctx.drawImage(scene, 0, BLUR_LINE, SC, SC - BLUR_LINE, x0, split, size, size - (split - y0));
+    ctx.drawImage(birds, x0, y0, size, size);
     ctx.restore();
   }
+  if (cr > 0 && hero.waveStart !== null) {                     // greeting text above the hat
+    const w = (now - hero.waveStart) / 1000;
+    drawWaveText(ctx, w, cx, y0 + (ladyAt[1] - WAVE_TEXT_LIFT) * cell, R);   // centred in the circle
+  }
+  hero.geom = { cx: cx / dpr, cy: cy / dpr, r: R / dpr };    // css px, for click hit-testing
 
   const ringR = 1.07 * R, ringW = 0.03 * R, rp = clamp01((t - 0.7) / 0.85);
   if (rp > 0) {
@@ -679,6 +826,17 @@ function drawHero(now) {
     ctx.beginPath(); ctx.arc(cx, cy, Math.max(0.1, ringR * easeOutCubic(rp)), 0, Math.PI * 2); ctx.stroke();
   }
 }
+
+// click (or Enter / Space) on the circle: the lady waves hello
+function inCircle(e) {
+  if (!hero.geom) return false;
+  const r = hero.canvas.getBoundingClientRect();
+  return Math.hypot(e.clientX - r.left - hero.geom.cx, e.clientY - r.top - hero.geom.cy) <= hero.geom.r * 1.07;
+}
+const waveHello = () => { hero.waveStart = performance.now(); fishSeed++; };   // she waves, fish jump
+hero.canvas.addEventListener('click', e => { if (inCircle(e)) waveHello(); });
+hero.canvas.addEventListener('pointermove', e => hero.canvas.classList.toggle('over', inCircle(e)));
+hero.canvas.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); waveHello(); } });
 
 /* =====================================================================
    TABS
