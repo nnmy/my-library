@@ -204,7 +204,7 @@
     <!-- EDIT: poem -->
     <div class="info poem" id="info">
       <div class="stagger">
-        <h1 style="--i:0">Thơ về quê hương</h1>
+        <h1 style="--i:0">Thơ</h1>
         <p class="verse six" style="--i:1">Lung linh bóng nước con đò</p>
         <p class="verse" style="--i:2">Nhớ sao Chợ Mới câu hò thủy chung</p>
         <p class="verse six" style="--i:3">Quê tôi miền đất anh hùng</p>
@@ -235,7 +235,7 @@
       <!-- EDIT: one <article class="award"> per award, newest first. Tabs are generated from these. -->
       <div id="awardList">
 
-        <article class="award" data-tab="Uchida 2025" data-img="lib/awards/uchida-2025.jpg" data-alt="Giải thưởng Uchida lần thứ 40">
+        <article class="award" data-tab="Uchida 2025" data-img="lib/awards/award--uchida-2025.jpg" data-alt="Giải thưởng Uchida lần thứ 40">
           <h3>Giải thưởng Uchida lần thứ 40</h3>
           <p class="when">Nhật Bản, 2025</p>
           <dl>
@@ -250,7 +250,7 @@
           </dl>
         </article>
 
-        <article class="award" data-tab="Video 2021" data-img="lib/awards/video-2021.jpg" data-alt="Giải nhất cuộc thi video 2021">
+        <article class="award" data-tab="Video 2021" data-img="lib/awards/award--video-2021.jpg" data-alt="Giải nhất cuộc thi video 2021">
           <h3>Giải nhất, cuộc thi video dành cho SV quốc tế tại Kyoto</h3>
           <p class="when">Nhật Bản, 2021</p>
           <dl>
@@ -265,7 +265,7 @@
           </dl>
         </article>
 
-        <article class="award" data-tab="Video 2020" data-img="lib/awards/video-2020.jpg" data-alt="Giải ba cuộc thi video 2020">
+        <article class="award" data-tab="Video 2020" data-img="lib/awards/award--video-2020.jpg" data-alt="Giải ba cuộc thi video 2020">
           <h3>Giải ba, cuộc thi video dành cho SV quốc tế tại Kyoto</h3>
           <p class="when">Nhật Bản, 2020</p>
           <dl>
@@ -739,7 +739,7 @@ const WAVE_TEXT = 'CHỢ MỚI';                 // EDIT: the text that pops up 
 const WAVE_TEXT_STYLE = {                     // EDIT: look of the text
   font: '"VT323", "Courier New", monospace',
   size: 0.2,                                  // font size as a share of the circle radius
-  fill: '#FFFFFF',                            // plain text, no outline or shadow
+  fill: '#0ba346',                            // plain text, no outline or shadow
   spacing: 0.08,                              // extra space between letters (em)
 };
 const WAVE_TEXT_LIFT = 30;                     // EDIT: baseline height above the top of her hat (scene px)
@@ -891,6 +891,8 @@ fitCanvas(hero.canvas, hero);
 const DRAWINGS = [
   { src: 'lib/drawings/tu-hoa.jpg',           caption: 'Tự họa' },
   { src: 'lib/drawings/cho-my-luong-2020.jpg', caption: 'Chợ Mỹ Luông (2020)' },
+  { src: 'lib/drawings/truong-cvl.jpg',           caption: 'Trường Châu Văn Liêm' },
+  { src: 'lib/drawings/long-dien.jpg', caption: 'Long Điền' },
 ];
 
 // Hình chụp: { src, caption, meta }
@@ -899,9 +901,9 @@ const DRAWINGS = [
 // EXIF is read from the JPEG itself, so keep the metadata when exporting
 // (some editors and upload tools strip it). Example files below; replace them.
 const PHOTOS = [
-  { src: 'lib/photos/photo-01.jpg', caption: 'Chú thích cho ảnh 1' },
-  { src: 'lib/photos/photo-02.jpg', caption: 'Chú thích cho ảnh 2' },
-  { src: 'lib/photos/photo-03.jpg', caption: 'Chú thích cho ảnh 3', meta: false },
+  { src: 'lib/photos/photo-01.jpg', caption: 'Núi Phú Sĩ' },
+  { src: 'lib/photos/photo-02.jpg', caption: 'Mùa thu chùa Nanzenji' },
+  { src: 'lib/photos/photo-03.jpg', caption: 'Nhà thờ Giêng', meta: false },
 ];
 
 /* =====================================================================
