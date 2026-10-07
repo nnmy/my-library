@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foto Album</title>
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/album.css">
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ============ Album-wide settings ============ -->
+  <aside class="side" aria-label="Thiết lập album">
+    <a class="back" href="../index.html">← Trang chủ</a>
+    <h1><span class="mark" aria-hidden="true"></span>Foto Album</h1>
+    <p class="sub">Dàn trang album ảnh để in. Album chỉ tồn tại khi trang đang mở; muốn giữ lại, hãy lưu file dự án.</p>
+
+    <details class="sec" open>
+      <summary>Ảnh</summary>
+      <div class="sec-body">
+        <button class="btn primary" id="btnAdd" type="button">Thêm ảnh…</button>
+        <p class="stat" id="photoStat"></p>
+        <label class="f"><span>Thứ tự trong khay</span>
+          <select data-set="sortBy">
+            <option value="date">Theo ngày chụp</option>
+            <option value="name">Theo tên file</option>
+            <option value="added">Theo thứ tự thêm</option>
+          </select></label>
+        <label class="check"><input type="checkbox" data-set="allowReuse"><span>Cho phép dùng một ảnh ở nhiều trang</span></label>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Trang tiêu đề album</summary>
+      <div class="sec-body">
+        <label class="check"><input type="checkbox" data-set="albumTitle"><span>Có trang tiêu đề album (luôn là trang 1)</span></label>
+        <div data-when="albumTitle">
+          <div class="title-photo">
+            <img id="titlePhotoThumb" alt="">
+            <button class="btn" id="btnTitlePhoto" type="button">Chọn ảnh cho trang tiêu đề…</button>
+          </div>
+          <label class="check"><input type="checkbox" data-set="blankAfterTitle"><span>Thêm một trang trống sau trang tiêu đề</span></label>
+          <p class="hint">Trang tiêu đề không thuộc nhóm nào. Ảnh có thể là bất kỳ ảnh nào đã thêm, kể cả ảnh đã dùng ở trang khác. Chữ và mẫu trang sửa ở bảng bên phải.</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Nhóm ảnh</summary>
+      <div class="sec-body">
+        <div class="groups" id="groupList"></div>
+        <button class="btn" id="btnAddGroup" type="button">Tạo nhóm…</button>
+        <p class="lbl">Trang mở đầu mỗi nhóm</p>
+        <div class="gtitles" id="gTitleTiles" role="radiogroup" aria-label="Trang mở đầu mỗi nhóm"></div>
+        <button class="btn" id="btnRebuild" type="button">Dàn lại trang theo nhóm</button>
+        <p class="hint">Mỗi ảnh chỉ thuộc một nhóm. Bấm ✎ để chọn lại ảnh của nhóm, hoặc kéo một ảnh từ khay vào tên nhóm. “Dàn lại” xếp các trang ảnh theo nhóm, giữ nguyên chú thích và cách cắt ảnh; có thể hoàn tác.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Khổ trang</summary>
+      <div class="sec-body">
+        <label class="f"><span>Khổ giấy</span><select data-set="pageSize" id="selPageSize"></select></label>
+        <div class="two" data-when="pageSize=CUSTOM">
+          <label class="f"><span>Rộng</span><input type="number" data-set="custom.w" min="40" max="600" step="1"><em>mm</em></label>
+          <label class="f"><span>Cao</span><input type="number" data-set="custom.h" min="40" max="600" step="1"><em>mm</em></label>
+        </div>
+        <label class="f"><span>Bleed (tràn lề in)</span><input type="number" data-set="bleed" min="0" max="10" step="0.5"><em>mm</em></label>
+        <p class="hint">Bleed được thêm vào mỗi cạnh khi xuất, cho ảnh tràn trang. Để 0 nếu in tại nhà.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Lề và gáy</summary>
+      <div class="sec-body">
+        <div class="two">
+          <label class="f"><span>Lề trên</span><input type="number" data-set="margin.top" min="0" max="80" step="0.5"><em>mm</em></label>
+          <label class="f"><span>Lề dưới</span><input type="number" data-set="margin.bottom" min="0" max="80" step="0.5"><em>mm</em></label>
+          <label class="f"><span>Lề ngoài</span><input type="number" data-set="margin.outer" min="0" max="80" step="0.5"><em>mm</em></label>
+          <label class="f"><span>Lề trong</span><input type="number" data-set="margin.inner" min="0" max="80" step="0.5"><em>mm</em></label>
+          <label class="f"><span>Gáy đóng sách</span><input type="number" data-set="gutter" min="0" max="40" step="0.5"><em>mm</em></label>
+          <label class="f"><span>Khoảng cách ảnh</span><input type="number" data-set="gap" min="0" max="40" step="0.5"><em>mm</em></label>
+        </div>
+        <p class="hint">Gáy được cộng thêm vào lề trong, phía gáy sách. Khung hồng là lề, vùng gạch tím là gáy.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Chú thích và chữ</summary>
+      <div class="sec-body">
+        <label class="f"><span>Chú thích ảnh</span>
+          <select data-set="caption.position"><option value="below">Dưới mỗi ảnh</option><option value="none">Không có</option></select></label>
+        <div data-when="caption.position=below">
+          <div class="two">
+            <label class="f"><span>Chiều cao</span><input type="number" data-set="caption.height" min="3" max="60" step="0.5"><em>mm</em></label>
+            <label class="f"><span>Cỡ chữ</span><input type="number" data-set="caption.size" min="5" max="36" step="0.5"><em>pt</em></label>
+          </div>
+          <label class="f"><span>Phông</span><select data-set="caption.font" data-fonts></select></label>
+          <div class="two">
+            <label class="f"><span>Căn lề</span><select data-set="caption.align"><option value="left">Trái</option><option value="center">Giữa</option><option value="right">Phải</option><option value="justify">Đều hai bên</option></select></label>
+            <label class="f"><span>Màu</span><input type="color" data-set="caption.color"></label>
+          </div>
+        </div>
+        <hr>
+        <p class="lbl">Tiêu đề và đoạn văn (bìa, trang chữ)</p>
+        <label class="f"><span>Phông</span><select data-set="text.font" data-fonts></select></label>
+        <div class="two">
+          <label class="f"><span>Cỡ tiêu đề</span><input type="number" data-set="text.titleSize" min="8" max="96" step="1"><em>pt</em></label>
+          <label class="f"><span>Cỡ đoạn văn</span><input type="number" data-set="text.bodySize" min="6" max="36" step="0.5"><em>pt</em></label>
+        </div>
+        <label class="f"><span>Màu chữ</span><input type="color" data-set="text.color"></label>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Thông số chụp (EXIF)</summary>
+      <div class="sec-body">
+        <p class="hint">Bật hay tắt cho từng ảnh bằng ô “In thông số chụp” ở bảng Khung bên phải. Thông số luôn in thành dòng riêng dưới chú thích.</p>
+        <div class="two">
+          <button class="btn" id="btnExifAllOn" type="button">Bật cho mọi ảnh</button>
+          <button class="btn" id="btnExifAllOff" type="button">Tắt cho mọi ảnh</button>
+        </div>
+        <p class="lbl">Thông số được in</p>
+        <div class="checks" id="exifFields"></div>
+        <label class="f"><span>Nhãn</span><select data-set="exif.labels"><option value="icon">Biểu tượng</option><option value="text">Viết tắt (ISO400, f/2.8)</option></select></label>
+        <label class="f"><span>Phông</span><select data-set="exif.font" data-fonts></select></label>
+        <div class="two">
+          <label class="f"><span>Cỡ chữ</span><input type="number" data-set="exif.size" min="4" max="24" step="0.5"><em>pt</em></label>
+          <label class="f"><span>Màu</span><input type="color" data-set="exif.color"></label>
+        </div>
+        <label class="check"><input type="checkbox" data-set="exif.italic"><span>Chữ nghiêng</span></label>
+        <div class="exif-sample" id="exifSample" aria-label="Mẫu dòng thông số"></div>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Viền ảnh</summary>
+      <div class="sec-body">
+        <div class="two">
+          <label class="f"><span>Độ dày viền</span><input type="number" data-set="border.width" min="0" max="20" step="0.25"><em>mm</em></label>
+          <label class="f"><span>Màu viền</span><input type="color" data-set="border.color"></label>
+        </div>
+        <p class="hint">Màu nền, hình khung và bộ lọc ảnh được chỉnh riêng cho từng trang ở bảng bên phải.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Đầu trang, chân trang, số trang</summary>
+      <div class="sec-body">
+        <label class="check"><input type="checkbox" data-set="header.enabled"><span>Đầu trang</span></label>
+        <div class="two" data-when="header.enabled">
+          <label class="f"><span>Nội dung</span><input type="text" data-set="header.text"></label>
+          <label class="f"><span>Vị trí</span><select data-set="header.align" data-aligns></select></label>
+        </div>
+        <label class="check"><input type="checkbox" data-set="footer.enabled"><span>Chân trang</span></label>
+        <div class="two" data-when="footer.enabled">
+          <label class="f"><span>Nội dung</span><input type="text" data-set="footer.text"></label>
+          <label class="f"><span>Vị trí</span><select data-set="footer.align" data-aligns></select></label>
+        </div>
+        <label class="check"><input type="checkbox" data-set="pageNumber.enabled"><span>Số trang</span></label>
+        <div data-when="pageNumber.enabled">
+          <div class="two">
+            <label class="f"><span>Vị trí</span><select data-set="pageNumber.align" data-aligns></select></label>
+            <label class="f"><span>Kiểu số</span><select data-set="pageNumber.format"><option value="arabic">1, 2, 3</option><option value="roman">i, ii, iii</option></select></label>
+          </div>
+          <label class="f"><span>Bìa được tính là trang số</span><input type="number" data-set="pageNumber.start" min="-10" max="999" step="1"></label>
+          <label class="check"><input type="checkbox" data-set="pageNumber.skipCover"><span>Ẩn trên bìa và trang tràn ảnh</span></label>
+          <label class="check"><input type="checkbox" data-set="pageNumber.skipCredit"><span>Ẩn trên trang lời cảm ơn</span></label>
+        </div>
+        <div class="two">
+          <label class="f"><span>Cỡ chữ</span><input type="number" data-set="hf.size" min="5" max="24" step="0.5"><em>pt</em></label>
+          <label class="f"><span>Màu</span><input type="color" data-set="hf.color"></label>
+        </div>
+        <label class="f"><span>Phông</span><select data-set="hf.font" data-fonts></select></label>
+        <p class="hint">Có thể chèn {page} (số trang), {total} (tổng số trang), {title} (tên album).</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Đường dẫn hiển thị</summary>
+      <div class="sec-body">
+        <label class="check"><input type="checkbox" data-set="guides.margins"><span><i class="sw sw-margin"></i>Lề</span></label>
+        <label class="check"><input type="checkbox" data-set="guides.gutter"><span><i class="sw sw-gutter"></i>Gáy đóng sách</span></label>
+        <label class="check"><input type="checkbox" data-set="guides.bleed"><span><i class="sw sw-bleed"></i>Bleed</span></label>
+        <label class="check"><input type="checkbox" data-set="guides.dpi"><span>Độ phân giải in (dpi) trên mỗi ảnh</span></label>
+        <p class="hint">Chỉ hiện khi chỉnh sửa, không xuất hiện trong file in.</p>
+      </div>
+    </details>
+
+    <details class="sec">
+      <summary>Dự án</summary>
+      <div class="sec-body">
+        <label class="f"><span>Tên album</span><input type="text" data-set="@title"></label>
+        <div class="two">
+          <button class="btn" id="btnSaveProject" type="button">Lưu file dự án</button>
+          <button class="btn" id="btnOpenProject" type="button">Mở file dự án…</button>
+        </div>
+        <p class="hint">Album bị xoá khi đóng hoặc tải lại trang. File <code>.album.zip</code> chứa bố cục và ảnh gốc, mở lại được sau này hoặc ở máy khác. Phím tắt: Ctrl+S.</p>
+        <p class="stat" id="storageStat"></p>
+        <button class="btn danger" id="btnNewProject" type="button">Bắt đầu album mới</button>
+      </div>
+    </details>
+
+    <details class="sec" open>
+      <summary>Xuất file</summary>
+      <div class="sec-body">
+        <label class="f"><span>Định dạng</span>
+          <select data-set="export.format">
+            <option value="pdf-print">PDF qua hộp thoại in (chữ sắc nét)</option>
+            <option value="pdf-direct">PDF tải trực tiếp (trang dạng ảnh)</option>
+            <option value="docx">Word (DOCX)</option>
+            <option value="png-zip">Ảnh PNG từng trang (ZIP)</option>
+            <option value="album">File dự án (.album.zip)</option>
+          </select></label>
+        <div data-when="export.format!=album">
+          <label class="f"><span>Độ phân giải ảnh</span><select data-set="export.dpi" data-num><option value="150">150 dpi (nhẹ, xem trên máy)</option><option value="200">200 dpi</option><option value="300">300 dpi (in ấn)</option></select></label>
+          <label class="check" data-when="export.format!=docx"><input type="checkbox" data-set="export.includeBleed"><span>Kèm bleed khi xuất (nếu bleed &gt; 0)</span></label>
+        </div>
+        <p class="hint" id="exportHint"></p>
+        <button class="btn primary" id="btnExport" type="button">Xuất file</button>
+      </div>
+    </details>
+  </aside>
+
+  <!-- ============ Desk: spread + photo trays ============ -->
+  <main class="desk">
+    <div class="topbar" role="toolbar" aria-label="Điều hướng">
+      <div class="tb-group">
+        <button class="ic" id="btnUndo" type="button" title="Hoàn tác (Ctrl+Z)" aria-label="Hoàn tác">↶</button>
+        <button class="ic" id="btnRedo" type="button" title="Làm lại (Ctrl+Y)" aria-label="Làm lại">↷</button>
+      </div>
+      <div class="tb-group nav">
+        <button class="ic" id="btnPrev" type="button" title="Cặp trang trước (←)" aria-label="Cặp trang trước">◀</button>
+        <span class="where" id="whereLabel">Chưa có trang</span>
+        <button class="ic" id="btnNext" type="button" title="Cặp trang sau (→)" aria-label="Cặp trang sau">▶</button>
+      </div>
+      <div class="tb-group">
+        <button class="btn slim" id="btnAddPage" type="button">Thêm trang</button>
+        <label class="pages-n">Số trang <input type="number" id="inPageCount" min="0" max="400" step="1"></label>
+      </div>
+      <div class="tb-group">
+        <button class="ic" id="btnZoomOut" type="button" aria-label="Thu nhỏ">−</button>
+        <button class="btn slim" id="btnZoomFit" type="button" title="Vừa màn hình">Vừa</button>
+        <button class="ic" id="btnZoomIn" type="button" aria-label="Phóng to">+</button>
+      </div>
+      <span class="saved" id="savedLabel" aria-live="polite"></span>
+    </div>
+
+    <div class="stage" id="stage">
+      <div class="spread-wrap" id="spreadWrap"></div>
+      <div class="empty" id="emptyState" hidden>
+        <div class="empty-card">
+          <p class="empty-title">Bắt đầu bằng vài tấm ảnh</p>
+          <p>Kéo ảnh vào đây hoặc bấm nút bên dưới. Album sẽ tự xếp mỗi trang 2 ảnh trên dưới, chú thích trống; sau đó bạn chỉnh từng phần ở các bảng hai bên.</p>
+          <button class="btn primary" id="btnAdd2" type="button">Thêm ảnh…</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dock" id="dock">
+      <section class="tray" data-tray="pages">
+        <header>
+          <button class="tray-toggle" type="button" aria-expanded="true"><span class="chev">▾</span>Các trang <b data-count></b></button>
+          <span class="tray-hint">Bấm để mở trang, kéo để đổi thứ tự</span>
+          <span class="tray-roll"><button class="ic sm" data-roll="-1" type="button" aria-label="Cuộn trái">◀</button><button class="ic sm" data-roll="1" type="button" aria-label="Cuộn phải">▶</button></span>
+        </header>
+        <div class="strip pages-strip" data-strip data-empty="Chưa có trang nào."></div>
+      </section>
+      <section class="tray" data-tray="unused">
+        <header>
+          <button class="tray-toggle" type="button" aria-expanded="true"><span class="chev">▾</span>Chưa dùng <b data-count></b></button>
+          <label class="tray-filter">Nhóm <select id="selTrayGroup"></select></label>
+          <span class="tray-roll"><button class="ic sm" data-roll="-1" type="button" aria-label="Cuộn trái">◀</button><button class="ic sm" data-roll="1" type="button" aria-label="Cuộn phải">▶</button></span>
+        </header>
+        <div class="strip" data-strip></div>
+      </section>
+      <section class="tray" data-tray="used">
+        <header>
+          <button class="tray-toggle" type="button" aria-expanded="true"><span class="chev">▾</span>Đã dùng <b data-count></b></button>
+          <span class="tray-roll"><button class="ic sm" data-roll="-1" type="button" aria-label="Cuộn trái">◀</button><button class="ic sm" data-roll="1" type="button" aria-label="Cuộn phải">▶</button></span>
+        </header>
+        <div class="strip" data-strip></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============ Current page / frame ============ -->
+  <aside class="insp" id="insp" aria-label="Trang đang chọn"></aside>
+</div>
+
+<input type="file" id="filePhotos" accept="image/*,.heic,.heif" multiple hidden>
+<input type="file" id="fileProject" accept=".zip,.album.zip,application/zip" hidden>
+
+<div class="busy" id="busy" hidden role="dialog" aria-modal="true" aria-labelledby="busyTitle">
+  <div class="busy-card">
+    <p class="busy-title" id="busyTitle">Đang xử lý</p>
+    <div class="bar"><span id="busyBar"></span></div>
+    <p class="busy-text" id="busyText"></p>
+  </div>
+</div>
+<div class="modal" id="pickModal" hidden role="dialog" aria-modal="true" aria-labelledby="pickModalTitle">
+  <div class="modal-card modal-card-pick">
+    <p class="modal-title" id="pickModalTitle">Chọn ảnh cho trang tiêu đề</p>
+    <div class="pick-grid" id="pickGrid" role="listbox" aria-label="Ảnh đã thêm"></div>
+    <footer class="modal-foot"><span class="hint">Bấm vào một ảnh để chọn.</span><span class="modal-foot-btns"><button class="btn" type="button" id="pickCancel">Huỷ</button></span></footer>
+  </div>
+</div>
+<div class="modal" id="grpModal" hidden role="dialog" aria-modal="true" aria-labelledby="grpModalTitle">
+  <div class="modal-card">
+    <header class="modal-head">
+      <p class="modal-title" id="grpModalTitle">Tạo nhóm</p>
+      <label class="f grp-name"><span>Tên nhóm</span><input type="text" id="grpName" maxlength="80"></label>
+    </header>
+    <div class="modal-bar">
+      <span id="grpCount">Chưa chọn ảnh nào</span>
+      <span class="modal-bar-btns">
+        <button class="btn slim" type="button" id="grpPickFree">Chọn mọi ảnh chưa có nhóm</button>
+        <button class="btn slim" type="button" id="grpPickNone">Bỏ chọn hết</button>
+      </span>
+    </div>
+    <div class="pick-grid" id="grpGrid" role="group" aria-label="Chọn ảnh cho nhóm"></div>
+    <p class="hint modal-hint">Bấm vào ảnh để chọn hoặc bỏ chọn; giữ Shift để chọn một dãy. Mỗi ảnh chỉ thuộc một nhóm; nhóm nào không còn ảnh sẽ tự bị xoá.</p>
+    <footer class="modal-foot">
+      <label class="check"><input type="checkbox" id="grpRebuild" checked><span>Dàn lại trang theo nhóm sau khi lưu</span></label>
+      <p class="warn" id="grpErr" hidden></p>
+      <span class="modal-foot-btns">
+        <button class="btn" type="button" id="grpCancel">Huỷ</button>
+        <button class="btn primary" type="button" id="grpOk">Tạo nhóm</button>
+      </span>
+    </footer>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="lib/fflate.umd.js"></script>
+<script src="lib/exifr.lite.umd.js"></script>
+<script src="lib/pdf-lib.min.js"></script>
+<script src="lib/docx.iife.js"></script>
+<script src="lib/album-core.js"></script>
+<script src="lib/album-render.js"></script>
+<script src="lib/album-export.js"></script>
+<script src="lib/album-ui.js"></script>
+</body>
+</html>
