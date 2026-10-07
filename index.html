@@ -74,7 +74,7 @@ h1 .dot { display: inline-block; flex: none; width: 16px; height: 16px; backgrou
 
   <div id="shelves"></div>
   <noscript><p>Cần bật JavaScript để hiển thị danh sách.
-    Các tiện ích: <a href="nes-pixelator/index.html">NES Pixelator</a>, <a href="foto-batch/index.html">Foto Batch</a>, <a href="https://nnmy.github.io/game-joy/">Game: Joy</a>.
+    Các tiện ích: <a href="nes-pixelator/index.html">NES Pixelator</a>, <a href="https://nnmy.github.io/game-joy/">Game: Joy</a>, <a href="foto-batch/index.html">Foto Batch</a>, <a href="foto-album/index.html">Foto Album</a>.
     Sáng tác: <a href="luu-niem/index.html">Lưu niệm</a>, <a href="chuyen-hoi-do/index.html">Hồi đó</a>.</p></noscript>
 </div>
 
@@ -111,6 +111,27 @@ const SECTIONS = [
     ],
   },
   {
+    name: "Game: Joy",
+    href: "https://nnmy.github.io/game-joy/",
+    desc: "Một NES game lấy cảm hứng từ Legend of Kage 1986.",
+    tags: ["NES game"],
+    iconColors: { K: "#000000", H: "#503000", h: "#8c5a2b", S: "#fcbc80", R: "#d82800", r: "#a81000", B: "#141c68", W: "#fcfcfc" },
+    icon: [
+      "...KKKKKK...",
+      "..KHhHHhHK..",
+      ".KHHhHHhHHK.",
+      "KHHhHHHHhHHK",
+      "KHSKSSSSKSHK",
+      "KHSSSKKSSSHK",
+      ".KRRKSSKRRK.",
+      "KRRRRrrRRRRK",
+      "KSKRRrrRRKSK",
+      ".KBBBBBBBBK.",
+      "..KBBKKBBK..",
+      ".KKWWKKWWKK.",
+    ],
+  },
+  {
     name: "Foto Batch",
     href: "foto-batch/index.html",
     desc: "Đặt metadata, watermark & tạo collage cho nhóm ảnh.",
@@ -130,24 +151,23 @@ const SECTIONS = [
     ],
   },
   {
-    name: "Game: Joy",
-    href: "https://nnmy.github.io/game-joy/",
-    desc: "Một NES game lấy cảm hứng từ Legend of Kage 1986.",
-    tags: ["NES game"],
-    iconColors: { K: "#000000", H: "#503000", h: "#8c5a2b", S: "#fcbc80", R: "#d82800", r: "#a81000", B: "#141c68", W: "#fcfcfc" },
+    name: "Foto Album",
+    href: "foto-album/index.html",
+    desc: "Dàn trang cho album ảnh để in (PDF, PNG,...)",
+    tags: ["Photo", "Album", "In ấn"],
+    // pixel art: album mở hai trang, mỗi trang dán ảnh
+    iconColors: { o: "#1d1d21", w: "#f4f2ea", k: "#c9c4b6", s: "#7bcde8", y: "#f2c230", g: "#3fa055", r: "#d8312a", t: "#3787c4", p: "#e0399b", b: "#8a5a2b" },
     icon: [
-      "...KKKKKK...",
-      "..KHhHHhHK..",
-      ".KHHhHHhHHK.",
-      "KHHhHHHHhHHK",
-      "KHSKSSSSKSHK",
-      "KHSSSKKSSSHK",
-      ".KRRKSSKRRK.",
-      "KRRRRrrRRRRK",
-      "KSKRRrrRRKSK",
-      ".KBBBBBBBBK.",
-      "..KBBKKBBK..",
-      ".KKWWKKWWKK.",
+      "oooooooooooooo",
+      "owwwwwwkwwwwwo",
+      "owssyswkwgggwo",
+      "owgssswkwgrgwo",
+      "owggggwkwgggwo",
+      "owwwwwwkwwwwwo",
+      "owttttwkwpppwo",
+      "owttttwkwpppwo",
+      "owwwwwwkwwwwwo",
+      "obbbbbbobbbbbo",
     ],
   },
     ],
