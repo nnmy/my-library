@@ -29,7 +29,7 @@
 .site-nav a:focus-visible, .site-foot button:focus-visible { outline: 3px solid var(--site-sea); outline-offset: 3px; }
 @media (max-width: 520px) { .site-mark span { display: none; } }
 
-/* ---------- footer with the cat ---------- */
+/* ---------- footer with the mini game (two roosters, common/site.js) ---------- */
 .site-foot { padding: 24px clamp(16px, 5vw, 64px) 36px; background: var(--site-paper); font-family: var(--site-body); }
 .site-foot .cat-lane { max-width: 1180px; margin: 0 auto; position: relative; }
 #catCanvas { width: 100%; height: 140px; display: block; position: relative; z-index: 2; pointer-events: none; }

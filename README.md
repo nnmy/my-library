@@ -8,7 +8,7 @@ my-library/
 ├── index.html                 Trang chủ: hai mục "Các tiện ích" và "Sáng tác"
 ├── common/                    Navbar + footer dùng chung (không phải thư viện của công cụ)
 │   ├── site.css               Navbar + footer, cùng giao diện với https://nnmy.github.io/
-│   └── site.js                Minigame chú mèo ở footer (dùng chung cho index.html và luu-niem/)
+│   └── site.js                Minigame hai chú gà ở footer (dùng chung cho index.html và luu-niem/)
 ├── foto-batch/                Tiện ích: metadata, watermark, collage
 ├── luu-niem/                  Sáng tác: Lưu niệm (thơ, giải thưởng, hình vẽ, hình chụp)
 │   ├── index.html
