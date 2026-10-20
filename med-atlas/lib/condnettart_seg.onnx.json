@@ -1,0 +1,27 @@
+{
+ "name": "condnettart_seg.onnx",
+ "size": 94412319,
+ "sha256": "d99a856ded82c3d39ace00d2f423bd5188c2effdc0597e8e1fb22830339fb60a",
+ "parts": [
+  {
+   "file": "condnettart_seg.onnx.part000",
+   "size": 20000000
+  },
+  {
+   "file": "condnettart_seg.onnx.part001",
+   "size": 20000000
+  },
+  {
+   "file": "condnettart_seg.onnx.part002",
+   "size": 20000000
+  },
+  {
+   "file": "condnettart_seg.onnx.part003",
+   "size": 20000000
+  },
+  {
+   "file": "condnettart_seg.onnx.part004",
+   "size": 14412319
+  }
+ ]
+}
