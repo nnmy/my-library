@@ -1,0 +1,89 @@
+{
+ "_note": "Viết tay. Khóa = số nhãn trong seg.u8.gz (giống bảng tissue_conductivity_10khz.csv của CondNetTART). color: màu trên ảnh phân vùng (tab20, giống trình xem isocond của APP_BRAINE). ipa: giọng Mỹ, không kèm dấu /. Bảng Các mô tự xếp theo thể tích, ô Tìm mô theo tên tiếng Anh.",
+ "tissues": {
+  "1": {
+   "en": "Blood", "vi": "Máu (xoang tĩnh mạch, mạch lớn)", "ipa": "blʌd", "color": "#aec7e8", "group": "Dịch",
+   "where": "Máu trong các mạch lớn đủ rộng để thấy ở độ phân giải 1 mm: chủ yếu các xoang tĩnh mạch màng cứng (xoang dọc trên chạy dọc đường giữa dưới vòm sọ, xoang thẳng, xoang ngang ở phía sau) và các động mạch lớn ở nền sọ.",
+   "mri": "Máu chảy nhanh thường mất tín hiệu (tối, 'flow void'), máu chảy chậm có thể sáng; vì vậy hình dạng mạch máu trên T1 và T2 không đồng nhất.",
+   "cond": "Huyết tương giàu ion nên dẫn điện khá tốt (tham chiếu 0,7 S/m). Hồng cầu có màng tế bào gần như cách điện ở tần số thấp, nên máu dẫn điện kém hơn dịch não tủy."
+  },
+  "2": {
+   "en": "Cancellous bone", "vi": "Xương xốp (lõi xốp, diploe)", "ipa": "ˈkænsələs boʊn", "color": "#ff7f0e", "group": "Xương",
+   "where": "Lớp giữa của xương vòm sọ, kẹp giữa bản ngoài và bản trong bằng xương đặc. Cũng có trong thân xương ở nền sọ.",
+   "mri": "Chứa tủy xương (một phần là mỡ) nên sáng hơn xương đặc, nhất là trên T1: thấy như một dải sáng mảnh nằm giữa hai đường tối của hộp sọ.",
+   "cond": "Các khoang tủy chứa dịch nên dẫn điện tốt hơn xương đặc vài lần (tham chiếu 0,08 S/m so với 0,02 S/m)."
+  },
+  "3": {
+   "en": "Cortical bone", "vi": "Xương đặc (xương vỏ)", "ipa": "ˈkɔrtɪkəl boʊn", "color": "#2ca02c", "group": "Xương",
+   "where": "Bản ngoài và bản trong của xương sọ, xương mặt và nền sọ. Là nhãn lớn thứ hai trong khối (sau da đầu).",
+   "mri": "Rất ít proton tự do nên tối trên cả T1 lẫn T2. Trên ảnh MRI thường chỉ thấy hộp sọ là một dải đen giữa da đầu và não.",
+   "cond": "Dẫn điện kém nhất trong đầu (tham chiếu 0,02 S/m). Hộp sọ vì vậy là lớp chắn chính: dòng điện đặt ở da đầu (tDCS, tACS) phần lớn chạy vòng qua da đầu, và tín hiệu EEG bị nhòe khi đi qua xương."
+  },
+  "4": {
+   "en": "Cerebellum", "vi": "Tiểu não", "ipa": "ˌsɛrəˈbɛləm", "color": "#98df8a", "group": "Não",
+   "where": "Hố sọ sau: dưới lều tiểu não, phía sau thân não và não thất IV. Nhãn này gộp cả chất xám và chất trắng của tiểu não.",
+   "mri": "Bề mặt có các lá tiểu não xếp sát nhau, mảnh hơn nhiều so với hồi đại não; trên T1 có dạng 'cây sống' (arbor vitae) do chất trắng ở giữa.",
+   "cond": "Tham chiếu 0,13 S/m, cao hơn một chút so với chất xám đại não (0,10 S/m)."
+  },
+  "5": {
+   "en": "Cerebrospinal fluid", "vi": "Dịch não tủy", "ipa": "səˌribroʊˈspaɪnəl ˈfluɪd", "color": "#ff9896", "group": "Dịch",
+   "where": "Trong các não thất (hai não thất bên, não thất III, não thất IV) và các bể dịch lớn ở nền sọ.",
+   "mri": "Tối trên T1, rất sáng trên T2. Đây là cách nhanh nhất để phân biệt T1 với T2: nhìn não thất.",
+   "cond": "Dẫn điện tốt nhất trong đầu (tham chiếu 2,0 S/m, gần bằng nước muối sinh lý, không có tế bào cản trở). Dòng điện có xu hướng đi theo các khoang dịch."
+  },
+  "6": {
+   "en": "Meninges and surface CSF", "vi": "Màng não và lớp dịch quanh não", "ipa": "məˈnɪndʒiz", "color": "#9467bd", "group": "Dịch",
+   "where": "Lớp mỏng giữa mặt trong hộp sọ và bề mặt não: màng cứng, màng nhện và khoang dưới nhện. Thấy rõ ở liềm đại não (giữa hai bán cầu) và lều tiểu não.",
+   "mri": "Lớp chỉ dày 1–3 mm nên mỗi voxel 1 mm lẫn cả màng và dịch. Trên T2, phần dịch trong lớp này sáng.",
+   "cond": "Giá trị tham chiếu 0,5 S/m nằm giữa dịch não tủy (2,0) và mô màng não. Độ dày và độ dẫn điện của lớp này ảnh hưởng lớn tới cách dòng điện phân bố trên bề mặt não."
+  },
+  "7": {
+   "en": "Fat", "vi": "Mỡ", "ipa": "fæt", "color": "#8c564b", "group": "Mô mềm",
+   "where": "Trong bộ phân vùng này, nhãn mỡ chỉ chiếm khoảng 3 mL, rải rác ở vùng nền sọ và cổ. Lớp mỡ dưới da trên vòm sọ không tách riêng mà nằm trong nhãn da đầu.",
+   "mri": "Sáng trên T1, khá sáng trên T2 (spin echo nhanh).",
+   "cond": "Ít nước và ion nên dẫn điện kém (tham chiếu 0,04 S/m)."
+  },
+  "8": {
+   "en": "Gray matter", "vi": "Chất xám (vỏ đại não)", "ipa": "ɡreɪ ˈmætər", "color": "#c49c94", "group": "Não",
+   "where": "Lớp vỏ đại não dày 2–4 mm, uốn theo các hồi và rãnh não, bao ngoài chất trắng.",
+   "mri": "T1: tối hơn chất trắng. T2: sáng hơn chất trắng. Ranh giới xám–trắng rõ trên T1.",
+   "cond": "Tham chiếu 0,10 S/m. Thân tế bào thần kinh và khoang ngoại bào rộng hơn chất trắng nên dẫn điện tốt hơn chất trắng."
+  },
+  "9": {
+   "en": "Mucous membrane", "vi": "Niêm mạc", "ipa": "ˈmjukəs ˈmɛmbreɪn", "color": "#e377c2", "group": "Mô mềm",
+   "where": "Lớp lót hốc mũi, các xoang cạnh mũi và vòm họng, nằm ở đường giữa phía trước – dưới của đầu.",
+   "mri": "Mỏng, sáng trên T2. Niêm mạc xoang dày lên (viêm xoang) thấy rất rõ trên T2.",
+   "cond": "Tham chiếu 0,07 S/m. Các khoang khí bên cạnh (xoang, hốc mũi) không dẫn điện và được tính là nền."
+  },
+  "10": {
+   "en": "Muscle", "vi": "Cơ", "ipa": "ˈmʌsəl", "color": "#7f7f7f", "group": "Mô mềm",
+   "where": "Cơ thái dương (hai bên vòm sọ), cơ nhai, lưỡi, cơ vùng gáy và cổ, cơ vận nhãn trong hốc mắt.",
+   "mri": "Tín hiệu trung gian, tối hơn mỡ trên T1 và tối trên T2.",
+   "cond": "Tham chiếu 0,34 S/m. Thực tế cơ dẫn điện dọc thớ tốt hơn ngang thớ (dị hướng); mô hình ở đây coi mỗi voxel đẳng hướng."
+  },
+  "11": {
+   "en": "Scalp", "vi": "Da đầu (da và mô dưới da)", "ipa": "skælp", "color": "#c7c7c7", "group": "Mô mềm",
+   "where": "Lớp ngoài cùng của đầu, dày khoảng 5–7 mm trên vòm sọ, gồm da, mô dưới da và lớp mỡ dưới da. Là nhãn lớn nhất trong khối.",
+   "mri": "Lớp mỡ dưới da làm da đầu sáng trên T1.",
+   "cond": "Tham chiếu 0,10 S/m. Ở những chỗ da đầu rất mỏng, ước lượng của mô hình có thể lệch (xem mục Về dữ liệu)."
+  },
+  "12": {
+   "en": "Vitreous humour", "vi": "Dịch kính (nhãn cầu)", "ipa": "ˈvɪtriəs ˈhjumər", "color": "#dbdb8d", "group": "Dịch",
+   "where": "Phần dịch trong hai nhãn cầu, trong hốc mắt ở phía trước – dưới của đầu.",
+   "mri": "Giống dịch não tủy: tối trên T1, rất sáng trên T2.",
+   "cond": "Gần như nước muối nên dẫn điện tốt (tham chiếu 1,5 S/m)."
+  },
+  "13": {
+   "en": "White matter", "vi": "Chất trắng", "ipa": "waɪt ˈmætər", "color": "#17becf", "group": "Não",
+   "where": "Phần trong của bán cầu đại não, nằm dưới vỏ: các bó sợi trục nối các vùng vỏ não với nhau và với thân não.",
+   "mri": "T1: sáng hơn chất xám. T2: tối hơn chất xám. Do myelin (giàu lipid) quanh sợi trục.",
+   "cond": "Tham chiếu 0,07 S/m. Myelin cách điện nên chất trắng dẫn điện kém hơn chất xám, và thực tế dẫn dọc bó sợi tốt hơn ngang bó (dị hướng)."
+  },
+  "14": {
+   "en": "Brainstem and deep nuclei", "vi": "Thân não và các nhân xám sâu", "ipa": "ˈbreɪnstɛm", "color": "#9edae5", "group": "Não",
+   "where": "Đường giữa, sâu trong não: thân não (trung não, cầu não, hành não) nối xuống tủy sống, và vùng đồi thị – nhân nền phía trên. Tên nhãn gốc trong mô hình: 'brainstem & cortical nucleis'.",
+   "mri": "Hỗn hợp chất xám và chất trắng nên tín hiệu nằm giữa hai loại.",
+   "cond": "Tham chiếu 0,07 S/m, gần với chất trắng."
+  }
+ }
+}
