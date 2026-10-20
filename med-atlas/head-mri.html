@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MRI đầu: mô và độ dẫn điện | Atlas hình ảnh y khoa | My N. Nguyen</title>
+<meta name="description" content="Xem vị trí các mô trong đầu (da đầu, xương sọ, dịch não tủy, chất xám, chất trắng…) trên ảnh MRI T1, T2, bản đồ phân vùng mô và bản đồ độ dẫn điện ở 10 kHz của một người thật.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/atlas.css?v=20261018">
+<link rel="stylesheet" href="lib/headmri.css?v=20261024">
+<!--
+  =====================================================================
+  HOW TO EDIT  (med-atlas/head-mri.html, MRI ĐẦU: MÔ VÀ ĐỘ DẪN ĐIỆN)
+  - Ảnh: lib/data/head-mri/ (t1, t2, seg .u8.gz; cond.u16.gz; meta.json), tạo bằng tools/prepare_head_mri.py
+    từ kết quả CondNetTART Model10 (10 kHz) của người IXI258.
+  - Tên, màu, vị trí, đặc điểm trên MRI và độ dẫn điện của từng mô: lib/data/head-mri/tissues.json.
+    Sửa trực tiếp, không cần chạy lại Python. Hướng dẫn: README-head-mri.md
+  - Trình xem: lib/headmri.js; giao diện: lib/atlas.css (dùng chung) + lib/headmri.css. Sau khi sửa, đổi chuỗi ?v=...
+  - Ghim + Xuất PDF giống trang MRI não (IndexedDB med-atlas, organ head-mri; bản in #printSheet trong atlas.css).
+  - Trang đọc dữ liệu bằng fetch(): xem trên máy cần server tĩnh (python -m http.server).
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap wide page-head">
+  <p class="crumb"><a href="index.html">Atlas hình ảnh y khoa</a> / MRI đầu: mô và độ dẫn điện</p>
+  <h1><span class="dot"></span>MRI đầu: mô và độ dẫn điện</h1>
+</header>
+
+<section class="wrap wide" aria-label="Trình xem MRI đầu">
+  <div class="viewer" id="hmViewer">
+    <div class="left">
+      <div class="stage">
+        <div class="hm-films">
+          <div class="film"><canvas id="hmCv-t1" tabindex="0" aria-label="Ảnh T1. Rê chuột để đọc giá trị trên cả bốn ảnh, nhấp để khóa vị trí, lăn chuột để đổi lát, Esc để bỏ khóa."></canvas><span class="tag" aria-hidden="true">T1</span></div>
+          <div class="film"><canvas id="hmCv-t2" tabindex="0" aria-label="Ảnh T2, cùng lát cắt."></canvas><span class="tag" aria-hidden="true">T2</span></div>
+          <div class="film"><canvas id="hmCv-seg" tabindex="0" aria-label="Bản đồ phân vùng mô, cùng lát cắt."></canvas><span class="tag" aria-hidden="true">Mô</span></div>
+          <div class="film"><canvas id="hmCv-cond" tabindex="0" aria-label="Bản đồ độ dẫn điện ở 10 kHz, cùng lát cắt."></canvas><span class="tag" aria-hidden="true">σ 10 kHz</span></div>
+          <div class="loader" id="hmLoader"><div>Đang chuẩn bị…</div></div>
+        </div>
+        <div class="hm-strip" id="hmStrip" hidden></div>
+        <div class="readout-strip" id="hmReadout" aria-live="polite"></div>
+      </div>
+      <div class="controls" id="hmControls">
+        <div class="ctl-head"><span>Điều khiển</span><span class="vscroll vs-head" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span><button class="iconbtn" type="button" id="hmCtlMin" aria-controls="hmCtlBody"></button></div>
+        <div class="ctl-body" id="hmCtlBody">
+          <div class="ctl">
+            <span class="lab">Hướng cắt</span>
+            <div class="seg-btns" role="group" aria-label="Hướng cắt">
+              <button class="btn" type="button" data-orient="ax" title="Lát ngang (axial)">Axial</button>
+              <button class="btn" type="button" data-orient="cor" title="Lát đứng ngang (coronal)">Coronal</button>
+              <button class="btn" type="button" data-orient="sag" title="Lát đứng dọc (sagittal)">Sagittal</button>
+            </div>
+          </div>
+          <div class="ctl">
+            <label class="lab" for="hmSlice">Lát cắt</label>
+            <div class="inline"><input type="range" id="hmSlice" min="0" max="1" value="0"><output id="hmSliceOut" for="hmSlice" style="min-width:6.5em"></output></div>
+          </div>
+          <div class="ctl">
+            <label class="lab" for="hmFind">Tìm mô</label>
+            <select id="hmFind" class="inp"></select>
+          </div>
+          <div class="ctl">
+            <label class="lab" for="hmScale">Thang σ</label>
+            <div class="inline"><select id="hmScale" class="inp sm">
+              <option value="full">0 – 2 S/m (cả dịch)</option>
+              <option value="low">0 – 0,5 S/m (mô đặc)</option>
+            </select><span class="vscroll" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="infocol" aria-label="Thông tin">
+      <div class="info-inner">
+        <div class="info-bar"><span class="info-title" id="hmInfoName"></span><button class="iconbtn" type="button" id="hmInfoMin"></button></div>
+        <div class="info" id="hmInfo" aria-live="polite"></div>
+      </div>
+    </aside>
+  </div>
+  <div class="tip" id="hmTip" hidden></div>
+</section>
+
+<section class="part" id="ghim" style="margin-top:44px">
+  <div class="wrap wide">
+    <div class="nb-head">
+      <h2>Ghim <span id="nbCount" style="color:var(--sea)">0</span></h2>
+      <div class="btnrow"><button class="btn primary" type="button" id="btnPdf" disabled>Xuất PDF</button></div>
+    </div>
+    <p class="hint-s" style="margin-top:6px">Bấm nút <b>Xuất PDF</b> để lưu những gì bạn đã ghim vào một file PDF.</p>
+    <p class="nb-empty" id="nbEmpty">Chưa ghim mục nào. Nhấp vào một điểm trên ảnh để khóa (hoặc bấm tên một mô trong bảng), rồi bấm <b>Ghim</b> trong khung thông tin.</p>
+    <p class="nb-warn" id="nbWarn" hidden>Trình duyệt đang chặn bộ nhớ cục bộ (ví dụ chế độ ẩn danh), nên danh sách ghim sẽ mất khi đóng trang. Hãy xuất PDF trước khi rời trang.</p>
+    <ul class="nb-list" id="nbList"></ul>
+  </div>
+</section>
+
+<section class="part" id="cach-xem">
+  <div class="wrap">
+    <h2>Đọc bốn ảnh cùng lúc</h2>
+    <div class="prose">
+      <p>Bốn ảnh là cùng một lát cắt của cùng một người, trên cùng một lưới voxel 1 mm, nên một điểm trên ảnh này trùng đúng điểm đó trên ba ảnh còn lại.</p>
+      <ul>
+        <li><b>T1</b>: mỡ sáng, dịch tối. Chất trắng sáng hơn chất xám. Dễ thấy giải phẫu và ranh giới xám–trắng.</li>
+        <li><b>T2</b>: dịch rất sáng (não thất, khoang dưới nhện, dịch kính). Chất trắng tối hơn chất xám.</li>
+        <li><b>Mô</b>: mỗi voxel được gán một trong 14 loại mô (bảng <b>Các mô</b> bên phải). Màu giống trình xem của dự án CondNetTART.</li>
+        <li><b>σ 10 kHz</b>: độ dẫn điện ước lượng cho từng voxel (S/m), thang màu jet. Ở thang <b>0 – 2 S/m</b>, dịch não tủy và dịch kính nổi bật còn các mô đặc gần như cùng màu xanh đậm; chuyển sang thang <b>0 – 0,5 S/m</b> để thấy khác biệt giữa da đầu, xương, cơ, chất xám và chất trắng.</li>
+      </ul>
+      <p>Từ ngoài vào trong trên lát ngang: <b>da đầu</b> → <b>xương sọ</b> (bản ngoài xương đặc, lõi xương xốp, bản trong xương đặc) → <b>màng não và lớp dịch quanh não</b> → <b>chất xám</b> → <b>chất trắng</b>, và ở sâu bên trong là <b>não thất</b> chứa dịch não tủy. Lớp xương dẫn điện kém nhất nằm kẹp giữa da đầu và lớp dịch dẫn điện tốt nhất: đó là lý do dòng điện đặt trên da đầu chỉ một phần nhỏ đi vào não.</p>
+      <p>Thao tác: rê chuột để đọc giá trị, nhấp để khóa (nhấp lần nữa hoặc <span class="kbd">Esc</span> để mở khóa), lăn chuột hoặc <span class="kbd">PgUp</span>/<span class="kbd">PgDn</span> để đổi lát, phím mũi tên để dời điểm, <span class="kbd">Enter</span> để khóa. Bấm tên một mô để viền mô đó màu hồng và xem dải mật độ: mỗi ô là một lát, ô càng đậm thì lát đó càng nhiều mô; bấm hoặc kéo trên dải để tới lát đó.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="du-lieu">
+  <div class="wrap">
+    <h2>Về dữ liệu</h2>
+    <div class="prose">
+      <p>Ảnh T1 và T2 của người <span class="term">IXI258</span> trong bộ dữ liệu công khai <span class="term">IXI</span> (khoảng 600 người khoẻ, chụp tại ba bệnh viện ở London). Hai ảnh được đưa về cùng lưới voxel 1 mm. Nền ngoài đầu được xoá để dễ nhìn.</p>
+      <p>Bản đồ phân vùng mô và bản đồ độ dẫn điện là <b>kết quả của mô hình học sâu CondNetTART (Model10)</b> của Phòng thí nghiệm Hirata, Viện Công nghệ Nagoya (NITech), ước lượng từ T1 và T2 ở tần số 10 kHz. Bảng <b>Các mô</b> ghi giá trị độ dẫn điện tham chiếu mà dự án dùng cho từng mô; khung thông tin của mỗi mô ghi thêm trung vị độ dẫn điện mô hình dự đoán trong mô đó.</p>
+      <p>Phân vùng gốc nằm trên lưới của ảnh IXI (0,94 × 0,94 × 1,2 mm) và được đưa sang lưới 1 mm bằng nội suy láng giềng gần nhất.</p>
+    </div>
+    <div class="callout"><b>Phân vùng mô và độ dẫn điện do mô hình tự ước lượng, chưa được bác sĩ kiểm tra từng voxel.</b> Ranh giới có thể lệch vài mm, nhất là ở các lớp mỏng (da đầu, màng não) và vùng nền sọ. Với người này, ước lượng của mô hình ở da đầu và cơ đã được ghi nhận là chưa chính xác ở một số vùng (chẳng hạn chỗ da đầu rất mỏng). Mô hình coi mỗi voxel là đẳng hướng, trong khi chất trắng và cơ thực tế dẫn điện khác nhau theo hướng.</div>
+    <div class="callout">Tài liệu học tập, không dùng để chẩn đoán hay điều trị.</div>
+    <h3>Nguồn</h3>
+    <ol class="refs">
+      <li>IXI Dataset, Biomedical Image Analysis Group, Imperial College London: <a href="https://brain-development.org/ixi-dataset/" rel="noopener">brain-development.org/ixi-dataset</a>. Giấy phép CC BY-SA 3.0.</li>
+      <li>CondNetTART (Model10), ước lượng độ dẫn điện mô đầu từ ảnh MRI T1/T2, Phòng thí nghiệm Hirata, Nagoya Institute of Technology. Kết quả chạy ở 10 kHz cho người IXI258.</li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<div id="printSheet"></div>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/headmri.js?v=20261024"></script>
+<script>
+  HEADMRI.start({
+    data: 'lib/data/head-mri/',
+    printHeader: "My N. Nguyen's Library",     // dòng đầu mỗi trang PDF
+    printTitle: 'Ghi chú MRI đầu: mô và độ dẫn điện',   // tiêu đề trong PDF
+    printFile: 'ghichu_mri_dau',               // tên file mặc định: ghichu_mri_dau yyyymmdd_HHMMSS.pdf
+  });
+</script>
+<script src="lib/scroll-btns.js?v=20261018"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,5 +1,11 @@
 # Dữ liệu MRI não (`med-atlas/lib/data/brain-mri/`)
 
+> Trang X-quang ngực (`2-chest-xray.html`) có hướng dẫn riêng: `README-chest-xray.md`.
+>
+> Trang MRI đầu: mô và độ dẫn điện (`head-mri.html`) có hướng dẫn riêng: `README-head-mri.md`.
+>
+> Trang phân vùng mô đầu (`head-seg.html`, không liệt kê, chỉ dùng trên máy) có hướng dẫn riêng: `README-head-seg.md`.
+>
 > Mục "Bệnh não" (trình xem `lib/compare.js`, dữ liệu trong `lib/data/brain-disease/`) có hướng dẫn riêng: `README-brain-disease.md`.
 
 Thư mục này chứa dữ liệu cho trang `med-atlas/1-brain-mri.html`. Hướng dẫn gồm hai phần:
@@ -50,7 +56,7 @@ Nếu dùng bản ICBM định dạng **MINC2** (file `.mnc` thế hệ mới), 
 | ICBM 2009c Nonlinear Symmetric (MINC1 hoặc NIfTI) | https://nist.mni.mcgill.ca/ (mục *ICBM 152 Nonlinear atlases 2009*) | `mni_icbm152_t1_tal_nlin_sym_09c`, `..._t2_...`, `..._t1_..._mask`, `..._wm_...`, `..._gm_...`, `..._csf_...` |
 | CerebrA | https://gin.g-node.org/anamanera/CerebrA | `CerebrA.nii` |
 
-Giải nén vào một thư mục bất kỳ **nằm ngoài** `my-acdm` để không đưa file gốc (vài trăm MB) lên GitHub. Ví dụ:
+Giải nén vào một thư mục bất kỳ **nằm ngoài** `my-library` để không đưa file gốc (vài trăm MB) lên GitHub. Ví dụ:
 
 ```
 D:\mri-source\
@@ -60,7 +66,7 @@ D:\mri-source\
 
 ### Chạy script
 
-Mở terminal tại `my-acdm/med-atlas/tools/` rồi chạy.
+Mở terminal tại `my-library/med-atlas/tools/` rồi chạy.
 
 macOS / Linux:
 
@@ -122,19 +128,19 @@ Server ở đây chỉ là một server tĩnh trên chính máy bạn: không c�
 
 ### Cách 1: Python (có sẵn nếu đã cài Python)
 
-Mở terminal tại thư mục **`my-acdm`** (thư mục gốc, không phải `med-atlas`). Phải đứng ở đây vì trang dùng `../common/` cho navbar và footer.
+Mở terminal tại thư mục **`my-library`** (thư mục gốc, không phải `med-atlas`). Phải đứng ở đây vì trang dùng `../common/` cho navbar và footer.
 
 macOS / Linux:
 
 ```bash
-cd đường/dẫn/tới/my-acdm
+cd đường/dẫn/tới/my-library
 python3 -m http.server 8000
 ```
 
 Windows (PowerShell hoặc Command Prompt):
 
 ```powershell
-cd D:\đường\dẫn\tới\my-acdm
+cd D:\đường\dẫn\tới\my-library
 py -m http.server 8000
 ```
 
@@ -142,7 +148,7 @@ Sau đó mở trình duyệt tại:
 
 - Trang tra cứu: http://localhost:8000/med-atlas/1-brain-mri.html
 - Trang chủ module: http://localhost:8000/med-atlas/index.html
-- Trang chủ Academia: http://localhost:8000/
+- Trang chủ Library: http://localhost:8000/
 
 Dừng server: nhấn **Ctrl+C** trong terminal.
 
@@ -151,7 +157,7 @@ Nếu cổng 8000 đang bận (lỗi `Address already in use`), đổi sang số
 ### Cách 2: Live Server trong VS Code
 
 1. Cài extension **Live Server** (tác giả Ritwick Dey).
-2. Mở thư mục `my-acdm` bằng *File > Open Folder*.
+2. Mở thư mục `my-library` bằng *File > Open Folder*.
 3. Bấm **Go Live** ở thanh trạng thái dưới cùng, rồi vào `med-atlas/1-brain-mri.html`.
 
 Live Server tự tải lại trang khi bạn lưu file, tiện khi đang sửa `labels.json` hay CSS.
@@ -159,7 +165,7 @@ Live Server tự tải lại trang khi bạn lưu file, tiện khi đang sửa `
 ### Cách 3: Node.js (nếu đã có Node)
 
 ```bash
-cd my-acdm
+cd my-library
 npx serve .        # lần đầu cần mạng để tải gói serve
 ```
 

@@ -17,6 +17,7 @@
   - Danh sách trang con: mảng PAGES ở cuối file.
       done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
   - num: số thứ tự, hiện liền trước tiêu đề trên cùng dòng.
+  - Mục Khác (liên kết chữ dưới lưới thẻ): mảng OTHERS ở cuối file.
   =====================================================================
 -->
 <style>
@@ -37,6 +38,12 @@
   .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
   .tags li { font-size: 12.5px; padding: 1px 9px; background: var(--mist); border: 1px solid var(--line); color: var(--ink); }
   .badge { align-self: flex-start; margin-top: 12px; font-size: 12.5px; font-weight: 600; padding: 1px 8px; border: 1px dashed #9DA4AD; }
+  .others { margin: 0 0 48px; }
+  .others h2 { font: 700 22px/1.3 var(--body); margin-bottom: 8px; }
+  .others ul { margin: 0; padding-left: 20px; }
+  .others li { margin: 4px 0; text-align: left; }
+  .others li span { color: var(--muted); font-size: 14.5px; }
+  .others a.quiet { color: inherit; text-decoration: none; cursor: text; }
   @media (prefers-reduced-motion: reduce) { .card { transition: none; } a.card:hover { transform: none; } }
 </style>
 </head>
@@ -52,6 +59,11 @@
   </header>
 
   <ul class="grid" id="pages"></ul>
+
+  <section class="others" aria-labelledby="othersHead">
+    <h2 id="othersHead">Khác</h2>
+    <ul id="others"></ul>
+  </section>
 
 </main>
 
@@ -81,6 +93,11 @@ const PAGES = [
     tags: ['CXR', 'X-ray', 'Tuberculosis'],
   },
 ];
+/* EDIT: mục Khác (dưới lưới thẻ): liên kết chữ, không có thẻ */
+const OTHERS = [
+  // quiet: đoạn chữ trong desc được gắn liên kết ẩn (trông như chữ thường)
+  { name: 'Phân đoạn MRI đầu', href: 'head-mri.html', desc: 'T1, T2, và 14 loại mô', quiet: { text: '14 loại mô', href: 'head-seg.html' } },
+];
 
 const list = document.getElementById('pages');
 PAGES.forEach(p => {
@@ -101,6 +118,21 @@ PAGES.forEach(p => {
   card.append(body, tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Chưa mần'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
+});
+const others = document.getElementById('others');
+OTHERS.forEach(o => {
+  const li = document.createElement('li'), a = document.createElement('a');
+  a.href = o.href; a.textContent = o.name; li.appendChild(a);
+  if (o.desc) {
+    const d = document.createElement('span'), txt = ': ' + o.desc, q = o.quiet, i = q ? txt.indexOf(q.text) : -1;
+    if (i < 0) d.textContent = txt;
+    else {
+      const k = document.createElement('a'); k.href = q.href; k.className = 'quiet'; k.textContent = q.text;
+      d.append(txt.slice(0, i), k, txt.slice(i + q.text.length));
+    }
+    li.appendChild(d);
+  }
+  others.appendChild(li);
 });
 </script>
 <script src="../common/site.js" defer></script>

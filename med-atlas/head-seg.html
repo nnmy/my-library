@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Phân vùng mô đầu từ MRI | Atlas hình ảnh y khoa | My N. Nguyen</title>
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/atlas.css?v=20261018">
+<link rel="stylesheet" href="lib/headmri.css?v=20261024">
+<link rel="stylesheet" href="lib/headseg.css?v=20261024">
+<!--
+  =====================================================================
+  HOW TO EDIT  (med-atlas/head-seg.html, PHÂN VÙNG MÔ ĐẦU TỪ MRI; trang KHÔNG liệt kê, chỉ dùng trên máy)
+  - Người dùng chọn T1 + T2 (.nii / .nii.gz); trang đăng ký T2 vào T1 và phân vùng 14 loại mô bằng mạng
+    phân vùng của CondNetTART (Model10), chạy trên trình duyệt. Ảnh không được gửi đi đâu.
+  - Quy trình: lib/headseg.js (giống APP_BRAINE input_format.prepare). Trình xem: lib/headmri.js (dùng chung với head-mri.html).
+  - Mô hình: lib/models/condnettart_seg.onnx (tạo bằng tools/export_condnettart_seg_onnx.py).
+    KHÔNG đưa file mô hình lên GitHub. Hướng dẫn: README-head-seg.md
+  - onnxruntime-web: lib/vendor/onnxruntime-web/ (MIT).
+  - Tên và mô tả mô: lib/data/head-mri/tissues.json (dùng chung với head-mri.html).
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap wide page-head">
+  <p class="crumb"><a href="index.html">Atlas hình ảnh y khoa</a> / Phân vùng mô đầu từ MRI</p>
+  <h1><span class="dot"></span>Phân vùng mô đầu từ MRI</h1>
+  <p class="lead">Chọn T1 và T2 của cùng một người để phân vùng 14 loại mô. Ảnh chỉ xử lý trên máy của bạn.</p>
+</header>
+
+<section class="wrap wide" aria-label="Chọn ảnh">
+  <div class="hs-box">
+    <div class="hs-files">
+      <label class="hs-drop" id="hs-drop-t1"><b>T1</b><span class="hs-hint">Bấm để chọn, hoặc kéo thả file .nii / .nii.gz vào đây</span><span class="hs-name" id="hs-name-t1">Chưa chọn file</span><input type="file" id="hs-file-t1" accept=".nii,.gz"></label>
+      <label class="hs-drop" id="hs-drop-t2"><b>T2</b><span class="hs-hint">Bấm để chọn, hoặc kéo thả file .nii / .nii.gz vào đây</span><span class="hs-name" id="hs-name-t2">Chưa chọn file</span><input type="file" id="hs-file-t2" accept=".nii,.gz"></label>
+    </div>
+    <div class="hs-actions">
+      <button class="btn primary" type="button" id="hsRun" disabled>Phân vùng</button>
+      <small>Lần đầu tải mô hình ~94 MB. Mất vài phút nếu không có GPU.</small>
+    </div>
+    <p class="hs-msg" id="hsMsg" hidden></p>
+    <div id="hsProg" hidden><ol class="hs-steps" id="hsSteps"></ol></div>
+    <div class="hs-out" id="hsOut" hidden>
+      <p id="hsSummary"></p>
+      <ul class="hs-links" id="hsLinks"></ul>
+    </div>
+  </div>
+</section>
+
+<section class="wrap wide" id="hsViewerWrap" aria-label="Trình xem kết quả" hidden>
+  <div class="viewer" id="hmViewer">
+    <div class="left">
+      <div class="stage">
+        <div class="hm-films hm-three">
+          <div class="film"><canvas id="hmCv-t1" tabindex="0" aria-label="Ảnh T1. Rê chuột để đọc giá trị trên cả ba ảnh, nhấp để khóa vị trí, lăn chuột để đổi lát, Esc để bỏ khóa."></canvas><span class="tag" aria-hidden="true">T1</span></div>
+          <div class="film"><canvas id="hmCv-t2" tabindex="0" aria-label="Ảnh T2 đã đăng ký vào T1, cùng lát cắt."></canvas><span class="tag" aria-hidden="true">T2</span></div>
+          <div class="film"><canvas id="hmCv-seg" tabindex="0" aria-label="Bản đồ phân vùng mô, cùng lát cắt."></canvas><span class="tag" aria-hidden="true">Mô</span></div>
+        </div>
+        <div class="hm-strip" id="hmStrip" hidden></div>
+        <div class="readout-strip" id="hmReadout" aria-live="polite"></div>
+      </div>
+      <div class="controls" id="hmControls">
+        <div class="ctl-head"><span>Điều khiển</span><span class="vscroll vs-head" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span><button class="iconbtn" type="button" id="hmCtlMin" aria-controls="hmCtlBody"></button></div>
+        <div class="ctl-body" id="hmCtlBody">
+          <div class="ctl">
+            <span class="lab">Hướng cắt</span>
+            <div class="seg-btns" role="group" aria-label="Hướng cắt">
+              <button class="btn" type="button" data-orient="ax" title="Lát ngang (axial)">Axial</button>
+              <button class="btn" type="button" data-orient="cor" title="Lát đứng ngang (coronal)">Coronal</button>
+              <button class="btn" type="button" data-orient="sag" title="Lát đứng dọc (sagittal)">Sagittal</button>
+            </div>
+          </div>
+          <div class="ctl">
+            <label class="lab" for="hmSlice">Lát cắt</label>
+            <div class="inline"><input type="range" id="hmSlice" min="0" max="1" value="0"><output id="hmSliceOut" for="hmSlice" style="min-width:6.5em"></output></div>
+          </div>
+          <div class="ctl">
+            <label class="lab" for="hmFind">Tìm mô</label>
+            <div class="inline"><select id="hmFind" class="inp"></select><span class="vscroll" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="infocol" aria-label="Thông tin">
+      <div class="info-inner">
+        <div class="info-bar"><span class="info-title" id="hmInfoName"></span><button class="iconbtn" type="button" id="hmInfoMin"></button></div>
+        <div class="info" id="hmInfo" aria-live="polite"></div>
+      </div>
+    </aside>
+  </div>
+  <div class="tip" id="hmTip" hidden></div>
+</section>
+
+<section class="part" id="ghim" style="margin-top:44px">
+  <div class="wrap wide">
+    <div class="nb-head">
+      <h2>Ghim <span id="nbCount" style="color:var(--sea)">0</span></h2>
+      <div class="btnrow"><button class="btn primary" type="button" id="btnPdf" disabled>Xuất PDF</button></div>
+    </div>
+    <p class="nb-empty" id="nbEmpty">Chưa ghim mục nào. Sau khi phân vùng, nhấp vào một điểm trên ảnh để khóa (hoặc bấm tên một mô trong bảng), rồi bấm <b>Ghim</b>. Ảnh ghim chỉ lưu trên máy này.</p>
+    <p class="nb-warn" id="nbWarn" hidden>Trình duyệt đang chặn bộ nhớ cục bộ (ví dụ chế độ ẩn danh), nên danh sách ghim sẽ mất khi đóng trang. Hãy xuất PDF trước khi rời trang.</p>
+    <ul class="nb-list" id="nbList"></ul>
+  </div>
+</section>
+
+<section class="part" id="cach-lam">
+  <div class="wrap">
+    <h2>Trang làm gì</h2>
+    <div class="prose">
+      <ol>
+        <li>Đưa hai ảnh về lưới 1 mm.</li>
+        <li>Dời T2 cho khớp T1 (chỉ tịnh tiến, nên hai ảnh cần chụp cùng lần).</li>
+        <li><b>Phân vùng</b>: mạng UNet dành riêng gán mỗi voxel một trong 14 loại mô, từng lát ngang một.</li>
+        <li>Đưa nhãn về lưới gốc của T1 để tải về.</li>
+      </ol>
+    </div>
+    <div class="callout"><b>Kết quả do mô hình tự ước lượng, chưa được bác sĩ kiểm tra.</b> Có thể sai với ảnh bệnh lý, trẻ em hoặc chuỗi xung khác. Không dùng để chẩn đoán.</div>
+  </div>
+</section>
+</main>
+
+<div id="printSheet"></div>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/vendor/onnxruntime-web/ort.webgpu.min.js"></script>
+<script src="lib/headmri.js?v=20261024"></script>
+<script src="lib/headseg.js?v=20261024"></script>
+<script>
+  HEADSEG.start({
+    model: 'lib/models/condnettart_seg.onnx',
+    ort: 'lib/vendor/onnxruntime-web/',
+    tissues: 'lib/data/head-mri/tissues.json',
+    viewer: {
+      printHeader: "My N. Nguyen's Library",
+      printTitle: 'Ghi chú phân vùng mô đầu',
+      printFile: 'ghichu_phanvung_dau',
+    },
+  });
+</script>
+<script src="lib/scroll-btns.js?v=20261018"></script>
+<script src="../common/site.js" defer></script>
+</body>
+</html>
