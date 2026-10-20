@@ -144,11 +144,14 @@
 
 <script src="lib/vendor/onnxruntime-web/ort.webgpu.min.js"></script>
 <script src="lib/headmri.js?v=20261024"></script>
-<script src="lib/headseg.js?v=20261024"></script>
+<script src="lib/headseg.js?v=20261025"></script>
 <script>
   HEADSEG.start({
-    model: 'lib/models/condnettart_seg.onnx',
+    // file lớn: nguyên file (file), không có thì các phần nhỏ (split = danh sách phần, tạo bằng tools/split_large_files.py)
+    model: { file: 'lib/models/condnettart_seg.onnx', split: 'lib/models-split/condnettart_seg.onnx.json' },
     ort: 'lib/vendor/onnxruntime-web/',
+    ortWasm: { file: 'lib/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm',
+               split: 'lib/vendor/onnxruntime-web-split/ort-wasm-simd-threaded.asyncify.wasm.json' },
     tissues: 'lib/data/head-mri/tissues.json',
     viewer: {
       printHeader: "My N. Nguyen's Library",
