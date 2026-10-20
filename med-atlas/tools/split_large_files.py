@@ -11,11 +11,15 @@ Cách chạy (sau mỗi lần tạo lại mô hình hoặc đổi bản onnxrunt
     cd my-library/med-atlas/tools
     python split_large_files.py ../lib/models/condnettart_seg.onnx --out ../lib/models-split
     python split_large_files.py ../lib/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.wasm \\
-        --out ../lib/vendor/onnxruntime-web-split
+        --out ../lib/vendor/onnxruntime-web-split \\
+        --with ../lib/vendor/onnxruntime-web/ort.webgpu.min.js ../lib/vendor/onnxruntime-web/ort-wasm-simd-threaded.asyncify.mjs \\
+               ../lib/vendor/onnxruntime-web/LICENSE
+--with: các file nhỏ chép nguyên vào --out, để thư mục phần nhỏ tự đủ (onnxruntime-web cần .js và .mjs nằm cùng chỗ).
 """
 import argparse
 import hashlib
 import json
+import shutil
 from pathlib import Path
 
 
@@ -24,6 +28,7 @@ def main():
     ap.add_argument('file', type=Path)
     ap.add_argument('--out', required=True, type=Path)
     ap.add_argument('--part-mb', type=float, default=20, help='dung lượng tối đa mỗi phần, MB (10^6 byte)')
+    ap.add_argument('--with', dest='extra', nargs='*', type=Path, default=[], help='file nhỏ chép nguyên vào --out')
     a = ap.parse_args()
 
     data = a.file.read_bytes()
@@ -38,7 +43,10 @@ def main():
         parts.append({'file': name, 'size': len(data[i:i + step])})
     manifest = {'name': a.file.name, 'size': len(data), 'sha256': hashlib.sha256(data).hexdigest(), 'parts': parts}
     (a.out / (a.file.name + '.json')).write_text(json.dumps(manifest, indent=1) + '\n', encoding='utf-8')
-    print(f'{a.file.name}: {len(data) / 1e6:.1f} MB -> {len(parts)} phần trong {a.out}')
+    for f in a.extra:
+        shutil.copy2(f, a.out / f.name)
+    print(f'{a.file.name}: {len(data) / 1e6:.1f} MB -> {len(parts)} phần trong {a.out}'
+          + (f"; chép thêm {', '.join(f.name for f in a.extra)}" if a.extra else ''))
 
 
 if __name__ == '__main__':
