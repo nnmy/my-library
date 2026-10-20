@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mô hình nền tảng cho robot | Robotics | My N. Nguyen</title>
+<meta name="description" content="Mô hình nền tảng cho robot (tới tháng 10/2026), cho người mới: mô hình thị giác–ngôn ngữ–hành động (VLA), token hành động, nghĩ chậm làm nhanh, cơn khát dữ liệu, mô hình thế giới, robot hình người, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/6-mo-hinh-nen-tang.html, Phần 6: MÔ HÌNH NỀN TẢNG CHO ROBOT)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
+  - LĨNH VỰC ĐỔI RẤT NHANH: thông tin cập nhật tới tháng 10/2026 (tra cứu ngày 20/10/2026).
+    Các mục cần coi lại định kỳ: #hai-he (tên mô hình mới), #du-lieu (π*0.6), #mo-hinh-the-gioi, #hinh-nguoi (tình trạng giao hàng).
+  - Demo: lib/demos/action-tokens.js (chia thùng từng bước kiểu RT-2 so với nén DCT kiểu FAST).
+    Số liệu đo bằng chính mã: quỹ đạo "Gắp rồi đặt": DCT giữ 10 hệ số -> 15 token, lệch ~11 mm;
+    chia 32 thùng -> 100 token, lệch ~14 mm; chia 256 thùng -> 100 token, lệch ~2 mm (tay dài 1 m).
+  - Hình tự vẽ: lib/figures/vla.svg, kim-tu-thap.svg, mo-hinh-the-gioi.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Robotics</a> / Phần 6</p>
+  <h1><span class="dot"></span>Mô hình nền tảng cho robot</h1>
+  <p class="lead">LLM học từ gần như toàn bộ chữ trên internet rồi làm được cả ngàn việc chưa ai dạy riêng. Liệu robot có thể có một “bộ não” kiểu vậy: một mô hình lớn, nghe lời nói, nhìn bằng camera, rồi điều khiển tay chân làm đủ thứ việc? Trang này kể chuyện cuộc đua đó, cập nhật tới <b>tháng 10/2026</b>. Đây là chương đổi lẹ nhất của module, nên tên mô hình và con số có thể cũ đi nhanh.</p>
+</header>
+
+<!-- ================= 6.1 VLA ================= -->
+<section class="part" id="vla">
+  <div class="wrap">
+    <h2>Từ LLM tới VLA</h2>
+    <div class="prose">
+      <p>Ở module AI, bạn đã gặp <a href="../intro-ai/5-llm.html#vlm">VLM</a>: mô hình nhận hình và chữ, trả lời bằng chữ. Thêm một bước nữa: thay vì trả lời bằng chữ, cho nó trả lời bằng <b>lệnh điều khiển robot</b>. Đó là <span class="term">mô hình thị giác–ngôn ngữ–hành động</span> <span class="en">(vision-language-action model, VLA)</span>: nhận hình từ camera và một câu dặn bằng lời, xuất ra hành động cho robot, tất cả trong một mạng nơ-ron.</p>
+      <p>Cái hay nằm ở chỗ <b>kiến thức thế giới</b> đi kèm. Năm 2023, Google DeepMind giới thiệu RT-2: một VLM được huấn luyện thêm trên dữ liệu robot. Kết quả là robot làm được những lệnh hổng có trong dữ liệu robot nào, kiểu “dời lon nước ngọt tới tấm hình của ca sĩ Taylor Swift”, vì phần hiểu chữ, hiểu hình đã học sẵn từ internet. Robot học bắt chước ở <a href="5-tu-hoc.html#bat-chuoc">Phần 5</a> chỉ biết đúng việc được dạy; VLA mang theo cả “hiểu biết chung” của mô hình ngôn ngữ.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/vla.svg" alt="Ba đầu vào: hình từ các camera, câu lời nói “dọn mấy cái ly vô bồn rửa giùm”, trạng thái robot. Chúng đi vào Hệ 2 “nghĩ chậm”: mô hình thị giác–ngôn ngữ học trước trên internet, chạy cỡ 5–10 lần mỗi giây. Hệ 2 đưa ý định cho Hệ 1 “làm nhanh”: bộ sinh hành động, chạy cỡ 50–200 lần mỗi giây, ra cả khúc lệnh liên tục cho robot." loading="lazy">
+      <figcaption><b>Một VLA kiểu hai hệ thống.</b> Hình tự vẽ, giản lược theo các thiết kế như π0, Helix và GR00T N1. Con số tần số là cỡ chừng, mỗi hệ một khác.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 6.2 TOKEN HÀNH ĐỘNG ================= -->
+<section class="part tint" id="token-hanh-dong">
+  <div class="wrap">
+    <h2>Biến hành động thành token</h2>
+    <div class="prose">
+      <p>Mô hình ngôn ngữ đọc và viết <span class="term">token</span> (coi lại <a href="../intro-ai/2-transformer.html#token">AI, Phần 2</a>). Muốn nó “viết” ra hành động thì phải biến hành động thành token. Cách đơn giản nhất, RT-2 xài: chia mỗi con số (ví dụ tọa độ bàn tay) thành 256 “thùng”, mỗi thùng là một token. Mỗi bước điều khiển, mô hình viết ra vài token y như viết chữ.</p>
+      <p>Cách này có hai cái dở: tốn nhiều token (mỗi bước, mỗi chiều một token), và mấy token liền nhau gần như giống hệt nhau vì chuyển động thì mượt, nên mô hình học rất phí. Năm 2025, nhóm Physical Intelligence đề xuất FAST: lấy nguyên một khúc quỹ đạo, dùng <span class="term">biến đổi cosin rời rạc</span> <span class="en">(discrete cosine transform, DCT)</span>, đúng phép biến đổi mà ảnh JPEG xài để nén hình, rồi chỉ giữ vài hệ số quan trọng làm token.</p>
+    </div>
+    <div class="demo" id="demoTok" data-demo="action-tokens">
+      <div class="demo-title"><h4>Biến hành động thành token</h4><span>Chia thùng từng bước, hay nén cả khúc?</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa (đo với quỹ đạo “Gắp rồi đặt”, coi như tay dài 1 m):</p>
+      <ul>
+        <li>Nén DCT giữ 10 hệ số: chỉ 15 token, lệch trung bình cỡ 11 mm.</li>
+        <li>Chia 32 thùng: 100 token mà còn lệch cỡ 14 mm. Phải lên 256 thùng mới xuống cỡ 2 mm, vẫn 100 token.</li>
+        <li>Vẽ một đường ngoằn ngoèo, giật cục: DCT cần nhiều hệ số hơn hẳn mới theo kịp. Nén được là nhờ chuyển động thật thì mượt.</li>
+      </ul>
+      <p>Cũng có nhiều mô hình hổng xài token cho hành động: chúng gắn thêm một bộ sinh hành động liên tục, dùng kỹ thuật khuếch tán hay <span class="en">flow matching</span> (họ hàng của mô hình sinh ảnh ở <a href="../intro-ai/3-generative.html#diffusion">AI, Phần 3</a>), ra thẳng cả một <span class="term">khúc hành động</span> <span class="en">(action chunk)</span> vài chục bước một lượt. π0 (2024) của Physical Intelligence là ví dụ tiêu biểu.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6.3 HAI HỆ ================= -->
+<section class="part" id="hai-he">
+  <div class="wrap">
+    <h2>Nghĩ chậm, làm nhanh</h2>
+    <div class="prose">
+      <p>Có một mâu thuẫn: mô hình ngôn ngữ cỡ vài tỷ tham số chạy chậm, mỗi giây chỉ nghĩ được vài lần; còn tay robot thì cần lệnh mới cả trăm lần mỗi giây để mượt và an toàn (nhớ các vòng điều khiển ở <a href="2-dieu-khien.html#nhieu-tang">Phần 2</a>). Lời giải phổ biến là tách làm <b>hai hệ</b>, mượn ý tâm lý học “hệ 1 nhanh, hệ 2 chậm”:</p>
+      <ul>
+        <li><b>Hệ 2</b> là một VLM lớn: hiểu câu dặn, nhìn cảnh, quyết định bước kế tiếp. Chạy chậm.</li>
+        <li><b>Hệ 1</b> là một mạng nhỏ, lẹ: nhận “ý định” từ hệ 2, cộng với hình và cảm biến mới nhất, ra lệnh liên tục cho động cơ.</li>
+      </ul>
+      <p>Helix của công ty Figure (2025) chạy hệ 2 cỡ 7–9 lần mỗi giây và hệ 1 cỡ 200 lần mỗi giây trên robot hình người. GR00T N1 của NVIDIA (2025) cũng chia hai hệ như vậy, và là mô hình mở cho các hãng khác dùng.</p>
+    </div>
+    <div class="callout"><b>Tình hình giữa năm 2026.</b> Ngày 30/7/2026, Google DeepMind công bố bộ Gemini Robotics 2 gồm ba mô hình: <b>Gemini Robotics 2</b> là VLA điều khiển được cả thân robot hình người, từ đi, ngồi xổm tới thao tác hai tay; <b>Gemini Robotics ER 2</b> lo suy luận và lập kế hoạch nhiều bước; <b>Gemini Robotics On-Device 2</b> là bản gọn chạy ngay trên robot, khỏi cần mạng. ER 2 mở cho lập trình viên qua Gemini API, còn VLA thì mới cho đối tác dùng thử sớm. Phía NVIDIA, GR00T N2 được giới thiệu ở hội nghị GTC 2026, thêm mô hình thế giới để lập kế hoạch hành động.</div>
+  </div>
+</section>
+
+<!-- ================= 6.4 DỮ LIỆU ================= -->
+<section class="part tint" id="du-lieu">
+  <div class="wrap">
+    <h2>Cơn khát dữ liệu</h2>
+    <div class="prose">
+      <p>LLM có cả ngàn tỷ token chữ để học. Dữ liệu robot, tức những cặp “thấy gì, làm gì” ghi lại từ robot thật, thì ít hơn cả ngàn lần, vì phải có người ngồi điều khiển robot từng giờ một. Đây là nút thắt lớn nhất của ngành. Người ta gom dữ liệu từ đủ nguồn, mỗi nguồn một ưu một khuyết:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/kim-tu-thap.svg" alt="Kim tự tháp bốn tầng. Đáy: chữ và hình trên internet, khổng lồ, dạy hiểu thế giới, gần như hổng có hành động. Tầng hai: video người làm việc, rất nhiều, nhưng tay người khác tay robot. Tầng ba: mô phỏng, bao nhiêu cũng có, nhưng hổng giống hệt đời thật. Đỉnh: robot thật do người điều khiển từ xa, ít nhất, chậm và đắt, nhưng khớp nhất với robot." loading="lazy">
+      <figcaption><b>Kim tự tháp dữ liệu.</b> Càng lên cao càng khớp với robot nhưng càng hiếm. Hình tự vẽ, minh họa ý tưởng; độ rộng các tầng hổng theo tỉ lệ.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Vài cách đang được xài:</p>
+      <ul>
+        <li><b>Gom chung dữ liệu nhiều loại robot.</b> Dự án Open X-Embodiment (2023) gộp dữ liệu từ 22 loại robot của nhiều phòng thí nghiệm, và cho thấy mô hình học chung nhiều “thân xác” thì làm tốt hơn học riêng từng con.</li>
+        <li><b>Robot đi làm thật, vừa làm vừa học.</b> Tháng 11/2025, Physical Intelligence công bố π*0.6 với cách huấn luyện RECAP: kết hợp dữ liệu làm mẫu, lời sửa của người khi robot sai, và học tăng cường từ chính những lần robot tự làm. Trên mấy việc khó nhất, cách này tăng số việc làm được mỗi giờ lên hơn gấp đôi và giảm tỉ lệ hỏng cỡ một nửa; có lần robot pha cà phê espresso liên tục từ 5 giờ rưỡi sáng tới 11 giờ rưỡi đêm. Đây là học tăng cường ở Phần 5, giờ chạy trên một mô hình nền tảng.</li>
+        <li><b>Mô phỏng và mô hình thế giới</b> để tạo thêm dữ liệu, như mục kế tiếp.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6.5 MÔ HÌNH THẾ GIỚI ================= -->
+<section class="part" id="mo-hinh-the-gioi">
+  <div class="wrap">
+    <h2>Mô hình thế giới: tưởng tượng trước khi làm</h2>
+    <div class="prose">
+      <p>Trước khi nhấc cái ly, bạn “thấy trước” trong đầu: nắm quai thì chắc, gạt ngang thì đổ. <span class="term">Mô hình thế giới</span> <span class="en">(world model)</span> là mạng nơ-ron học được cái khả năng đó: cho nó cảnh hiện tại và một hành động định làm, nó đoán cảnh sẽ ra sao. Ý tưởng này quen thuộc từ đầu module: bước “dự đoán” của bộ lọc Kalman ở <a href="3-dinh-vi.html#kalman">Phần 3</a> cũng là một mô hình thế giới, chỉ là do người viết công thức. Giờ người ta để mạng nơ-ron học nó từ hàng triệu video.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/mo-hinh-the-gioi.svg" alt="Khung bây giờ: camera thấy cái ly trên bàn và tay robot. Đi vào hộp mô hình thế giới hỏi nếu làm vầy thì sao. Ba nhánh hành động: gạt ngang dẫn tới cảnh ly đổ (sai), kẹp ở quai dẫn tới cảnh ly được nhấc lên (đúng, chọn cách này), kẹp ở miệng dẫn tới cảnh có thể trượt tay." loading="lazy">
+      <figcaption><b>Tưởng tượng trước khi làm.</b> Robot thử từng hành động trong “đầu”, chọn cái cho kết quả tốt rồi mới làm thật. Hình tự vẽ, minh họa ý tưởng.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Mô hình thế giới xài được vô ba việc: <b>lập kế hoạch</b> (thử trong đầu trước khi làm), <b>tạo dữ liệu huấn luyện</b> (một kiểu mô phỏng học từ video, khỏi cần viết tay luật vật lý), và <b>chấm điểm chính sách</b> (cho robot “chạy thử” trong thế giới tưởng tượng thay vì ngoài đời). Vài cái tên đáng biết:</p>
+      <ul>
+        <li><b>V-JEPA 2</b> (Meta, 6/2025): học từ video là chính, rồi chỉ cần thêm 62 giờ dữ liệu robot từ bộ DROID là đủ để điều khiển một cánh tay robot gắp đặt đồ vật trong môi trường mới mà khỏi huấn luyện thêm.</li>
+        <li><b>Genie 3</b> (Google DeepMind, 8/2025): tạo ra thế giới 3 chiều tương tác được từ một câu mô tả. Đầu năm 2026, Waymo dựa trên nó để làm mô hình thế giới mô phỏng cho xe tự lái.</li>
+        <li><b>Cosmos</b> (NVIDIA): họ mô hình thế giới mở, dùng để mô phỏng cho robot và xe tự lái.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6.6 ROBOT HÌNH NGƯỜI ================= -->
+<section class="part tint" id="hinh-nguoi">
+  <div class="wrap">
+    <h2>Robot hình người</h2>
+    <div class="prose">
+      <p>Sao lại làm robot giống người, trong khi bánh xe đi lẹ hơn chân, kẹp hai ngón thì rẻ hơn bàn tay năm ngón? Vì thế giới được xây cho người: cầu thang, tay nắm cửa, kệ bếp, dụng cụ. Và vì hàng tỷ video người làm việc trên internet dễ “chuyển” qua cho robot có thân hình giống người. Nhưng robot hình người cũng gom đủ mọi cái khó của sáu phần: giữ thăng bằng (Phần 2), biết mình ở đâu (Phần 3), tìm đường (Phần 4), và khéo tay (Phần 5, 6).</p>
+      <p><b>Tình hình tới tháng 10/2026</b>, theo các nguồn tin công khai:</p>
+      <ul>
+        <li><b>Trong nhà máy, kho hàng:</b> robot của Figure làm thử ở các nhà máy BMW; robot Digit của Agility Robotics làm theo hợp đồng thương mại ở kho hàng của GXO. Tesla thử robot Optimus trong nhà máy của chính hãng, chưa bán ra ngoài.</li>
+        <li><b>Trong nhà:</b> công ty 1X mở bán trước robot NEO từ 28/10/2025, giá 20 000 đô la Mỹ hoặc thuê 499 đô mỗi tháng. Nhà máy của 1X ở Hayward, California khai trương ngày 30/4/2026 với công suất 10 000 robot mỗi năm; mấy con đầu tiên được đưa đi thử nghiệm nội bộ, và hãng hẹn giao cho khách ở Mỹ trong năm 2026. Tới giữa năm 2026 chưa thấy xác nhận độc lập nào về việc đã giao tới tay khách. NEO lúc đầu hổng tự làm hết mọi việc: việc khó thì một nhân viên của hãng có thể điều khiển từ xa, và những lần đó thành dữ liệu cho robot học tiếp (đúng tinh thần DAgger ở Phần 5).</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Chuyện riêng tư.</b> Một robot có camera, đi khắp nhà, đôi khi do người lạ điều khiển từ xa, là chuyện đáng cân nhắc. Trước khi rước robot về nhà, nên đọc kỹ ai được coi hình từ camera, dữ liệu lưu ở đâu, và có tắt được chế độ điều khiển từ xa hông.</div>
+  </div>
+</section>
+
+<!-- ================= 6.7 CÒN XA CỠ NÀO ================= -->
+<section class="part" id="con-xa">
+  <div class="wrap">
+    <h2>Còn xa cỡ nào?</h2>
+    <div class="prose">
+      <p>Video robot gấp áo, pha cà phê coi rất ấn tượng, nhưng còn mấy cái khó lớn:</p>
+      <ul>
+        <li><b>Độ tin cậy.</b> Thành công 95% nghe cao, nhưng robot làm 100 việc mỗi ngày thì ngày nào cũng hỏng 5 việc. Một chiếc máy rửa chén mà cứ 20 lần lại làm bể chén thì hổng ai xài.</li>
+        <li><b>An toàn.</b> Robot nặng mấy chục ký, cử động mạnh, làm việc kế bên con nít và thú cưng. Mô hình lớn thì khó chứng minh “hổng bao giờ làm bậy”, nên các lớp an toàn kiểu cũ (giới hạn lực, vùng cấm, nút dừng khẩn cấp) vẫn phải có.</li>
+        <li><b>Giá và độ bền.</b> Động cơ, bàn tay, pin vẫn đắt, và hư hỏng ngoài đời nhiều hơn trong phòng thí nghiệm.</li>
+        <li><b>Đo cho đúng.</b> Mỗi hãng tự quay video, tự chấm điểm. So sánh công bằng giữa các robot còn rất khó.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Gói lại cả module.</b> Một robot “thông minh” năm 2026 vẫn đứng trên vai mọi thứ trong sáu phần: động học để biết khớp nào xoay bao nhiêu (Phần 1), vòng phản hồi chạy ngàn lần mỗi giây để giữ lệnh cho đúng (Phần 2), bộ lọc để biết mình ở đâu (Phần 3), thuật toán tìm đường (Phần 4), học bắt chước và học tăng cường (Phần 5), và cuối cùng là một mô hình nền tảng kiểu Transformer làm “bộ não” (Phần 6). Phần nào cũng còn chỗ cho người giỏi vô làm.</div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Mô hình nền tảng</td><td>foundation model</td><td>Mô hình lớn học trước trên dữ liệu khổng lồ, rồi dùng cho nhiều việc.</td></tr>
+          <tr><td>Mô hình thị giác–ngôn ngữ–hành động</td><td>vision-language-action model (VLA)</td><td>Nhìn hình, nghe lời, ra lệnh điều khiển robot.</td></tr>
+          <tr><td>Token hành động</td><td>action token</td><td>Hành động được mã hóa thành token như chữ.</td></tr>
+          <tr><td>Biến đổi cosin rời rạc</td><td>discrete cosine transform (DCT)</td><td>Tả một đường cong bằng tổng các sóng cosin; giữ sóng chậm để nén.</td></tr>
+          <tr><td>Khúc hành động</td><td>action chunk</td><td>Cả loạt lệnh cho vài chục bước kế tiếp, ra một lượt.</td></tr>
+          <tr><td>Hệ 1 / hệ 2</td><td>System 1 / System 2</td><td>Phần phản ứng nhanh / phần suy nghĩ chậm trong một robot.</td></tr>
+          <tr><td>Dữ liệu nhiều thân xác</td><td>cross-embodiment data</td><td>Dữ liệu gom từ nhiều loại robot khác nhau.</td></tr>
+          <tr><td>Mô hình thế giới</td><td>world model</td><td>Mạng đoán thế giới sẽ ra sao nếu làm một hành động.</td></tr>
+          <tr><td>Robot hình người</td><td>humanoid robot</td><td>Robot có thân, hai tay, hai chân như người.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu và đơn vị</h2>
+    <p class="prose">Trang này gần như hổng có công thức; dưới đây là vài đơn vị và cách viết hay gặp.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">Hz</td><td>hertz</td><td>Số lần mỗi giây; 200 Hz là 200 lần mỗi giây.</td></tr>
+          <tr><td class="sym">B (trong “7B”)</td><td>billion</td><td>Tỷ tham số; mô hình 7B có cỡ 7 tỷ con số học được.</td></tr>
+          <tr><td class="sym">π0, π*0.6</td><td>pi zero, pi star zero point six</td><td>Tên các mô hình của công ty Physical Intelligence.</td></tr>
+          <tr><td class="sym">N, K</td><td>N, K</td><td>Trong minh họa: số thùng, và số hệ số DCT giữ lại.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">2022</span><div><h4>SayCan và RT-1</h4><p>Google cho mô hình ngôn ngữ chọn kỹ năng có sẵn cho robot làm theo lời dặn (SayCan), rồi giới thiệu RT-1, một Transformer điều khiển robot học từ cỡ 130 ngàn lần làm mẫu.</p></div></li>
+      <li><span class="yr">2023</span><div><h4>RT-2 và Open X-Embodiment</h4><p>RT-2 biến hành động thành token và mang kiến thức internet vào robot. Bộ dữ liệu Open X-Embodiment gộp 22 loại robot từ nhiều phòng thí nghiệm.</p></div></li>
+      <li><span class="yr">2024</span><div><h4>OpenVLA và π0</h4><p>OpenVLA là VLA mã nguồn mở cỡ 7 tỷ tham số. Physical Intelligence ra π0 với bộ sinh hành động liên tục kiểu flow matching.</p></div></li>
+      <li><span class="yr">2025</span><div><h4>Bùng nổ VLA và mô hình thế giới</h4><p>FAST (1), Helix của Figure (2), Gemini Robotics và GR00T N1 (3), V-JEPA 2 (6), Genie 3 (8), 1X mở bán trước NEO (10), π*0.6 học từ kinh nghiệm thật (11).</p></div></li>
+      <li><span class="yr">2026</span><div><h4>Ra khỏi phòng thí nghiệm</h4><p>1X khai trương nhà máy NEO (4); Google DeepMind công bố Gemini Robotics 2 điều khiển cả thân robot hình người (7).</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>A. Brohan et al., “RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control”, 2023. <a href="https://arxiv.org/abs/2307.15818" rel="noopener">arXiv:2307.15818</a>.</li>
+      <li>Open X-Embodiment Collaboration, “Open X-Embodiment: Robotic Learning Datasets and RT-X Models”, 2023. <a href="https://arxiv.org/abs/2310.08864" rel="noopener">arXiv:2310.08864</a>.</li>
+      <li>M. J. Kim et al., “OpenVLA: An Open-Source Vision-Language-Action Model”, 2024. <a href="https://arxiv.org/abs/2406.09246" rel="noopener">arXiv:2406.09246</a>.</li>
+      <li>K. Black et al., “π0: A Vision-Language-Action Flow Model for General Robot Control”, 2024. <a href="https://arxiv.org/abs/2410.24164" rel="noopener">arXiv:2410.24164</a>.</li>
+      <li>K. Pertsch et al., “FAST: Efficient Action Tokenization for Vision-Language-Action Models”, 2025. <a href="https://arxiv.org/abs/2501.09747" rel="noopener">arXiv:2501.09747</a>.</li>
+      <li>Physical Intelligence, “π*0.6: a VLA That Learns From Experience”, 2025. <a href="https://arxiv.org/abs/2511.14759" rel="noopener">arXiv:2511.14759</a>.</li>
+      <li>M. Assran et al., “V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning”, 2025. <a href="https://arxiv.org/abs/2506.09985" rel="noopener">arXiv:2506.09985</a>.</li>
+      <li>Google DeepMind, <a href="https://deepmind.google/blog/gemini-robotics-2-brings-whole-body-intelligence-to-robots/" rel="noopener">Gemini Robotics 2 brings whole body intelligence to robots</a>, 30/7/2026.</li>
+      <li>1X Technologies, <a href="https://www.globenewswire.com/news-release/2026/04/30/3285118/0/en/1x-opens-neo-factory-in-hayward-ca-america-s-first-vertically-integrated-humanoid-robot-factory-with-consumer-shipments-planned-for-2026.html" rel="noopener">1X Opens NEO Factory in Hayward, CA</a>, thông cáo báo chí, 30/4/2026.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="5-tu-hoc.html"><small>Phần 5</small><b>Robot tự học</b></a>
+      <a class="next" href="index.html"><small>Quay lại</small><b>Robotics</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 330" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Sai số dồn dần của học bắt chước: lệch một chút đưa robot tới chỗ chưa từng thấy, rồi lệch càng nhiều</title>
+  <!-- Tự vẽ, theo ý tưởng trong Ross, Gordon, Bagnell (2011). My Academia / Robotics. -->
+  <rect width="900" height="330" fill="#FBFCFD"/>
+  <path d="M40 150C200 140 400 160 860 150" fill="none" stroke="#C9D3BC" stroke-width="70" stroke-linecap="round" opacity=".7"/>
+  <text x="60" y="108" font-size="12" fill="#3f9d6a" font-weight="600">vùng có dữ liệu mẫu (người lái từng đi qua)</text>
+  <path d="M40 150C200 140 400 160 860 150" fill="none" stroke="#3f9d6a" stroke-width="3"/>
+  <text x="866" y="146" text-anchor="end" font-size="12" fill="#3f9d6a" font-weight="700" transform="translate(-6,-12)">người lái mẫu</text>
+  <path d="M40 150C150 152 230 165 320 180C420 197 500 225 590 262" fill="none" stroke="#3787c4" stroke-width="3"/>
+  <circle cx="320" cy="180" r="5" fill="#3787c4"/>
+  <text x="330" y="208" font-size="12" fill="#3787c4">lệch chút xíu…</text>
+  <circle cx="590" cy="262" r="5" fill="#3787c4"/>
+  <text x="600" y="266" font-size="12" fill="#3787c4" font-weight="700">…tới chỗ chưa từng thấy, lái bậy, lệch thêm</text>
+  <path d="M600 285C660 250 720 190 790 158" fill="none" stroke="#f2c230" stroke-width="3" stroke-dasharray="7 5"/>
+  <text x="610" y="318" font-size="12" fill="#B08A12" font-weight="700">DAgger: hỏi người “chỗ này lái sao?”, thêm vô dữ liệu</text>
+  <text x="450" y="30" text-anchor="middle" font-size="13" fill="#59606B">Mỗi lỗi nhỏ đẩy robot ra khỏi vùng dữ liệu, nơi nó càng dễ lỗi hơn: sai số dồn lên như lăn cầu tuyết.</text>
+</svg>

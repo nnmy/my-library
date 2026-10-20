@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Các tầng điều hướng của robot: hoạch định toàn cục, hoạch định cục bộ, bộ điều khiển</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="900" height="300" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <g text-anchor="middle">
+    <rect x="20" y="70" width="250" height="130" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/>
+    <text x="145" y="98" font-weight="700" font-size="15">Hoạch định toàn cục</text>
+    <text x="145" y="120">cả bản đồ, đường đi tổng thể</text>
+    <text x="145" y="140">A*, RRT…</text>
+    <text x="145" y="166" font-size="12" fill="#59606B">chạy lại vài giây một lần,</text>
+    <text x="145" y="184" font-size="12" fill="#59606B">hoặc khi đường bị chặn</text>
+    <rect x="325" y="70" width="250" height="130" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="450" y="98" font-weight="700" font-size="15">Hoạch định cục bộ</text>
+    <text x="450" y="120">vài mét trước mặt, né người</text>
+    <text x="450" y="140">đi ngang, ra vận tốc từng lúc</text>
+    <text x="450" y="166" font-size="12" fill="#59606B">chạy cỡ 10–50 lần mỗi giây,</text>
+    <text x="450" y="184" font-size="12" fill="#59606B">tính cả giới hạn tốc độ, gia tốc</text>
+    <rect x="630" y="70" width="250" height="130" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/>
+    <text x="755" y="98" font-weight="700" font-size="15">Bộ điều khiển</text>
+    <text x="755" y="120">bám theo vận tốc được giao</text>
+    <text x="755" y="140">PID cho từng bánh xe (Phần 2)</text>
+    <text x="755" y="166" font-size="12" fill="#59606B">chạy hàng trăm tới hàng ngàn</text>
+    <text x="755" y="184" font-size="12" fill="#59606B">lần mỗi giây</text>
+  </g>
+  <path d="M272 135H321" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M577 135H626" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <text x="296" y="126" text-anchor="middle" font-size="11.5">đường đi</text>
+  <text x="602" y="126" text-anchor="middle" font-size="11.5">vận tốc</text>
+  <path d="M755 202V250H145V206" fill="none" stroke="#d8312a" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#a)"/>
+  <text x="450" y="270" text-anchor="middle" font-size="12.5" fill="#d8312a">cảm biến và định vị (Phần 3) báo về mọi tầng: robot đang ở đâu, phía trước có gì</text>
+  <text x="450" y="40" text-anchor="middle" font-size="13" fill="#59606B">càng xuống dưới: nhìn càng gần, phản ứng càng lẹ</text>
+</svg>

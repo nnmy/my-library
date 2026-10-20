@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../../../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minh họa | Robotics</title>
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../tfg.css">
+<!--
+  =====================================================================
+  CHẠY MINH HỌA ĐỘC LẬP  (intro-robotics/lib/demos/run.html)
+  - run.html                 : danh sách mọi minh họa
+  - run.html?demo=attn-2d    : chạy một minh họa (id = tên file .js trong thư mục này)
+  Thêm minh họa mới: tạo lib/demos/<id>.js (gọi TFG.demo) và thêm một dòng vào DEMOS.
+  MINH HỌA DÙNG DỊCH VỤ BÊN NGOÀI (⚠): khai báo def.external = { name, check } trong file demo
+  và thêm trường external vào dòng tương ứng trong DEMOS. Hiện chưa có.
+  Khi dịch vụ không phản hồi, minh họa tự ẩn và hiện thông báo (TFG.externalDown trong ../tfg.js).
+  =====================================================================
+-->
+<style>
+  body { padding: 28px 0 60px; }
+  .runhead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 18px; }
+  .runhead h1 { font-size: clamp(34px, 4.6vw, 52px); }
+  .runhead a { font-weight: 600; }
+  .list h2 { font-size: 30px; margin: 30px 0 10px; }
+  .list ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .list a { display: block; padding: 10px 14px; background: #fff; border: 2px solid var(--ink); color: var(--ink); text-decoration: none; font-weight: 600; }
+  .list a:hover { box-shadow: 4px 4px 0 var(--sky); }
+  .list small { display: block; color: var(--muted); font-weight: 400; }
+</style>
+</head>
+<body data-no-toc>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+<main class="wrap" id="app"></main>
+<script src="../tfg.js"></script>
+<script>
+const DEMOS = [
+  { id: 'arm-fk', domId: 'demoFk', title: 'Động học thuận', page: '1-dong-hoc.html', pageTitle: 'Robot cử động ra sao' },
+  { id: 'arm-ik', domId: 'demoIk', title: 'Động học ngược', page: '1-dong-hoc.html', pageTitle: 'Robot cử động ra sao' },
+  { id: 'ik-gradient', domId: 'demoIkGd', title: 'Động học ngược bằng cách lăn xuống dốc', page: '1-dong-hoc.html', pageTitle: 'Robot cử động ra sao' },
+  { id: 'pid-drone', domId: 'demoPid', title: 'PID giữ độ cao drone', page: '2-dieu-khien.html', pageTitle: 'Điều khiển và phản hồi' },
+  { id: 'balance', domId: 'demoBal', title: 'Xe giữ cây gậy đứng', page: '2-dieu-khien.html', pageTitle: 'Điều khiển và phản hồi' },
+  { id: 'kalman-1d', domId: 'demoKf', title: 'Bộ lọc Kalman: bánh xe + GPS', page: '3-dinh-vi.html', pageTitle: 'Cảm biến và định vị' },
+  { id: 'particle', domId: 'demoPf', title: 'Bộ lọc hạt: robot đi lạc tìm lại mình', page: '3-dinh-vi.html', pageTitle: 'Cảm biến và định vị' },
+  { id: 'astar-grid', domId: 'demoAstar', title: 'Tìm đường trên lưới', page: '4-tim-duong.html', pageTitle: 'Tìm đường' },
+  { id: 'cspace-arm', domId: 'demoCspace', title: 'Không gian cấu hình của cánh tay', page: '4-tim-duong.html', pageTitle: 'Tìm đường' },
+  { id: 'rrt', domId: 'demoRrt', title: 'RRT: rải cây ngẫu nhiên', page: '4-tim-duong.html', pageTitle: 'Tìm đường' },
+  { id: 'dagger', domId: 'demoDagger', title: 'Học bắt chước bị trôi, DAgger sửa', page: '5-tu-hoc.html', pageTitle: 'Robot tự học' },
+  { id: 'qlearn', domId: 'demoQ', title: 'Q-learning trong mê cung', page: '5-tu-hoc.html', pageTitle: 'Robot tự học' },
+  { id: 'action-tokens', domId: 'demoTok', title: 'Biến hành động thành token', page: '6-mo-hinh-nen-tang.html', pageTitle: 'Mô hình nền tảng cho robot' },
+  // DEMOS-LIST (thêm dòng mới ở đây)
+];
+const app = document.getElementById('app');
+const id = new URLSearchParams(location.search).get('demo');
+const d = DEMOS.find(x => x.id === id);
+if (d) {
+  document.title = d.title + ' | Robotics';
+  app.innerHTML = `<div class="runhead"><h1>${d.title}</h1><span><a href="run.html">Tất cả minh họa</a>  |  <a href="../../${d.page}#${d.domId}">Xem trong trang "${d.pageTitle}"</a></span></div>
+    <div class="demo" id="${d.domId}" data-demo="${d.id}"><div class="demo-loading">Đang tải…</div></div>`;
+  TFG.mountDemo(app.querySelector('.demo'), d.id);
+} else {
+  const groups = {};
+  DEMOS.forEach(x => (groups[x.pageTitle] = groups[x.pageTitle] || []).push(x));
+  app.innerHTML = `<div class="runhead"><h1>Minh họa Robotics</h1><a href="../../index.html">Trang chủ Robotics</a></div>
+    <p class="note-s">Mỗi minh họa có thể chạy riêng ở đây, hoặc nhúng vào trang bằng một thẻ &lt;div data-demo&gt; và lib/tfg.js.</p>
+    <p class="note-s">${TFG.EXT_ICON} Minh họa có dấu cảnh báo gọi dịch vụ bên ngoài (${DEMOS.filter(x => x.external).map(x => x.id).join(', ')}). Nếu dịch vụ ngừng hoạt động, minh họa tự ẩn và hiện thông báo; các minh họa khác chạy hoàn toàn trên trình duyệt.</p>
+    <div class="list">${Object.entries(groups).map(([g, xs]) => `<h2>${g}</h2><ul>${xs.map(x => `<li><a href="run.html?demo=${x.id}">${x.title}<small>${x.id}.js${x.external ? ' · ' + TFG.EXT_ICON + ' dịch vụ ngoài: ' + x.external : ''}</small></a></li>`).join('')}</ul>`).join('')}</div>`;
+}
+</script>
+</body>
+</html>

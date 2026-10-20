@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 330" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Bộ điều khiển PID: ba nhánh P, I, D cộng lại thành tín hiệu điều khiển</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="900" height="330" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <rect x="20" y="140" width="110" height="50" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <text x="75" y="162" text-anchor="middle" font-weight="700">sai số e</text><text x="75" y="179" text-anchor="middle" font-size="11.5" fill="#59606B">muốn − đo</text>
+  <path d="M132 165H170V60H230M170 165H230M170 165V270H230" fill="none" stroke="#1B1920" stroke-width="2"/>
+  <path d="M222 60H230M222 165H230M222 270H230" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <g>
+    <rect x="234" y="30" width="380" height="60" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/>
+    <text x="248" y="54" font-weight="700" font-size="15">P · hiện tại</text><text x="380" y="54" font-family="ui-monospace, monospace" font-weight="600">Kp × e</text>
+    <text x="248" y="76" font-size="12.5" fill="#59606B">Bây giờ lệch nhiều thì đẩy mạnh, lệch ít thì đẩy nhẹ.</text>
+    <rect x="234" y="135" width="380" height="60" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/>
+    <text x="248" y="159" font-weight="700" font-size="15">I · quá khứ</text><text x="380" y="159" font-family="ui-monospace, monospace" font-weight="600">Ki × tổng dồn của e</text>
+    <text x="248" y="181" font-size="12.5" fill="#59606B">Lệch hoài một chút cũng dồn lại thành lớn, ép sửa cho bằng hết.</text>
+    <rect x="234" y="240" width="380" height="60" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="248" y="264" font-weight="700" font-size="15">D · tương lai</text><text x="380" y="264" font-family="ui-monospace, monospace" font-weight="600">Kd × tốc độ đổi của e</text>
+    <text x="248" y="286" font-size="12.5" fill="#59606B">Đang lao tới đích quá lẹ thì đạp thắng sớm.</text>
+  </g>
+  <path d="M616 60H700V143M616 165H682M616 270H700V187" fill="none" stroke="#1B1920" stroke-width="2"/>
+  <path d="M700 135V143M674 165H682M700 195V187" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <circle cx="700" cy="165" r="20" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="700" y="171" text-anchor="middle" font-size="18">Σ</text>
+  <path d="M722 165H766" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="770" y="135" width="115" height="60" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/>
+  <text x="827" y="159" text-anchor="middle" font-weight="700">lệnh u</text><text x="827" y="177" text-anchor="middle" font-size="11.5" fill="#59606B">ga động cơ, lực đẩy</text>
+</svg>

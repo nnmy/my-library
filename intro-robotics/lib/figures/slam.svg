@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>SLAM: sai số tích lũy khi đi một vòng, và khép vòng làm co lại sai số</title>
+  <!-- Tự vẽ, minh họa ý tưởng. My Academia / Robotics. -->
+  <rect width="900" height="400" fill="#FBFCFD"/>
+<g transform="translate(230,200)">
+<text x="0" y="-160" text-anchor="middle" font-weight="700" font-size="15">Trước khi khép vòng</text><text x="0" y="-142" text-anchor="middle" font-size="12" fill="#59606B">đi càng xa, vòng bất định càng bự; bản đồ méo dần</text>
+<path d="M120.0 0.0 L103.9 40.0 L60.0 69.3 L0.0 80.0 L-60.0 69.3 L-103.9 40.0 L-120.0 0.0 L-103.9 -40.0 L-60.0 -69.3 L-0.0 -80.0 L60.0 -69.3 L103.9 -40.0 L120.0 -0.0" fill="none" stroke="#9DA4AD" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M120.0 0.0 L106.1 41.3 L64.4 71.9 L6.6 84.0 L-51.2 74.6 L-92.9 46.6 L-106.8 7.9 L-88.5 -30.8 L-42.4 -58.7 L19.8 -68.1 L82.0 -56.1 L128.1 -25.5 L146.4 15.8" fill="none" stroke="#3787c4" stroke-width="2.5"/>
+<ellipse cx="120.0" cy="0.0" rx="5.2" ry="4.0" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="106.1" cy="41.3" rx="8.1" ry="6.2" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="64.4" cy="71.9" rx="10.9" ry="8.4" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="6.6" cy="84.0" rx="13.8" ry="10.6" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-51.2" cy="74.6" rx="16.6" ry="12.8" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-92.9" cy="46.6" rx="19.5" ry="15.0" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-106.8" cy="7.9" rx="22.4" ry="17.2" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-88.5" cy="-30.8" rx="25.2" ry="19.4" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-42.4" cy="-58.7" rx="28.1" ry="21.6" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="19.8" cy="-68.1" rx="30.9" ry="23.8" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="82.0" cy="-56.1" rx="33.8" ry="26.0" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="128.1" cy="-25.5" rx="36.7" ry="28.2" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="146.4" cy="15.8" rx="39.5" ry="30.4" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<path d="M-132.5 -16.5l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M-47.0 -109.2l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M83.5 -103.9l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M178.0 13.8l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M94.0 106.4l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M-56.5 101.1l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M10.0 -1.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<text x="162.4" y="45.8" font-size="12" fill="#d8312a">vòng lại mà tưởng chỗ mới</text>
+</g>
+<g transform="translate(670,200)">
+<text x="0" y="-160" text-anchor="middle" font-weight="700" font-size="15">Sau khi khép vòng</text><text x="0" y="-142" text-anchor="middle" font-size="12" fill="#59606B">nhận ra chỗ cũ: cả đường đi lẫn bản đồ được nắn lại</text>
+<path d="M120.0 0.0 L103.9 40.0 L60.0 69.3 L0.0 80.0 L-60.0 69.3 L-103.9 40.0 L-120.0 0.0 L-103.9 -40.0 L-60.0 -69.3 L-0.0 -80.0 L60.0 -69.3 L103.9 -40.0 L120.0 -0.0" fill="none" stroke="#9DA4AD" stroke-width="1.5" stroke-dasharray="4 4"/>
+<path d="M120.0 0.0 L103.9 40.0 L60.0 69.3 L0.0 80.0 L-60.0 69.3 L-103.9 40.0 L-120.0 0.0 L-103.9 -40.0 L-60.0 -69.3 L-0.0 -80.0 L60.0 -69.3 L103.9 -40.0 L120.0 -0.0" fill="none" stroke="#3787c4" stroke-width="2.5"/>
+<ellipse cx="120.0" cy="0.0" rx="5.2" ry="4.0" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="103.9" cy="40.0" rx="6.6" ry="5.1" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="60.0" cy="69.3" rx="8.1" ry="6.2" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="0.0" cy="80.0" rx="9.5" ry="7.3" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-60.0" cy="69.3" rx="10.9" ry="8.4" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-103.9" cy="40.0" rx="12.3" ry="9.5" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-120.0" cy="0.0" rx="13.8" ry="10.6" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-103.9" cy="-40.0" rx="12.3" ry="9.5" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-60.0" cy="-69.3" rx="10.9" ry="8.4" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="-0.0" cy="-80.0" rx="9.5" ry="7.3" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="60.0" cy="-69.3" rx="8.1" ry="6.2" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="103.9" cy="-40.0" rx="6.6" ry="5.1" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<ellipse cx="120.0" cy="-0.0" rx="5.2" ry="4.0" fill="rgba(123,205,232,.25)" stroke="#3787c4" stroke-width="1"/>
+<path d="M-150.0 -27.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M-60.0 -117.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M70.0 -112.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M160.0 3.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M80.0 98.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M-70.0 93.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+<path d="M0.0 -7.0l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920" stroke-width="1"/>
+
+<text x="0" y="140" text-anchor="middle" font-size="12.5" fill="#d8312a" font-weight="700">khép vòng: “chỗ này mình tới rồi!”</text>
+</g>
+  <path d="M450 40V370" stroke="#DCE6EC" stroke-width="2"/>
+  <g font-size="12"><path d="M40 382h24" stroke="#3787c4" stroke-width="2.5"/><text x="70" y="386">đường đi robot tự ước lượng</text>
+  <path d="M260 382h24" stroke="#9DA4AD" stroke-width="1.5" stroke-dasharray="4 4"/><text x="290" y="386">đường đi thật</text>
+  <ellipse cx="420" cy="382" rx="10" ry="7" fill="rgba(123,205,232,.25)" stroke="#3787c4"/><text x="436" y="386">độ bất định</text>
+  <path d="M556 375l2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#f2c230" stroke="#1B1920"/><text x="572" y="386">mốc trên bản đồ (góc tường, cửa…)</text></g>
+</svg>

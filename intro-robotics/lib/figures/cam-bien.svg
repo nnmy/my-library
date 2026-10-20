@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Các cảm biến thường gặp trên một robot di động</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="900" height="380" fill="#FBFCFD"/>
+  <text x="150" y="40" text-anchor="middle" font-weight="700" font-size="15">Cảm biến tự thân</text>
+  <text x="150" y="58" text-anchor="middle" font-size="12" fill="#59606B">đo chính robot</text>
+  <text x="750" y="40" text-anchor="middle" font-weight="700" font-size="15">Cảm biến ngoại cảnh</text>
+  <text x="750" y="58" text-anchor="middle" font-size="12" fill="#59606B">đo thế giới bên ngoài</text>
+  <!-- robot nhìn từ trên xuống -->
+  <rect x="385" y="120" width="130" height="190" rx="18" fill="#7bcde8" stroke="#1B1920" stroke-width="2.5"/>
+  <rect x="368" y="140" width="18" height="44" fill="#1B1920"/><rect x="514" y="140" width="18" height="44" fill="#1B1920"/>
+  <rect x="368" y="250" width="18" height="44" fill="#1B1920"/><rect x="514" y="250" width="18" height="44" fill="#1B1920"/>
+  <circle cx="450" cy="170" r="22" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <g stroke="#d8312a" stroke-width="1" opacity=".55">
+    <path d="M450 170L530.0 170.0"/>
+    <path d="M450 170L523.9 200.6"/>
+    <path d="M450 170L506.6 226.6"/>
+    <path d="M450 170L480.6 243.9"/>
+    <path d="M450 170L450.0 250.0"/>
+    <path d="M450 170L419.4 243.9"/>
+    <path d="M450 170L393.4 226.6"/>
+    <path d="M450 170L376.1 200.6"/>
+    <path d="M450 170L370.0 170.0"/>
+    <path d="M450 170L376.1 139.4"/>
+    <path d="M450 170L393.4 113.4"/>
+    <path d="M450 170L419.4 96.1"/>
+    <path d="M450 170L450.0 90.0"/>
+    <path d="M450 170L480.6 96.1"/>
+    <path d="M450 170L506.6 113.4"/>
+    <path d="M450 170L523.9 139.4"/>
+  </g>
+  <rect x="436" y="122" width="28" height="12" fill="#1B1920"/>
+  <rect x="425" y="214" width="50" height="22" fill="#f2c230" stroke="#1B1920" stroke-width="1.5"/><text x="450" y="230" text-anchor="middle" font-size="11" font-weight="700">IMU</text>
+  <path d="M392 306H508" stroke="#59606B" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="490" cy="262" r="9" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><text x="490" y="266" text-anchor="middle" font-size="9">GPS</text>
+  <text x="20" y="120" font-weight="700">Bộ đếm vòng bánh xe</text><text x="170" y="120" font-size="11.5" fill="#59606B">encoder</text>
+  <text x="20" y="138" font-size="12">bánh quay mấy vòng → đi bao xa;</text><text x="20" y="154" font-size="12" fill="#d8312a">trượt bánh là trôi</text>
+  <path d="M260 132L377 160" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="20" y="215" font-weight="700">IMU</text><text x="49" y="215" font-size="11.5" fill="#59606B">gia tốc kế + con quay</text>
+  <text x="20" y="233" font-size="12">đo gia tốc, tốc độ xoay, rất lẹ;</text><text x="20" y="249" font-size="12" fill="#d8312a">cộng dồn lâu là trôi</text>
+  <path d="M260 227L425 225" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="20" y="310" font-weight="700">Công tắc va chạm</text><text x="148" y="310" font-size="11.5" fill="#59606B">bumper</text>
+  <text x="20" y="328" font-size="12">đụng rồi mới biết;</text><text x="20" y="344" font-size="12" fill="#d8312a">rẻ và chắc ăn</text>
+  <path d="M260 322L400 306" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="640" y="120" font-weight="700">GPS</text>
+  <text x="640" y="138" font-size="12">vị trí trên Trái Đất, sai vài mét;</text><text x="640" y="154" font-size="12" fill="#d8312a">mất sóng trong nhà, trong hầm</text>
+  <path d="M632 132L490 262" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="640" y="215" font-weight="700">Lidar</text><text x="686" y="215" font-size="11.5" fill="#59606B">quét tia laser</text>
+  <text x="640" y="233" font-size="12">đo khoảng cách chính xác cỡ cm;</text><text x="640" y="249" font-size="12" fill="#d8312a">mắc, sợ kính trong, mưa</text>
+  <path d="M632 227L472 170" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="640" y="310" font-weight="700">Camera</text>
+  <text x="640" y="328" font-size="12">nhiều thông tin nhất, rẻ;</text><text x="640" y="344" font-size="12" fill="#d8312a">khó hiểu, sợ tối và chói</text>
+  <path d="M632 322L464 128" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="450" y="362" text-anchor="middle" font-size="12" fill="#59606B">Dòng đỏ: điểm yếu. Hổng có cảm biến nào hoàn hảo, nên robot luôn xài nhiều loại cùng lúc.</text>
+</svg>

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 320" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Huấn luyện trong mô phỏng với vật lý ngẫu nhiên hóa, rồi chuyển chính sách sang robot thật</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="900" height="320" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <rect x="20" y="40" width="430" height="230" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <text x="235" y="30" text-anchor="middle" font-weight="700" font-size="15">Mô phỏng: hàng ngàn robot chạy song song trên GPU</text>
+<rect x="40" y="55" width="60" height="44" fill="#DCEFF8" stroke="#9DA4AD"/>
+<rect x="54" y="68" width="30" height="10" fill="#59606B"/><path d="M57 78l-3 12M64 78l2 12M76 78l-2 12M82 78l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M42 90.8L98 99.2" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="108" y="55" width="60" height="44" fill="#F6E3B0" stroke="#9DA4AD"/>
+<rect x="122" y="73" width="30" height="10" fill="#59606B"/><path d="M125 83l-3 12M132 83l2 12M144 83l-2 12M150 83l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M110 98.1L166 91.9" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="176" y="55" width="60" height="44" fill="#E3D7F2" stroke="#9DA4AD"/>
+<rect x="190" y="70" width="30" height="10" fill="#59606B"/><path d="M193 80l-3 12M200 80l2 12M212 80l-2 12M218 80l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M178 96.1L234 93.9" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="244" y="55" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="258" y="68" width="30" height="10" fill="#59606B"/><path d="M261 78l-3 12M268 78l2 12M280 78l-2 12M286 78l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M246 95.8L302 94.2" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="312" y="55" width="60" height="44" fill="#F6E3B0" stroke="#9DA4AD"/>
+<rect x="326" y="71" width="30" height="10" fill="#59606B"/><path d="M329 81l-3 12M336 81l2 12M348 81l-2 12M354 81l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M314 96.4L370 93.6" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="380" y="55" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="394" y="70" width="30" height="10" fill="#59606B"/><path d="M397 80l-3 12M404 80l2 12M416 80l-2 12M422 80l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M382 95.4L438 94.6" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="40" y="107" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="54" y="124" width="30" height="10" fill="#59606B"/><path d="M57 134l-3 12M64 134l2 12M76 134l-2 12M82 134l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M42 144.7L98 149.3" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="108" y="107" width="60" height="44" fill="#DCEFF8" stroke="#9DA4AD"/>
+<rect x="122" y="126" width="30" height="10" fill="#59606B"/><path d="M125 136l-3 12M132 136l2 12M144 136l-2 12M150 136l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M110 142.3L166 151.7" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="176" y="107" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="190" y="122" width="30" height="10" fill="#59606B"/><path d="M193 132l-3 12M200 132l2 12M212 132l-2 12M218 132l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M178 151.1L234 142.9" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="244" y="107" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="258" y="124" width="30" height="10" fill="#59606B"/><path d="M261 134l-3 12M268 134l2 12M280 134l-2 12M286 134l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M246 143.6L302 150.4" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="312" y="107" width="60" height="44" fill="#F6E3B0" stroke="#9DA4AD"/>
+<rect x="326" y="121" width="30" height="10" fill="#59606B"/><path d="M329 131l-3 12M336 131l2 12M348 131l-2 12M354 131l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M314 144.3L370 149.7" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="380" y="107" width="60" height="44" fill="#F6E3B0" stroke="#9DA4AD"/>
+<rect x="394" y="122" width="30" height="10" fill="#59606B"/><path d="M397 132l-3 12M404 132l2 12M416 132l-2 12M422 132l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M382 143.7L438 150.3" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="40" y="159" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="54" y="176" width="30" height="10" fill="#59606B"/><path d="M57 186l-3 12M64 186l2 12M76 186l-2 12M82 186l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M42 197.6L98 200.4" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="108" y="159" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="122" y="177" width="30" height="10" fill="#59606B"/><path d="M125 187l-3 12M132 187l2 12M144 187l-2 12M150 187l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M110 199.6L166 198.4" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="176" y="159" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="190" y="178" width="30" height="10" fill="#59606B"/><path d="M193 188l-3 12M200 188l2 12M212 188l-2 12M218 188l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M178 198.1L234 199.9" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="244" y="159" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="258" y="178" width="30" height="10" fill="#59606B"/><path d="M261 188l-3 12M268 188l2 12M280 188l-2 12M286 188l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M246 197.6L302 200.4" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="312" y="159" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="326" y="174" width="30" height="10" fill="#59606B"/><path d="M329 184l-3 12M336 184l2 12M348 184l-2 12M354 184l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M314 197.6L370 200.4" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="380" y="159" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="394" y="173" width="30" height="10" fill="#59606B"/><path d="M397 183l-3 12M404 183l2 12M416 183l-2 12M422 183l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M382 203.5L438 194.5" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="40" y="211" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="54" y="229" width="30" height="10" fill="#59606B"/><path d="M57 239l-3 12M64 239l2 12M76 239l-2 12M82 239l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M42 253.4L98 248.6" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="108" y="211" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="122" y="225" width="30" height="10" fill="#59606B"/><path d="M125 235l-3 12M132 235l2 12M144 235l-2 12M150 235l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M110 250.9L166 251.1" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="176" y="211" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="190" y="228" width="30" height="10" fill="#59606B"/><path d="M193 238l-3 12M200 238l2 12M212 238l-2 12M218 238l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M178 251.2L234 250.8" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="244" y="211" width="60" height="44" fill="#E3D7F2" stroke="#9DA4AD"/>
+<rect x="258" y="229" width="30" height="10" fill="#59606B"/><path d="M261 239l-3 12M268 239l2 12M280 239l-2 12M286 239l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M246 254.8L302 247.2" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="312" y="211" width="60" height="44" fill="#D5EDDD" stroke="#9DA4AD"/>
+<rect x="326" y="226" width="30" height="10" fill="#59606B"/><path d="M329 236l-3 12M336 236l2 12M348 236l-2 12M354 236l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M314 251.7L370 250.3" stroke="#3f9d6a" stroke-width="2"/>
+<rect x="380" y="211" width="60" height="44" fill="#F6D6D2" stroke="#9DA4AD"/>
+<rect x="394" y="229" width="30" height="10" fill="#59606B"/><path d="M397 239l-3 12M404 239l2 12M416 239l-2 12M422 239l3 12" stroke="#1B1920" stroke-width="2"/>
+<path d="M382 250.6L438 251.4" stroke="#3f9d6a" stroke-width="2"/>
+  <text x="235" y="290" text-anchor="middle" font-size="12" fill="#59606B">mỗi ô một thế giới hơi khác: sàn dốc, trơn, chân nặng nhẹ, động cơ mạnh yếu</text>
+  <path d="M455 155H560" stroke="#1B1920" stroke-width="2.4" marker-end="url(#a)"/>
+  <text x="508" y="140" text-anchor="middle" font-size="12" font-weight="700">chính sách</text>
+  <text x="508" y="176" text-anchor="middle" font-size="11.5" fill="#59606B">(mạng nơ-ron)</text>
+  <rect x="565" y="40" width="315" height="230" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <text x="722" y="30" text-anchor="middle" font-weight="700" font-size="15">Robot thật</text>
+  <path d="M590 225C650 215 720 232 860 218" stroke="#3f9d6a" stroke-width="3" fill="none"/>
+  <rect x="670" y="150" width="110" height="34" fill="#59606B" stroke="#1B1920" stroke-width="2"/>
+  <rect x="770" y="140" width="28" height="22" fill="#59606B" stroke="#1B1920" stroke-width="2"/>
+  <path d="M680 184l-10 40M700 184l8 40M750 184l-8 40M772 184l10 38" stroke="#1B1920" stroke-width="5" stroke-linecap="round"/>
+  <text x="722" y="110" text-anchor="middle" font-size="12.5">với chính sách đã quen đủ kiểu thế giới,</text>
+  <text x="722" y="128" text-anchor="middle" font-size="12.5">thế giới thật chỉ là “thêm một kiểu nữa”</text>
+  <text x="722" y="258" text-anchor="middle" font-size="12" fill="#59606B">khoảng cách mô phỏng–đời thực được thu hẹp</text>
+</svg>

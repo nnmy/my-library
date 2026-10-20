@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điều khiển và phản hồi | Robotics | My N. Nguyen</title>
+<meta name="description" content="Điều khiển và phản hồi cho người mới: vòng hở và vòng kín, bật–tắt, bộ điều khiển PID, đánh giá đáp ứng, ổn định và con lắc ngược, điều khiển nhiều tầng, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/2-dieu-khien.html, Phần 2: ĐIỀU KHIỂN VÀ PHẢN HỒI)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      pid-drone : drone một chiều, chế độ bật–tắt / P / PD / PID, gió giật, chở thêm hàng
+      balance   : con lắc ngược trên xe (cart-pole), bộ điều khiển PD theo góc + vòng giữ vị trí
+  - Hình tự vẽ: lib/figures/vong-ho-kin.svg, pid.svg, dap-ung-buoc.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Robotics</a> / Phần 2</p>
+  <h1><span class="dot"></span>Điều khiển và phản hồi</h1>
+  <p class="lead">Ở <a href="1-dong-hoc.html">Phần 1</a>, mình tính ra được khớp cần quay bao nhiêu độ. Nhưng ra lệnh “quay 40 độ” cho động cơ thì nó có quay đúng 40 độ hông? Tay robot nặng hơn bữa qua, gió thổi, bánh răng mòn… Bí quyết để robot làm đúng giữa đời thực lộn xộn là <b>phản hồi</b>: đo coi mình đang lệch bao nhiêu, rồi sửa, liên tục, hàng trăm tới hàng ngàn lần mỗi giây.</p>
+</header>
+
+<!-- ================= 2.1 VÒNG HỞ, VÒNG KÍN ================= -->
+<section class="part" id="phan-hoi">
+  <div class="wrap">
+    <h2>Vòng hở và vòng kín</h2>
+    <div class="prose">
+      <p>Cái lò nướng bánh mì hẹn giờ là <span class="term">điều khiển vòng hở</span> <span class="en">(open-loop control)</span>: nó chạy đúng 3 phút rồi tắt, bánh mì dày hay mỏng, lò nóng sẵn hay chưa, nó hổng quan tâm. Muốn đúng thì phải biết trước mọi thứ, mà đời thì ít khi chiều mình vậy.</p>
+      <p>Cái máy lạnh thì khác: nó có cảm biến nhiệt, thấy phòng còn nóng hơn mức muốn thì chạy tiếp, mát rồi thì nghỉ. Đó là <span class="term">điều khiển vòng kín</span> hay <span class="term">điều khiển phản hồi</span> <span class="en">(closed-loop, feedback control)</span>. Bạn làm chuyện này hằng ngày mà hổng để ý: rót nước vô ly thì mắt canh mực nước, gần đầy thì rót chậm lại.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/vong-ho-kin.svg" alt="Trên: vòng hở, lệnh nướng 3 phút đi vô lò nướng hẹn giờ ra bánh mì, hổng ai đo kết quả. Dưới: vòng kín, nhiệt độ muốn 26 độ trừ nhiệt độ đo 28 độ ra sai số −2, đi qua bộ điều khiển, máy nén lạnh, căn phòng; cảm biến nhiệt đo phòng rồi đưa ngược về chỗ trừ." loading="lazy">
+      <figcaption><b>Vòng hở và vòng kín.</b> Điểm mấu chốt nằm ở đường phản hồi màu đỏ: kết quả được đo rồi so lại với mong muốn. Hiệu số đó gọi là <b>sai số</b>. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Trong vòng kín có bốn vai: <b>điểm đặt</b> <span class="en">(setpoint)</span> là cái mình muốn; <b>cảm biến</b> đo cái đang có; <b>bộ điều khiển</b> <span class="en">(controller)</span> nhìn sai số mà quyết định ra lệnh bao nhiêu; <b>cơ cấu chấp hành</b> thi hành lệnh. Cái hay của phản hồi là nó tự sửa được những thứ mình hổng lường trước: gió, tải nặng, động cơ yếu đi. Cái giá phải trả là nếu sửa vụng thì hệ có thể lắc lư, thậm chí càng sửa càng tệ.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.2 BẬT–TẮT VÀ PID ================= -->
+<section class="part tint" id="pid">
+  <div class="wrap">
+    <h2>PID: hiện tại, quá khứ, tương lai</h2>
+    <h3>Cách đơn giản nhất: bật–tắt</h3>
+    <div class="prose">
+      <p>Thấp hơn đích thì mở hết ga, cao hơn thì tắt máy. Cái bàn ủi và nhiều tủ lạnh đời cũ chạy kiểu <span class="term">bật–tắt</span> <span class="en">(bang-bang control)</span> như vậy. Với nhiệt độ thì tạm được, vì nhiệt thay đổi chậm. Với một con drone thì… thử ở minh họa dưới đây là biết: nó nhảy lên nhảy xuống hoài quanh đích.</p>
+    </div>
+    <h3>Ba câu hỏi của PID</h3>
+    <div class="prose">
+      <p>Bộ điều khiển phổ biến nhất thế giới, có mặt trong máy lạnh, ô tô, nhà máy, động cơ của hầu hết cánh tay robot, là <span class="term">PID</span>. Nó tính lệnh bằng cách cộng ba câu trả lời cho ba câu hỏi về sai số \(e\):</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/pid.svg" alt="Sai số e tách làm ba nhánh. P, hiện tại: Kp nhân e, lệch nhiều đẩy mạnh. I, quá khứ: Ki nhân tổng dồn của e, lệch hoài một chút cũng dồn lại thành lớn. D, tương lai: Kd nhân tốc độ đổi của e, đang lao tới quá lẹ thì đạp thắng sớm. Ba nhánh cộng lại thành lệnh u." loading="lazy">
+      <figcaption><b>Bộ điều khiển PID.</b> Ba nhánh, ba con số chỉnh được: Kp, Ki, Kd. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="formula">
+      <div class="eq">\[ u(t) = K_p\, e(t) \;+\; K_i \int_0^t e(\tau)\,d\tau \;+\; K_d\,\frac{de(t)}{dt} \]</div>
+      <p class="where"><b>e(t)</b>: sai số lúc t, bằng điểm đặt trừ giá trị đo; <b>u(t)</b>: lệnh gửi cho cơ cấu chấp hành (ví dụ lực đẩy của cánh quạt); <b>∫</b> (tích phân): cộng dồn sai số từ lúc đầu tới giờ, tính cả thời gian; <b>de/dt</b> (đạo hàm): sai số đang đổi nhanh cỡ nào; <b>K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub></b>: ba hệ số mà kỹ sư phải chỉnh, gọi là <span class="term">chỉnh thông số</span> <span class="en">(tuning)</span>.</p>
+    </div>
+    <ul class="prose">
+      <li><b>P, hiện tại:</b> lệch nhiều đẩy mạnh, lệch ít đẩy nhẹ. Nghe hợp lý, nhưng chỉ có P thì drone giống lò xo: kéo về thì vọt quá, bật ngược lại, dao động hoài.</li>
+      <li><b>D, tương lai:</b> nhìn coi sai số đang giảm lẹ cỡ nào; nếu đang lao về đích quá nhanh thì đạp thắng trước khi tới. D giống bộ giảm xóc, làm dịu dao động.</li>
+      <li><b>I, quá khứ:</b> drone nặng 1 kg cần lực đẩy cỡ 9,8 N chỉ để lơ lửng. Với P và D, lực đó chỉ có khi còn sai số, nên drone treo lơ lửng <i>thấp hơn</i> đích một khúc hoài. I cộng dồn khúc hụt đó theo thời gian, tới khi đủ lớn để bù trọng lực, rồi sai số mới về 0.</li>
+    </ul>
+
+    <div class="demo" id="demoPid" data-demo="pid-drone">
+      <div class="demo-title"><h4>PID giữ độ cao drone</h4><span>Chỉnh ba núm Kp, Ki, Kd rồi coi drone bay</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Thử lần lượt bốn nút ở trên, mỗi lần đổi độ cao muốn tới để coi phản ứng:</p>
+      <ul>
+        <li><b>Bật–tắt:</b> lắc lư quanh đích hoài, ga lúc mở hết lúc tắt hẳn. Tốn pin và tội động cơ.</li>
+        <li><b>Chỉ P:</b> dao động hổng dứt, và tâm dao động nằm dưới đích.</li>
+        <li><b>PD:</b> hết lắc, nhưng drone đứng yên dưới đích một khúc. Đó là <b>sai số xác lập</b>. Bấm “Chở thêm hàng”: hụt càng nhiều.</li>
+        <li><b>PID:</b> tới đúng đích. Bấm “Gió giật xuống” hay “Chở thêm hàng”: drone chao một chút rồi tự về lại, vì khâu I từ từ tăng ga bù vô.</li>
+        <li>Thử cho Kp thật lớn, Kd bằng 0: dao động mạnh hơn. Cho Kd thật lớn: drone leo lên chậm rì như đi trong mật ong.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Chuyện thật ngoài đời:</b> lực đẩy có giới hạn (drone trong minh họa tối đa 25 N). Khi ga đã mở hết mà khâu I vẫn tiếp tục cộng dồn, nó phình ra quá cỡ, tới lúc lên tới đích thì phải mất cả buổi mới “xả” hết, làm drone vọt lố dữ. Hiện tượng này gọi là <span class="term">tích phân bão hòa</span> <span class="en">(integral windup)</span>. Minh họa có cài cách chống đơn giản: ngưng cộng dồn khi ga đã chạm giới hạn.</div>
+  </div>
+</section>
+
+<!-- ================= 2.3 ĐÁNH GIÁ ================= -->
+<section class="part" id="danh-gia">
+  <div class="wrap">
+    <h2>Đo coi điều khiển tốt hay dở</h2>
+    <div class="prose">
+      <p>Cách kiểm tra quen thuộc nhất là cho điểm đặt nhảy lên một bậc, rồi coi hệ đuổi theo ra sao. Đường cong đó gọi là <span class="term">đáp ứng bước</span> <span class="en">(step response)</span>, và người ta chấm nó bằng bốn con số:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/dap-ung-buoc.svg" alt="Đồ thị đường xanh đi từ 0 lên, vượt qua đường đích màu đỏ đứt, dao động nhỏ dần rồi nằm yên hơi thấp hơn đích. Chú thích: thời gian lên (tới 90%), vọt lố (đỉnh vượt quá giá trị cuối), thời gian xác lập (khi vô hẳn dải ±2%), sai số xác lập (khoảng hụt còn lại so với đích)." loading="lazy">
+      <figcaption><b>Bốn chỉ số của đáp ứng bước.</b> Ví dụ này có cả vọt lố lẫn sai số xác lập, như một bộ PD. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Chỉ số</th><th>Nghĩa là</th><th>Muốn</th><th>Núm nào ảnh hưởng nhiều</th></tr></thead>
+        <tbody>
+          <tr><td>Thời gian lên<span class="en">rise time</span></td><td>Mất bao lâu để tới gần đích (thường tính tới 90%)</td><td>Ngắn</td><td>Tăng Kp thì lên lẹ hơn</td></tr>
+          <tr><td>Vọt lố<span class="en">overshoot</span></td><td>Vượt quá đích bao nhiêu phần trăm</td><td>Ít</td><td>Tăng Kd thì giảm; tăng Kp, Ki thì tăng</td></tr>
+          <tr><td>Thời gian xác lập<span class="en">settling time</span></td><td>Mất bao lâu để nằm yên trong dải ±2% quanh giá trị cuối</td><td>Ngắn</td><td>Kd vừa phải giúp hết lắc lẹ</td></tr>
+          <tr><td>Sai số xác lập<span class="en">steady-state error</span></td><td>Đứng yên rồi mà vẫn hụt bao nhiêu</td><td>Bằng 0</td><td>Ki khử được</td></tr>
+        </tbody>
+        <caption>Mấy chỉ số này thường giành giật nhau: muốn lên lẹ thì dễ vọt lố, muốn êm thì chậm. Chỉnh PID là chọn chỗ cân bằng hợp với việc: robot hàn cần chính xác, drone đua cần lẹ.</caption>
+      </table>
+    </div>
+    <div class="prose">
+      <p>Chỉnh ba con số này bằng cách nào? Năm 1942, hai kỹ sư Ziegler và Nichols đưa ra một công thức kinh nghiệm: tăng Kp tới khi hệ vừa bắt đầu dao động đều, đo chu kỳ dao động, rồi tra bảng ra Kp, Ki, Kd. Ngày nay người ta hay mô phỏng trước trên máy tính, hoặc để phần mềm tự dò, nhưng thợ lành nghề vẫn hay chỉnh tay theo cảm giác: tăng P tới khi gần lắc, thêm D cho êm, thêm chút I cho hết hụt.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.4 ỔN ĐỊNH ================= -->
+<section class="part tint" id="on-dinh">
+  <div class="wrap">
+    <h2>Ổn định: giữ thứ vốn muốn ngã</h2>
+    <div class="prose">
+      <p>Thử dựng cây chổi đứng trên lòng bàn tay. Chổi vốn muốn ngã; bạn phải liên tục dời tay về phía nó đang ngã để chụp lại. Hệ như vậy gọi là <span class="term">không ổn định</span> <span class="en">(unstable)</span>: để yên là hỏng, hổng có phản hồi là hổng sống nổi. Ngược lại, hệ <span class="term">ổn định</span> <span class="en">(stable)</span> là hệ bị xô lệch rồi tự quay về, như cái võng đứng yên lại sau khi bị đẩy.</p>
+      <p>Bài “con lắc ngược trên xe” <span class="en">(cart-pole)</span> là bài tập kinh điển của ngành điều khiển, và là họ hàng của nhiều thứ thật: xe điện tự cân bằng, robot hai chân, robot hình người đứng một chân, tên lửa đáp thẳng đứng xuống bệ. Luật điều khiển rất trực giác: gậy nghiêng qua phải thì chạy xe qua phải để “đỡ” chân gậy.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ F = K_p\,\theta + K_d\,\dot\theta \]</div>
+      <p class="where"><b>F</b>: lực đẩy xe (dương là đẩy qua phải); <b>θ</b>: góc nghiêng của gậy so với phương thẳng đứng (dương là nghiêng qua phải); <b>θ̇</b> (theta chấm): tốc độ nghiêng, tức gậy đang ngã nhanh cỡ nào. Ở đây sai số chính là θ, vì đích là θ = 0.</p>
+    </div>
+    <div class="demo" id="demoBal" data-demo="balance">
+      <div class="demo-title"><h4>Xe giữ cây gậy đứng</h4><span>Đẩy cây gậy, coi bộ điều khiển chụp lại</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Tắt “Giữ xe ở giữa đường ray”, rồi kéo Kp xuống dưới cỡ 12: gậy ngã luôn, vì đẩy xe cỡ đó hổng đủ thắng trọng lực kéo gậy xuống. Bật lại “giữ xe ở giữa” thì ngưỡng còn cao hơn, cỡ 24, vì bộ điều khiển phải lo thêm chuyện kéo xe về. Hệ không ổn định đòi hỏi phản hồi <b>đủ mạnh</b>, chứ có thôi chưa đủ.</li>
+        <li>Kéo Kd xuống dưới cỡ 5 (đang bật “giữ xe ở giữa”): gậy lắc qua lắc lại càng lúc càng dữ rồi ngã. Thiếu “thắng”, xe chụp trễ hoài.</li>
+        <li>Tắt “Giữ xe ở giữa đường ray” rồi đẩy gậy: gậy vẫn đứng, nhưng xe trôi dần rồi đụng tường. Muốn giữ cả gậy lẫn xe thì phải điều khiển nhiều thứ cùng lúc. Mẹo ở đây hơi ngược đời: muốn xe chạy về bên trái, trước hết phải nhích qua phải một chút để gậy nghiêng qua trái, rồi mới chạy theo được.</li>
+        <li>Đẩy liên tục nhiều lần: lực đẩy chạm giới hạn 30 N (“hết ga”) thì bộ điều khiển hay cỡ nào cũng bó tay.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2.5 NHIỀU TẦNG ================= -->
+<section class="part" id="nhieu-tang">
+  <div class="wrap">
+    <h2>Điều khiển nhiều tầng, và hơn cả PID</h2>
+    <div class="prose">
+      <p>Một khớp của cánh tay robot thật thường có ba vòng PID lồng nhau, vòng trong lẹ hơn vòng ngoài:</p>
+      <ul>
+        <li><b>Vòng dòng điện</b> (trong cùng, cỡ chục ngàn lần mỗi giây): giữ cho động cơ sinh đúng lực xoắn được yêu cầu.</li>
+        <li><b>Vòng vận tốc</b> (cỡ vài ngàn lần mỗi giây): giữ cho khớp quay đúng tốc độ, bằng cách ra lệnh lực xoắn cho vòng trong.</li>
+        <li><b>Vòng vị trí</b> (ngoài cùng, cỡ vài trăm tới một ngàn lần mỗi giây): giữ khớp đúng góc, bằng cách ra lệnh tốc độ cho vòng giữa.</li>
+      </ul>
+      <p>Kiểu xếp tầng <span class="en">(cascade control)</span> này giống công ty có giám đốc, trưởng phòng, nhân viên: tầng trên ra mục tiêu, tầng dưới lo chi tiết và phản ứng lẹ hơn.</p>
+      <p>PID có giới hạn: nó chỉ nhìn sai số, hổng biết gì về robot. Với hệ phức tạp như robot bốn chân hay robot hình người, người ta xài các phương pháp dựa trên <b>mô hình</b> của robot:</p>
+      <ul>
+        <li><span class="term">LQR</span> <span class="en">(linear–quadratic regulator)</span>: dựa trên mô hình, tính ra bộ hệ số tối ưu cho mọi biến cùng lúc (góc gậy, vị trí xe…), thay vì chỉnh tay từng cái.</li>
+        <li><span class="term">Điều khiển dự báo theo mô hình</span> <span class="en">(model predictive control, MPC)</span>: mỗi vài phần ngàn giây, mô phỏng thử trước nửa giây tới với nhiều chuỗi lệnh khác nhau, chọn chuỗi tốt nhất, làm bước đầu tiên, rồi tính lại từ đầu. Robot chó và robot hình người chạy nhảy được phần lớn nhờ MPC.</li>
+        <li><b>Học tăng cường</b>: để robot tự học luật điều khiển từ thử và sai trong mô phỏng. Chuyện này để dành cho Phần 5.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Dù phương pháp gì thì cũng là phản hồi:</b> đo, so, sửa, lặp lại. Mà muốn đo thì phải có cảm biến, và cảm biến thì luôn có nhiễu. Robot biết mình đang ở đâu từ những con số nhiễu đó ra sao, là chuyện của Phần 3.</div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Điều khiển vòng hở</td><td>open-loop control</td><td>Ra lệnh mà hổng đo kết quả.</td></tr>
+          <tr><td>Điều khiển phản hồi, vòng kín</td><td>feedback, closed-loop control</td><td>Đo kết quả, so với mong muốn, sửa liên tục.</td></tr>
+          <tr><td>Điểm đặt</td><td>setpoint</td><td>Giá trị mình muốn đạt tới.</td></tr>
+          <tr><td>Sai số</td><td>error</td><td>Điểm đặt trừ giá trị đo được.</td></tr>
+          <tr><td>Bộ điều khiển PID</td><td>PID controller</td><td>Cộng ba phần: tỉ lệ (P), tích phân (I), vi phân (D) của sai số.</td></tr>
+          <tr><td>Đáp ứng bước</td><td>step response</td><td>Cách hệ đuổi theo khi điểm đặt nhảy một bậc.</td></tr>
+          <tr><td>Vọt lố</td><td>overshoot</td><td>Phần vượt quá rồi mới quay lại.</td></tr>
+          <tr><td>Sai số xác lập</td><td>steady-state error</td><td>Phần hụt còn lại khi đã đứng yên.</td></tr>
+          <tr><td>Tích phân bão hòa</td><td>integral windup</td><td>Khâu I phình quá cỡ khi lệnh đã chạm giới hạn.</td></tr>
+          <tr><td>Ổn định</td><td>stability</td><td>Bị xô lệch thì tự quay về.</td></tr>
+          <tr><td>Điều khiển xếp tầng</td><td>cascade control</td><td>Nhiều vòng lồng nhau, vòng trong lẹ hơn vòng ngoài.</td></tr>
+          <tr><td>Điều khiển dự báo theo mô hình</td><td>model predictive control (MPC)</td><td>Mô phỏng trước tương lai gần, chọn chuỗi lệnh tốt nhất, làm bước đầu, lặp lại.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(e(t)\)</td><td>e of t</td><td>Sai số tại thời điểm t.</td></tr>
+          <tr><td class="sym">\(u(t)\)</td><td>u of t</td><td>Lệnh điều khiển tại thời điểm t.</td></tr>
+          <tr><td class="sym">\(K_p, K_i, K_d\)</td><td>K sub p, i, d</td><td>Ba hệ số của PID.</td></tr>
+          <tr><td class="sym">\(\int_0^t \dots\, d\tau\)</td><td>integral from 0 to t</td><td>Cộng dồn theo thời gian từ lúc đầu tới t.</td></tr>
+          <tr><td class="sym">\(\frac{de}{dt}\)</td><td>d e d t</td><td>Đạo hàm: e đổi nhanh cỡ nào theo thời gian.</td></tr>
+          <tr><td class="sym">\(\dot\theta\)</td><td>theta dot</td><td>Dấu chấm trên đầu: tốc độ thay đổi theo thời gian.</td></tr>
+          <tr><td class="sym">\(F\)</td><td>F</td><td>Lực (đơn vị newton, N).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">~250 TCN</span><div><h4>Đồng hồ nước có phao</h4><p>Ktesibios ở Alexandria dùng một cái phao tự đóng mở dòng nước để giữ mực nước không đổi, một trong những thiết bị phản hồi đầu tiên được ghi lại.</p></div></li>
+      <li><span class="yr">1788</span><div><h4>Bộ điều tốc của Watt</h4><p>James Watt gắn bộ điều tốc ly tâm vô máy hơi nước: máy quay nhanh thì hai quả cầu văng ra, khép van hơi lại. Máy chạy đều, mở đường cho cách mạng công nghiệp.</p></div></li>
+      <li><span class="yr">1868</span><div><h4>Maxwell và ổn định</h4><p>James Clerk Maxwell viết bài “On Governors”, lần đầu dùng toán để giải thích vì sao có bộ điều tốc chạy êm, có cái lại lắc dữ dội.</p></div></li>
+      <li><span class="yr">1922</span><div><h4>PID cho tàu chiến</h4><p>Nicolas Minorsky quan sát cách người lái tàu bẻ lái rồi viết ra luật điều khiển ba thành phần cho hệ lái tự động của Hải quân Mỹ, chính là PID.</p></div></li>
+      <li><span class="yr">1927–32</span><div><h4>Phản hồi trong điện tử</h4><p>Harold Black ở Bell Labs nghĩ ra bộ khuếch đại phản hồi âm; Harry Nyquist đưa ra tiêu chuẩn kiểm tra một vòng phản hồi có ổn định hay không.</p></div></li>
+      <li><span class="yr">1942</span><div><h4>Ziegler–Nichols</h4><p>John Ziegler và Nathaniel Nichols công bố cách chỉnh thông số PID bằng thí nghiệm, tới giờ vẫn được dạy trong trường.</p></div></li>
+      <li><span class="yr">1960</span><div><h4>Kalman và không gian trạng thái</h4><p>Rudolf Kálmán đặt nền cho điều khiển hiện đại: mô tả hệ bằng các biến trạng thái, điều khiển tối ưu (LQR), và bộ lọc Kalman mà Phần 3 sẽ gặp lại.</p></div></li>
+      <li><span class="yr">2015</span><div><h4>Tên lửa đáp thẳng đứng</h4><p>Tầng đẩy Falcon 9 của SpaceX lần đầu đáp thẳng đứng thành công xuống mặt đất: một “cây gậy dựng ngược” cao cỡ tòa nhà 15 tầng, giữ thăng bằng bằng phản hồi.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>K. J. Åström, R. M. Murray, <i>Feedback Systems: An Introduction for Scientists and Engineers</i>, 2nd ed., Princeton University Press, 2021 (bản điện tử miễn phí trên trang của tác giả).</li>
+      <li>K. M. Lynch, F. C. Park, <i>Modern Robotics: Mechanics, Planning, and Control</i>, Cambridge University Press, 2017, Chương 11 (điều khiển robot). <a href="http://modernrobotics.org" rel="noopener">modernrobotics.org</a>.</li>
+      <li>R. Tedrake, <i>Underactuated Robotics</i>, ghi chú bài giảng MIT (có phần cart-pole và LQR).</li>
+      <li>N. Minorsky, “Directional Stability of Automatically Steered Bodies”, <i>Journal of the American Society of Naval Engineers</i>, 1922.</li>
+      <li>J. G. Ziegler, N. B. Nichols, “Optimum Settings for Automatic Controllers”, <i>Transactions of the ASME</i>, 1942.</li>
+      <li>A. G. Barto, R. S. Sutton, C. W. Anderson, “Neuronlike Adaptive Elements That Can Solve Difficult Learning Control Problems”, <i>IEEE Transactions on Systems, Man, and Cybernetics</i>, 1983 (nguồn của mô hình cart-pole trong minh họa).</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="1-dong-hoc.html"><small>Phần 1</small><b>Robot cử động ra sao</b></a>
+      <a class="next" href="3-dinh-vi.html"><small>Phần 3</small><b>Cảm biến và định vị</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

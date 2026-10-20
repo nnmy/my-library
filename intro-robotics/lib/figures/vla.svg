@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Kiến trúc mô hình thị giác–ngôn ngữ–hành động (VLA): nghĩ chậm, làm nhanh</title>
+  <!-- Tự vẽ, giản lược theo các thiết kế hai hệ thống như π0, Helix, GR00T N1. My Academia / Robotics. -->
+  <rect width="900" height="400" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <!-- đầu vào -->
+  <g>
+    <rect x="20" y="40" width="170" height="70" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/>
+    <rect x="34" y="52" width="40" height="30" fill="#fff" stroke="#59606B"/><rect x="80" y="52" width="40" height="30" fill="#fff" stroke="#59606B"/><rect x="126" y="52" width="40" height="30" fill="#fff" stroke="#59606B"/>
+    <text x="105" y="100" text-anchor="middle" font-size="12">hình từ các camera</text>
+    <rect x="20" y="125" width="170" height="70" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/>
+    <text x="105" y="152" text-anchor="middle" font-size="12.5" font-style="italic">“dọn mấy cái ly</text>
+    <text x="105" y="170" text-anchor="middle" font-size="12.5" font-style="italic">vô bồn rửa giùm”</text>
+    <text x="105" y="187" text-anchor="middle" font-size="11.5" fill="#59606B">lời nói</text>
+    <rect x="20" y="210" width="170" height="60" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="105" y="236" text-anchor="middle" font-size="12.5">góc khớp, lực kẹp</text>
+    <text x="105" y="254" text-anchor="middle" font-size="11.5" fill="#59606B">trạng thái robot</text>
+  </g>
+  <path d="M192 75L248 140M192 160H246M192 240L248 180" stroke="#1B1920" stroke-width="2" fill="none"/>
+  <path d="M240 160H252" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <!-- hệ 2 -->
+  <rect x="256" y="90" width="250" height="140" fill="#fff" stroke="#1B1920" stroke-width="2.5"/>
+  <text x="381" y="118" text-anchor="middle" font-weight="700" font-size="15">Hệ 2: “nghĩ chậm”</text>
+  <text x="381" y="140" text-anchor="middle">mô hình thị giác–ngôn ngữ (VLM)</text>
+  <text x="381" y="158" text-anchor="middle">học trước trên chữ và hình internet</text>
+  <text x="381" y="184" text-anchor="middle" font-size="12" fill="#59606B">hiểu “ly” là gì, “bồn rửa” ở đâu,</text>
+  <text x="381" y="200" text-anchor="middle" font-size="12" fill="#59606B">chia việc thành từng bước</text>
+  <text x="381" y="222" text-anchor="middle" font-size="12" font-weight="600" fill="#3787c4">cỡ 5–10 lần mỗi giây</text>
+  <path d="M508 160H556" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <text x="532" y="150" text-anchor="middle" font-size="11">ý định</text>
+  <!-- hệ 1 -->
+  <rect x="560" y="90" width="200" height="140" fill="#D5EDDD" stroke="#1B1920" stroke-width="2.5"/>
+  <text x="660" y="118" text-anchor="middle" font-weight="700" font-size="15">Hệ 1: “làm nhanh”</text>
+  <text x="660" y="140" text-anchor="middle">bộ sinh hành động</text>
+  <text x="660" y="158" text-anchor="middle" font-size="12">token hành động, hoặc</text>
+  <text x="660" y="174" text-anchor="middle" font-size="12">khuếch tán / flow matching</text>
+  <text x="660" y="200" text-anchor="middle" font-size="12" fill="#59606B">ra cả khúc lệnh liên tục</text>
+  <text x="660" y="222" text-anchor="middle" font-size="12" font-weight="600" fill="#3787c4">cỡ 50–200 lần mỗi giây</text>
+  <path d="M762 160H800" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <!-- robot -->
+  <g transform="translate(830,160)">
+    <rect x="-22" y="40" width="44" height="14" fill="#59606B"/>
+    <path d="M0 40V0L30-25" stroke="#3787c4" stroke-width="10" stroke-linecap="round" fill="none"/>
+    <circle cx="0" cy="40" r="6" fill="#f2c230" stroke="#1B1920" stroke-width="1.5"/><circle cx="0" cy="0" r="6" fill="#f2c230" stroke="#1B1920" stroke-width="1.5"/>
+    <text x="0" y="78" text-anchor="middle" font-size="12">robot</text>
+  </g>
+  <!-- khúc hành động -->
+  <g transform="translate(560,270)">
+    <text x="0" y="16" font-size="12" font-weight="600">một “khúc” hành động (action chunk):</text>
+    <g fill="#3f9d6a">
+      <rect x="0" y="26" width="10" height="18"/><rect x="13" y="26" width="10" height="18"/><rect x="26" y="26" width="10" height="18"/><rect x="39" y="26" width="10" height="18"/><rect x="52" y="26" width="10" height="18"/><rect x="65" y="26" width="10" height="18"/><rect x="78" y="26" width="10" height="18"/><rect x="91" y="26" width="10" height="18"/><rect x="104" y="26" width="10" height="18"/><rect x="117" y="26" width="10" height="18"/>
+    </g>
+    <text x="134" y="40" font-size="12">… 50 bước kế tiếp</text>
+    <text x="0" y="66" font-size="12" fill="#59606B">làm trong lúc hệ 2 đang nghĩ bước sau</text>
+  </g>
+    <text x="20" y="310" font-size="12" fill="#59606B">Cả khối là <tspan font-weight="700" fill="#1B1920">một mạng Transformer lớn</tspan>, huấn luyện chung từ đầu tới cuối.</text>
+  <text x="20" y="330" font-size="12" fill="#59606B">Phần lớn kiến thức “ly, bồn, dọn dẹp” tới từ internet;</text>
+  <text x="20" y="350" font-size="12" fill="#59606B">phần “cử động sao cho đúng” tới từ dữ liệu robot.</text>
+</svg>

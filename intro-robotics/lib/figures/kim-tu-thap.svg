@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 370" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Kim tự tháp dữ liệu cho mô hình nền tảng robot</title>
+  <!-- Tự vẽ, minh họa ý tưởng; độ rộng các tầng không theo tỉ lệ. My Academia / Robotics. -->
+  <rect width="1000" height="370" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <path d="M300 40L360 40L400 110L260 110Z" fill="#3f9d6a" stroke="#1B1920" stroke-width="2"/>
+  <path d="M260 110L400 110L450 190L210 190Z" fill="#7bcde8" stroke="#1B1920" stroke-width="2"/>
+  <path d="M210 190L450 190L505 270L155 270Z" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/>
+  <path d="M155 270L505 270L560 340L100 340Z" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+  <g font-size="12.5">
+    <text x="420" y="66" font-weight="700">Robot thật, người điều khiển từ xa</text><text x="420" y="84" fill="#59606B">ít nhất, chậm và đắt, nhưng khớp nhất với robot</text>
+    <text x="465" y="144" font-weight="700">Mô phỏng</text><text x="465" y="162" fill="#59606B">bao nhiêu cũng có, nhưng hổng giống hệt đời thật (Phần 5)</text>
+    <text x="520" y="224" font-weight="700">Video người làm việc</text><text x="520" y="242" fill="#59606B">rất nhiều, nhưng tay người khác tay robot, và hổng ghi lệnh động cơ</text>
+    <text x="575" y="300" font-weight="700">Chữ và hình trên internet</text><text x="575" y="318" fill="#59606B">khổng lồ, dạy “hiểu thế giới”, nhưng gần như hổng có hành động</text>
+  </g>
+  <path d="M60 330V50" stroke="#1B1920" stroke-width="2" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text x="30" y="36" font-size="12" font-weight="600">khớp với robot</text>
+  <text x="30" y="360" font-size="12" font-weight="600">nhiều, rẻ</text>
+</svg>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot tự học | Robotics | My N. Nguyen</title>
+<meta name="description" content="Robot tự học cho người mới: nghịch lý Moravec, học bắt chước và DAgger, học tăng cường và Q-learning, mô phỏng rồi chuyển qua đời thật, cẩn thận với phần thưởng, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/5-tu-hoc.html, Phần 5: ROBOT TỰ HỌC)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      dagger : xe học lái bằng k láng giềng gần nhất từ người lái mẫu; DAgger thêm dữ liệu sửa lỗi
+      qlearn : Q-learning dạng bảng trong mê cung 10 × 7, có vũng nước và tùy chọn sàn trơn
+  - Số liệu trên trang (đo bằng chính mã của minh họa):
+      dagger, gió 1: một lần chạy robot bắt chước ra khỏi làn 24,5% thời gian, văng 5 lần; sau 3 vòng DAgger 1,8%, 0 lần
+        (trung bình 3 lần chạy bằng node: mẫu 1%/0 lần, bắt chước 28%/9 lần, DAgger 3 vòng 0%/0 lần);
+      qlearn: đường ngắn nhất 19 bước; sau 300 lượt với ε = 0 robot đi đúng 19 bước.
+  - Hình tự vẽ: lib/figures/bat-chuoc.svg, rl-vong.svg, sim-to-real.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Robotics</a> / Phần 5</p>
+  <h1><span class="dot"></span>Robot tự học</h1>
+  <p class="lead">Bốn phần trước, mọi thứ đều do kỹ sư ngồi viết ra: công thức, luật điều khiển, thuật toán. Cách đó giỏi trong nhà máy ngăn nắp, nhưng bó tay với việc gấp cái áo hay đi trên đá sỏi. Trang này kể hai cách để robot <b>tự học</b> kỹ năng: học bằng cách coi người làm mẫu, và học bằng cách tự thử và sai.</p>
+</header>
+
+<!-- ================= 5.1 VÌ SAO ================= -->
+<section class="part" id="vi-sao">
+  <div class="wrap">
+    <h2>Vì sao robot cần tự học?</h2>
+    <div class="prose">
+      <p>Năm 1988, Hans Moravec để ý một chuyện ngộ: máy tính thắng người dễ dàng ở cờ vua hay tính toán, mà lại thua đứa nhỏ một tuổi ở chuyện cầm nắm, đi đứng, nhận ra đồ vật. Cái gọi là <span class="term">nghịch lý Moravec</span> <span class="en">(Moravec’s paradox)</span> này nói rằng những kỹ năng mình thấy “dễ” lại là những kỹ năng tiến hóa mài giũa hàng trăm triệu năm, nên tụi mình làm mà hổng biết mình làm ra sao, và vì vậy cũng hổng viết thành luật cho robot được.</p>
+      <p>Thử viết luật gấp áo coi: áo thun hay áo sơ mi, vải dày hay mỏng, đang nằm nhăn nhúm kiểu nào… Mỗi trường hợp một luật thì viết hoài hổng hết. Cách khác là để robot <b>tự rút ra</b> cách làm từ dữ liệu, y như mạng nơ-ron tự học nhận ra con mèo ở <a href="../intro-ai/1-cnn.html#may-hoc">AI, Phần 1</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5.2 HỌC BẮT CHƯỚC ================= -->
+<section class="part tint" id="bat-chuoc">
+  <div class="wrap">
+    <h2>Học bắt chước</h2>
+    <div class="prose">
+      <p>Cách tự nhiên nhất: người làm mẫu, robot coi rồi làm theo. Người ta thường cho người điều khiển robot từ xa <span class="en">(teleoperation)</span>, ví dụ cầm tay cầm điều khiển hay một cánh tay “con rối” cho robot cử động theo, rồi ghi lại từng cặp “robot thấy gì, người ra lệnh gì”. Học từ mấy cặp đó gọi là <span class="term">học bắt chước</span> <span class="en">(imitation learning)</span>; cách đơn giản nhất của nó, <span class="term">nhân bản hành vi</span> <span class="en">(behavior cloning)</span>, chính là bài học có giám sát quen thuộc: đầu vào là thứ robot thấy, đáp án là lệnh của người.</p>
+      <p>Nghe dễ, nhưng có một cái bẫy. Người lái giỏi thì hiếm khi lệch, nên dữ liệu toàn là cảnh “xe đang ngay ngắn giữa làn”. Robot học xong, chạy thật, lỡ lệch chút xíu là rơi vô cảnh <b>chưa từng thấy</b>, lái bậy, càng lệch thêm, càng lạ hơn. Sai số cứ dồn lên như lăn cầu tuyết.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/bat-chuoc.svg" alt="Một dải màu xanh nhạt là vùng có dữ liệu mẫu, đường xanh lá là người lái mẫu chạy giữa dải. Đường xanh dương của robot lệch dần ra khỏi dải: lệch chút xíu, rồi tới chỗ chưa từng thấy, lái bậy, lệch thêm. Đường vàng đứt: DAgger hỏi người chỗ này lái sao rồi thêm vô dữ liệu." loading="lazy">
+      <figcaption><b>Sai số dồn dần của học bắt chước.</b> Hình tự vẽ, theo ý tưởng trong Ross, Gordon và Bagnell (2011).</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Cách sửa của Stéphane Ross và cộng sự (2011) tên là <span class="term">DAgger</span> <span class="en">(dataset aggregation)</span>: cho robot tự lái, ghi lại những chỗ nó đi qua (kể cả chỗ lệch), rồi nhờ người chuyên gia chấm “ở chỗ đó đáng lẽ phải lái sao”, thêm vô dữ liệu, học lại. Lặp vài vòng, dữ liệu phủ luôn những cảnh lệch, robot biết đường mà quay về.</p>
+    </div>
+    <div class="demo" id="demoDagger" data-demo="dagger">
+      <div class="demo-title"><h4>Học bắt chước bị trôi, DAgger sửa</h4><span>Robot học lái xe từ người lái mẫu</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Bấm “Người lái mẫu chạy”: với gió ngang mức 1, người lái mẫu gần như hổng ra khỏi làn.</li>
+        <li>Bấm “Robot bắt chước chạy” với cùng mức gió: một lần chạy thử của tui ra khỏi làn 24,5% thời gian và văng khỏi đường 5 lần. Nhìn ô dưới: vệt xanh đi xa khỏi cụm chấm xám, tức là robot đang ở chỗ nó chưa có dữ liệu.</li>
+        <li>Bấm “DAgger: thêm 1 vòng sửa” ba lần: chấm vàng lấp dần những vùng lệch, và lần chạy cuối của tui chỉ còn 1,8% thời gian ra khỏi làn, hổng văng lần nào.</li>
+        <li>Kéo gió về 0,15 (đúng như ngày quay dữ liệu mẫu) rồi cho robot bắt chước chạy: nó chạy ngon. Học bắt chước chỉ tốt trong những cảnh giống dữ liệu.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Học bắt chước đang hồi sinh.</b> Từ khoảng 2023, nhờ bộ điều khiển từ xa giá rẻ (như hệ ALOHA hai cánh tay của nhóm Stanford) và các mô hình mạnh hơn (như “diffusion policy”, mượn ý tưởng mô hình khuếch tán sinh ảnh ở <a href="../intro-ai/3-generative.html#diffusion">AI, Phần 3</a>), robot học được những việc khéo léo như tra cục pin vô khe, xỏ dây dán, mang giày cho một bàn chân giả, chỉ từ cỡ năm chục lần làm mẫu cho mỗi việc. Đây cũng là nền cho các mô hình nền tảng ở Phần 6.</div>
+  </div>
+</section>
+
+<!-- ================= 5.3 HỌC TĂNG CƯỜNG ================= -->
+<section class="part" id="tang-cuong">
+  <div class="wrap">
+    <h2>Học tăng cường: thử và sai</h2>
+    <div class="prose">
+      <p>Còn những việc mà chính người cũng hổng làm mẫu được, như cho robot bốn chân chạy trên đá hay cánh tay xoay khối rubik bằng mấy ngón? Lúc đó mình chỉ nói cho robot biết <b>cái gì là tốt</b>, rồi để nó tự mò cách. Giống dạy chó: làm đúng thì cho bánh, làm sai thì hổng cho. Đó là <span class="term">học tăng cường</span> <span class="en">(reinforcement learning, RL)</span>.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/rl-vong.svg" alt="Hộp Tác tử (robot) có chính sách. Mũi tên hành động a đi xuống hộp Môi trường. Từ môi trường, hai mũi tên quay lên tác tử: trạng thái mới s và phần thưởng r (+1 đi tới, −10 té)." loading="lazy">
+      <figcaption><b>Vòng lặp học tăng cường.</b> Hình tự vẽ, theo Sutton và Barto (2018).</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Robot (gọi là <span class="term">tác tử</span> <span class="en">(agent)</span>) thấy <span class="term">trạng thái</span> <span class="en">(state)</span>, chọn một <span class="term">hành động</span> <span class="en">(action)</span>, môi trường trả về trạng thái mới cùng một <span class="term">phần thưởng</span> <span class="en">(reward)</span>. Cách chọn hành động theo trạng thái gọi là <span class="term">chính sách</span> <span class="en">(policy)</span>. Cái khó: phần thưởng thường tới <b>trễ</b>. Cả trăm bước đi mới tới đích, vậy bước nào đáng khen? RL giải chuyện này bằng cách học <b>giá trị</b> của từng lựa chọn: “đứng ở đây mà làm cái này thì về lâu dài được bao nhiêu điểm”.</p>
+    </div>
+    <h3>Q-learning</h3>
+    <div class="prose">
+      <p>Thuật toán kinh điển của Chris Watkins (1989) giữ một bảng \(Q(s, a)\): giá trị của việc làm hành động a ở trạng thái s. Mỗi bước, robot so “điểm mình tưởng” với “điểm vừa nhận cộng giá trị chỗ mới tới”, rồi sửa bảng một chút theo chênh lệch đó:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ Q(s,a) \;\leftarrow\; Q(s,a) + \alpha\,\Big[\, r + \gamma \max_{a'} Q(s',a') \;-\; Q(s,a) \,\Big] \]</div>
+      <p class="where"><b>s, a</b>: trạng thái và hành động vừa làm; <b>r</b>: phần thưởng vừa nhận; <b>s′</b>: trạng thái mới; <b>max<sub>a′</sub> Q(s′, a′)</b>: giá trị của lựa chọn tốt nhất ở chỗ mới; <b>α</b> (alpha): tốc độ học, sửa nhiều hay ít mỗi lần; <b>γ</b> (gamma): <span class="term">hệ số chiết khấu</span> <span class="en">(discount factor)</span>, từ 0 tới 1, coi trọng điểm tương lai cỡ nào (một điểm sau 10 bước chỉ đáng γ<sup>10</sup> điểm bây giờ). Phần trong ngoặc vuông là “mức bất ngờ”: thực tế tốt hơn tưởng thì tăng Q, tệ hơn thì giảm.</p>
+    </div>
+    <div class="prose">
+      <p>Còn một câu hỏi: lúc học, robot nên làm cái nó cho là tốt nhất, hay thử cái mới? Chỉ làm cái quen thì có khi bỏ lỡ đường tốt hơn; thử hoài thì phí công. Đây là thế giằng co giữa <span class="term">khám phá và khai thác</span> <span class="en">(exploration vs. exploitation)</span>. Cách đơn giản: phần lớn thời gian chọn cái tốt nhất, thỉnh thoảng (tỉ lệ ε, đọc là epsilon) chọn bừa.</p>
+    </div>
+    <div class="demo" id="demoQ" data-demo="qlearn">
+      <div class="demo-title"><h4>Q-learning trong mê cung</h4><span>Robot tự mò đường bằng thử và sai</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Bấm “Chạy” với tốc độ thấp: lượt đầu robot đi lòng vòng mấy trăm bước. Lúc chạm được đích, chỉ <b>một ô</b> kế đích có giá trị. Lượt sau, giá trị lan ngược thêm một ô, rồi thêm ô nữa: màu xanh loang dần từ đích về điểm đầu.</li>
+        <li>Bấm “Học nhanh 300 lượt”: mũi tên chỉ thành một đường đi về đích. Đồ thị bên dưới cho thấy số bước mỗi lượt tụt từ cả trăm xuống cỡ hai chục.</li>
+        <li>Đường ngắn nhất trong mê cung này dài 19 bước. Với ε = 0,1, robot thường đi 19 tới hơn 20 bước, và thỉnh thoảng té vũng nước vì bước “thử bậy” rơi đúng lúc đứng kế vũng. Kéo ε về 0 rồi học nhanh thêm: tui thấy robot đi đúng 19 bước.</li>
+        <li>Bật “Sàn trơn”, bấm “Quên hết” rồi học lại: coi thử đường đi mới có chịu tránh xa mấy vũng nước hơn hông. Thêm rủi ro thì đường “an toàn” có khi đáng hơn đường ngắn nhất.</li>
+      </ul>
+      <p>Mê cung này chỉ có 70 ô × 4 hướng, nên bảng Q nhỏ xíu. Robot thật thì trạng thái là hình camera và góc khớp, nhiều vô kể. Khi đó người ta thay bảng bằng một mạng nơ-ron, gọi là <span class="term">học tăng cường sâu</span> <span class="en">(deep reinforcement learning)</span>: năm 2015, mạng DQN của DeepMind tự học chơi game Atari từ điểm ảnh màn hình. Với robot, các thuật toán như PPO cập nhật thẳng chính sách thay vì bảng giá trị, rất hợp với lệnh điều khiển liên tục như góc khớp.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5.4 MÔ PHỎNG ================= -->
+<section class="part tint" id="mo-phong">
+  <div class="wrap">
+    <h2>Mô phỏng rồi chuyển qua đời thật</h2>
+    <div class="prose">
+      <p>RL có một cái tật lớn: nó cần <b>rất nhiều</b> lần thử. Mê cung trên cần vài trăm lượt; một robot bốn chân học đi cần cỡ hàng chục triệu bước. Làm vậy trên robot thật thì hư robot, hết pin, và tốn cả năm. Giải pháp là cho robot tập trong <b>mô phỏng</b>: một thế giới ảo có trọng lực, ma sát, va chạm, chạy nhanh hơn thời gian thật cả ngàn lần, với hàng ngàn robot ảo tập cùng lúc trên một card đồ họa. Năm 2021, nhóm ở ETH Zürich và NVIDIA cho thấy robot bốn chân có thể học đi trên địa hình gồ ghề chỉ sau cỡ hai chục phút huấn luyện kiểu này.</p>
+      <p>Cái khó là <span class="term">khoảng cách mô phỏng–đời thực</span> <span class="en">(sim-to-real gap)</span>: mô phỏng hổng bao giờ giống hệt đời thật. Sàn thật trơn hơn, động cơ thật yếu hơn, camera thật bị chói. Chính sách học thuộc lòng thế giới ảo thì ra đời thật dễ té. Mẹo phổ biến nhất là <span class="term">ngẫu nhiên hóa miền</span> <span class="en">(domain randomization)</span>: mỗi robot ảo tập trong một thế giới hơi khác, ma sát, khối lượng, độ trễ, màu sắc đều xáo ngẫu nhiên. Chính sách quen đủ kiểu thế giới thì gặp thế giới thật cũng chỉ là “thêm một kiểu nữa”.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/sim-to-real.svg" alt="Trái: lưới 24 ô, mỗi ô một robot bốn chân ảo đứng trên mặt đất dốc khác nhau, nền màu khác nhau. Mũi tên chính sách (mạng nơ-ron) chỉ sang phải: một robot bốn chân thật đứng trên mặt đất gồ ghề." loading="lazy">
+      <figcaption><b>Mô phỏng với vật lý ngẫu nhiên hóa.</b> Năm 2019, OpenAI dùng cách này (ở mức rất lớn) để một bàn tay robot xoay được khối rubik dù chỉ tập trong mô phỏng. Hình tự vẽ.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 5.5 PHẦN THƯỞNG ================= -->
+<section class="part" id="phan-thuong">
+  <div class="wrap">
+    <h2>Cẩn thận với điều ước</h2>
+    <div class="prose">
+      <p>RL làm đúng y cái mình thưởng, chứ hổng phải cái mình <i>muốn</i>. Năm 2016, OpenAI kể chuyện một tác tử chơi game đua thuyền CoastRunners: thay vì về đích, nó học cách chạy vòng vòng trong một cái vũng để ăn đi ăn lại mấy món tiền thưởng, điểm còn cao hơn người chơi về đích. Hiện tượng này gọi là <span class="term">lách luật phần thưởng</span> <span class="en">(reward hacking)</span>.</p>
+      <p>Với robot, chuyện này xảy ra hoài: thưởng “đi tới nhanh” thì robot có khi học cách lăn lộn hay nhảy cà giựt cho lẹ, chứ hổng đi đàng hoàng. Kỹ sư phải thêm điểm phạt cho rung lắc, cho tốn điện, cho chân trượt… Thiết kế phần thưởng là cả một nghề, và là lý do nhiều nhóm thích học bắt chước hơn: “làm giống người” dễ tả hơn nhiều so với “làm tốt”.</p>
+    </div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Tiêu chí</th><th>Viết luật bằng tay</th><th>Học bắt chước</th><th>Học tăng cường</th></tr></thead>
+        <tbody>
+          <tr><td>Người phải cung cấp</td><td>Công thức, thuật toán</td><td>Làm mẫu (vài chục tới vài ngàn lần)</td><td>Hàm phần thưởng và môi trường để thử</td></tr>
+          <tr><td>Giỏi nhất khi</td><td>Môi trường ngăn nắp, hiểu rõ vật lý</td><td>Việc khéo tay mà người làm được</td><td>Việc người hổng làm mẫu được (chạy, nhảy, giữ thăng bằng)</td></tr>
+          <tr><td>Điểm yếu</td><td>Hổng chịu nổi đời thực lộn xộn</td><td>Sai số dồn dần; hổng giỏi hơn thầy</td><td>Cần cả triệu lần thử; dễ lách luật phần thưởng</td></tr>
+        </tbody>
+        <caption>Robot hiện đại thường trộn cả ba: luật tay cho phần chắc chắn (an toàn, PID), học bắt chước để khởi động, học tăng cường để mài giũa.</caption>
+      </table>
+    </div>
+    <div class="callout"><b>Kế tiếp:</b> cả hai cách học trên đều dạy robot <b>từng việc một</b>. Muốn một robot làm được cả trăm việc, nghe hiểu lời nói, nhận ra đồ vật chưa từng gặp, thì cần cái “não” lớn hơn nhiều: các mô hình nền tảng ở Phần 6, họ hàng gần của LLM và VLM bên module AI.</div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Nghịch lý Moravec</td><td>Moravec’s paradox</td><td>Việc dễ với người (cầm nắm, đi) lại khó nhất với máy.</td></tr>
+          <tr><td>Điều khiển từ xa</td><td>teleoperation</td><td>Người điều khiển robot qua tay cầm hay cánh tay con rối.</td></tr>
+          <tr><td>Học bắt chước</td><td>imitation learning</td><td>Học từ các lần người làm mẫu.</td></tr>
+          <tr><td>Nhân bản hành vi</td><td>behavior cloning</td><td>Học có giám sát: thấy gì thì làm y như người.</td></tr>
+          <tr><td>DAgger</td><td>dataset aggregation</td><td>Robot tự làm, người chấm lại chỗ sai, gộp vô dữ liệu, học lại.</td></tr>
+          <tr><td>Học tăng cường</td><td>reinforcement learning (RL)</td><td>Học bằng thử và sai theo phần thưởng.</td></tr>
+          <tr><td>Tác tử</td><td>agent</td><td>Kẻ học và hành động (robot).</td></tr>
+          <tr><td>Chính sách</td><td>policy</td><td>Quy tắc chọn hành động theo trạng thái.</td></tr>
+          <tr><td>Phần thưởng</td><td>reward</td><td>Điểm cộng trừ môi trường trả về sau mỗi bước.</td></tr>
+          <tr><td>Hệ số chiết khấu</td><td>discount factor</td><td>Điểm tương lai đáng bao nhiêu so với điểm bây giờ.</td></tr>
+          <tr><td>Khám phá và khai thác</td><td>exploration vs. exploitation</td><td>Thử cái mới hay làm cái đã biết là tốt.</td></tr>
+          <tr><td>Khoảng cách mô phỏng–đời thực</td><td>sim-to-real gap</td><td>Chỗ khác nhau giữa thế giới ảo và thế giới thật.</td></tr>
+          <tr><td>Ngẫu nhiên hóa miền</td><td>domain randomization</td><td>Tập trong nhiều thế giới ảo hơi khác nhau để quen với đời thật.</td></tr>
+          <tr><td>Lách luật phần thưởng</td><td>reward hacking</td><td>Ăn điểm bằng cách mình hổng ngờ tới, hổng làm đúng việc.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(s,\ s'\)</td><td>s, s prime</td><td>Trạng thái hiện tại và trạng thái kế tiếp.</td></tr>
+          <tr><td class="sym">\(a\)</td><td>a</td><td>Hành động.</td></tr>
+          <tr><td class="sym">\(r\)</td><td>r</td><td>Phần thưởng.</td></tr>
+          <tr><td class="sym">\(Q(s,a)\)</td><td>Q of s a</td><td>Giá trị về lâu dài của việc làm a ở s.</td></tr>
+          <tr><td class="sym">\(\max_{a'}\)</td><td>max over a prime</td><td>Lấy giá trị lớn nhất khi thử mọi hành động a′.</td></tr>
+          <tr><td class="sym">\(\alpha\)</td><td>alpha</td><td>Tốc độ học.</td></tr>
+          <tr><td class="sym">\(\gamma\)</td><td>gamma</td><td>Hệ số chiết khấu, từ 0 tới 1.</td></tr>
+          <tr><td class="sym">\(\varepsilon\)</td><td>epsilon</td><td>Tỉ lệ chọn bừa để khám phá.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1957</span><div><h4>Quy hoạch động</h4><p>Richard Bellman đưa ra phương trình mang tên ông: giá trị của một trạng thái bằng phần thưởng trước mắt cộng giá trị của trạng thái kế tiếp. Q-learning là cách học phương trình này từ kinh nghiệm.</p></div></li>
+      <li><span class="yr">1989</span><div><h4>ALVINN và Q-learning</h4><p>Dean Pomerleau (Carnegie Mellon) cho một mạng nơ-ron nhỏ học lái xe Navlab bằng cách coi người lái, một trong những lần học bắt chước đầu tiên. Cùng năm, Chris Watkins giới thiệu Q-learning trong luận án tiến sĩ.</p></div></li>
+      <li><span class="yr">1992</span><div><h4>TD-Gammon</h4><p>Gerald Tesauro (IBM) cho chương trình tự chơi cờ tào cáo với chính nó và học tới trình độ cao thủ.</p></div></li>
+      <li><span class="yr">2011</span><div><h4>DAgger</h4><p>Ross, Gordon và Bagnell chỉ ra vì sao học bắt chước bị sai số dồn dần, và cách sửa bằng gộp dữ liệu.</p></div></li>
+      <li><span class="yr">2015–16</span><div><h4>DQN và AlphaGo</h4><p>DeepMind cho mạng DQN tự học chơi hàng chục game Atari từ điểm ảnh, rồi AlphaGo thắng kỳ thủ cờ vây Lee Sedol, mở màn thời đại học tăng cường sâu.</p></div></li>
+      <li><span class="yr">2017–19</span><div><h4>Từ mô phỏng ra đời thật</h4><p>Tobin và cộng sự đề xuất ngẫu nhiên hóa miền; năm 2019 bàn tay robot của OpenAI xoay khối rubik nhờ tập hoàn toàn trong mô phỏng.</p></div></li>
+      <li><span class="yr">2021</span><div><h4>Học đi trong vài phút</h4><p>Rudin và cộng sự (ETH Zürich, NVIDIA) huấn luyện hàng ngàn robot bốn chân ảo song song trên một GPU, cho ra chính sách đi trên địa hình gồ ghề chỉ sau cỡ hai chục phút.</p></div></li>
+      <li><span class="yr">2023</span><div><h4>Học bắt chước hồi sinh</h4><p>Hệ ALOHA điều khiển từ xa giá rẻ và mô hình “diffusion policy” giúp robot học việc khéo tay chỉ từ vài chục tới vài trăm lần làm mẫu.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>R. S. Sutton, A. G. Barto, <i>Reinforcement Learning: An Introduction</i>, 2nd ed., MIT Press, 2018 (bản điện tử miễn phí trên trang của tác giả).</li>
+      <li>S. Ross, G. Gordon, D. Bagnell, “A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning”, AISTATS 2011.</li>
+      <li>C. J. C. H. Watkins, P. Dayan, “Q-learning”, <i>Machine Learning</i> 8, 1992.</li>
+      <li>V. Mnih et al., “Human-level Control through Deep Reinforcement Learning”, <i>Nature</i> 518, 2015.</li>
+      <li>N. Rudin, D. Hoeller, P. Reist, M. Hutter, “Learning to Walk in Minutes Using Massively Parallel Deep Reinforcement Learning”, CoRL 2021. <a href="https://arxiv.org/abs/2109.11978" rel="noopener">arXiv:2109.11978</a>.</li>
+      <li>OpenAI et al., “Solving Rubik’s Cube with a Robot Hand”, 2019. <a href="https://arxiv.org/abs/1910.07113" rel="noopener">arXiv:1910.07113</a>.</li>
+      <li>T. Z. Zhao, V. Kumar, S. Levine, C. Finn, “Learning Fine-Grained Bimanual Manipulation with Low-Cost Hardware” (ALOHA), RSS 2023. <a href="https://arxiv.org/abs/2304.13705" rel="noopener">arXiv:2304.13705</a>.</li>
+      <li>C. Chi et al., “Diffusion Policy: Visuomotor Policy Learning via Action Diffusion”, RSS 2023. <a href="https://arxiv.org/abs/2303.04137" rel="noopener">arXiv:2303.04137</a>.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="4-tim-duong.html"><small>Phần 4</small><b>Tìm đường</b></a>
+      <a class="next" href="6-mo-hinh-nen-tang.html"><small>Phần 6</small><b>Mô hình nền tảng cho robot</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

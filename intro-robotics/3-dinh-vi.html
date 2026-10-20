@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cảm biến và định vị | Robotics | My N. Nguyen</title>
+<meta name="description" content="Cảm biến và định vị cho người mới: các loại cảm biến, nhiễu và trôi, bộ lọc Kalman, bộ lọc hạt, SLAM, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/3-dinh-vi.html, Phần 3: CẢM BIẾN VÀ ĐỊNH VỊ)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      kalman-1d : bộ lọc Kalman một chiều trộn bộ đếm bánh xe (lệch 4%) với GPS nhiễu; chạy vô hầm
+      particle  : định vị Monte Carlo trên bản đồ 10 m × 7 m, 8 tia đo khoảng cách; bắt cóc robot
+  - Hình tự vẽ: lib/figures/cam-bien.svg, kalman-chuong.svg, slam.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Robotics</a> / Phần 3</p>
+  <h1><span class="dot"></span>Cảm biến và định vị</h1>
+  <p class="lead">Ở <a href="2-dieu-khien.html">Phần 2</a>, vòng phản hồi nào cũng bắt đầu bằng chữ “đo”. Mà đo thì phải có cảm biến, và cảm biến nào cũng xạo một chút. Trang này kể chuyện robot trả lời câu hỏi tưởng dễ mà khó nhất: <b>“tui đang ở đâu?”</b>, bằng cách trộn nhiều nguồn tin dở thành một ước lượng tốt.</p>
+</header>
+
+<!-- ================= 3.1 CẢM BIẾN ================= -->
+<section class="part" id="cam-bien">
+  <div class="wrap">
+    <h2>Robot cảm nhận thế giới bằng gì?</h2>
+    <div class="prose">
+      <p>Cảm biến chia làm hai nhóm. <span class="term">Cảm biến tự thân</span> <span class="en">(proprioceptive sensor)</span> đo chính robot: bánh xe quay mấy vòng, khớp đang ở góc nào, thân đang nghiêng ra sao, giống cảm giác của bạn biết tay mình đang giơ lên mà hổng cần nhìn. <span class="term">Cảm biến ngoại cảnh</span> <span class="en">(exteroceptive sensor)</span> đo thế giới bên ngoài: vật cản cách bao xa, phía trước có gì, mình đang ở đâu trên Trái Đất.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/cam-bien.svg" alt="Robot di động nhìn từ trên xuống, nối tới sáu cảm biến. Bên trái, cảm biến tự thân: bộ đếm vòng bánh xe (trượt bánh là trôi), IMU (cộng dồn lâu là trôi), công tắc va chạm (đụng rồi mới biết). Bên phải, cảm biến ngoại cảnh: GPS (sai vài mét, mất sóng trong nhà), lidar (chính xác cỡ cm nhưng mắc), camera (nhiều thông tin, rẻ nhưng khó hiểu, sợ tối)." loading="lazy">
+      <figcaption><b>Các cảm biến thường gặp trên một robot di động.</b> Dòng chữ đỏ là điểm yếu của từng loại. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Vài cái tên sẽ gặp hoài: <span class="term">bộ mã hóa vòng quay</span> <span class="en">(encoder)</span> đếm vòng quay của bánh xe hay động cơ; <span class="term">IMU</span> <span class="en">(inertial measurement unit)</span> là con chip nhỏ xíu có gia tốc kế và con quay hồi chuyển, y chang cái trong điện thoại giúp xoay màn hình; <span class="term">lidar</span> bắn tia laser quét vòng quanh rồi đo thời gian ánh sáng dội về, ra khoảng cách tới mọi thứ xung quanh. Robot hút bụi đời mới có cái “nút tròn” trên lưng: đó chính là lidar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3.2 NHIỄU VÀ TRÔI ================= -->
+<section class="part tint" id="nhieu">
+  <div class="wrap">
+    <h2>Cảm biến nào cũng xạo một chút</h2>
+    <div class="prose">
+      <p>Sai số của cảm biến có hai kiểu, và phân biệt được hai kiểu này là hiểu được nửa chương:</p>
+      <ul>
+        <li><span class="term">Nhiễu</span> <span class="en">(noise)</span>: mỗi lần đo lệch một chút, lúc dư lúc thiếu, hổng theo quy luật. GPS điện thoại là ví dụ: đứng yên mà chấm xanh trên bản đồ vẫn nhảy qua nhảy lại vài mét. Nhiễu thì lấy trung bình nhiều lần là bớt.</li>
+        <li><span class="term">Trôi</span> <span class="en">(drift)</span> hay <span class="term">độ lệch</span> <span class="en">(bias)</span>: sai lệch về một phía, rồi cộng dồn theo thời gian. Bánh xe hơi mòn, đường kính nhỏ hơn thiết kế 4%: mỗi mét đi, robot tưởng mình đi 1,04 m. Đi 100 m là lệch 4 m, đi 1 km lệch 40 m. Lấy trung bình hổng cứu được.</li>
+      </ul>
+      <p>Đoán vị trí chỉ bằng cách cộng dồn quãng đường từ bánh xe (hay IMU) gọi là <span class="term">dự đoán theo quán tính</span> <span class="en">(dead reckoning)</span>, cách các thủy thủ ngày xưa xài khi chưa có GPS. Ngắn hạn thì mượt và chính xác, dài hạn thì trôi xa. GPS thì ngược lại: dài hạn hổng trôi, ngắn hạn nhảy lung tung, vô nhà hay vô hầm là mất. Hai nguồn tin dở theo hai kiểu ngược nhau. Câu hỏi là: <b>trộn sao cho khéo?</b></p>
+    </div>
+    <div class="callout"><b>Ngôn ngữ của sự hổng chắc chắn.</b> Thay vì nói “robot ở vị trí 12 m”, dân robot nói “robot ở quanh 12 m, độ lệch chuẩn 2 m”, tức là gần như chắc chắn nằm trong khoảng 8 tới 16 m (±2 lần độ lệch chuẩn). Cặp hai con số (giá trị giữa, độ lệch chuẩn) tả một <span class="term">phân phối chuẩn</span> <span class="en">(Gaussian, normal distribution)</span>, đồ thị hình quả chuông. Cả chương này xoay quanh việc giữ và cập nhật mấy quả chuông đó.</div>
+  </div>
+</section>
+
+<!-- ================= 3.3 KALMAN ================= -->
+<section class="part" id="kalman">
+  <div class="wrap">
+    <h2>Bộ lọc Kalman: trộn hai nguồn tin</h2>
+    <div class="prose">
+      <p>Năm 1960, Rudolf Kálmán công bố cách trộn tối ưu khi mọi sai số đều có dạng quả chuông. <span class="term">Bộ lọc Kalman</span> <span class="en">(Kalman filter)</span> lặp đi lặp lại hai bước:</p>
+      <ol>
+        <li><b>Dự đoán:</b> từ chỗ cũ, cộng thêm quãng đường bánh xe báo. Vì bánh xe hổng hoàn hảo, quả chuông <b>phình ra</b> một chút: càng lâu hổng có tin mới, càng mơ hồ.</li>
+        <li><b>Cập nhật:</b> khi có số đo GPS, kéo ước lượng về phía số đo. Kéo nhiều hay ít tùy coi bên nào chắc hơn. Sau khi trộn, quả chuông <b>co lại</b>.</li>
+      </ol>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/kalman-chuong.svg" alt="Ba đường hình quả chuông trên trục vị trí từ 0 tới 25 m. Màu xám: dự đoán từ bánh xe quanh 10 m, lệch chuẩn 3 m. Màu đỏ: GPS đo quanh 15 m, lệch chuẩn 2 m. Màu xanh: kết quả Kalman quanh 13,5 m, lệch chuẩn 1,7 m, cao và hẹp hơn cả hai." loading="lazy">
+      <figcaption><b>Trộn hai quả chuông.</b> Kết quả nằm gần nguồn tin chắc hơn, và hẹp hơn cả hai nguồn: biết thêm thông tin thì luôn bớt mơ hồ. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="formula">
+      <div class="eq">\[ \text{dự đoán:}\quad \hat x \leftarrow \hat x + u\,\Delta t, \qquad P \leftarrow P + Q \]
+      \[ \text{cập nhật:}\quad K = \frac{P}{P + R}, \qquad \hat x \leftarrow \hat x + K\,(z - \hat x), \qquad P \leftarrow (1-K)\,P \]</div>
+      <p class="where"><b>x̂</b> (x mũ): vị trí ước lượng; <b>P</b>: độ mơ hồ của ước lượng (bình phương độ lệch chuẩn, gọi là phương sai); <b>u</b>: vận tốc bánh xe báo; <b>Δt</b>: thời gian một bước; <b>Q</b>: mỗi bước dự đoán thêm mơ hồ bao nhiêu, tức mình nghi ngờ bánh xe cỡ nào; <b>z</b>: số đo GPS; <b>R</b>: phương sai nhiễu GPS; <b>K</b>: <span class="term">hệ số Kalman</span> <span class="en">(Kalman gain)</span>, nằm giữa 0 và 1. K gần 1 nghĩa là ước lượng đang mơ hồ hơn GPS nhiều, nên tin GPS; K gần 0 thì tin dự đoán.</p>
+    </div>
+    <div class="demo" id="demoKf" data-demo="kalman-1d">
+      <div class="demo-title"><h4>Bộ lọc Kalman: bánh xe + GPS</h4><span>Trộn hai nguồn tin dở thành một ước lượng tốt</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Đường xám (chỉ bánh xe) trôi đều lên trên: đó là độ lệch 4%. Chấm đỏ (GPS) quanh quẩn số 0 mà nhảy dữ. Đường xanh (Kalman) vừa mượt vừa hổng trôi đi đâu, và sai số trung bình của nó nhỏ hơn cả hai.</li>
+        <li>Bấm “Chạy vô hầm”: dải xanh phình ra từng chút (bước dự đoán làm P tăng), đường xanh bắt đầu trôi theo bánh xe. Ra khỏi hầm, gặp số đo GPS đầu tiên là dải co lại cái rụp: K lúc đó gần 1.</li>
+        <li>Tăng nhiễu GPS lên 15 m: K nhỏ lại, bộ lọc bớt tin GPS, đường xanh mượt hơn nhưng phản ứng chậm hơn.</li>
+        <li>Kéo Q về thật nhỏ: bộ lọc tưởng bánh xe hoàn hảo, nên bỏ ngoài tai GPS và trôi theo bánh xe luôn. Kéo Q thật lớn: nó nhảy theo GPS. Q đúng mức thì tốt nhất.</li>
+      </ul>
+      <p>Bạn sẽ để ý đường xanh vẫn hơi lệch lên trên: bộ lọc một biến này hổng biết bánh xe lệch có hệ thống. Bộ lọc Kalman thật thường đưa luôn <b>độ lệch của cảm biến</b> vô làm một biến cần ước lượng, rồi tự học ra nó. Robot thật còn ước lượng cùng lúc vị trí, vận tốc, hướng, với các phiên bản như <span class="term">Kalman mở rộng</span> <span class="en">(extended Kalman filter, EKF)</span> cho chuyển động cong, phi tuyến.</p>
+    </div>
+    <div class="callout"><b>Bà con với Mamba.</b> Bước dự đoán của Kalman có đúng dạng “trạng thái mới = A × trạng thái cũ + B × đầu vào”, y như mô hình không gian trạng thái trong trang <a href="../intro-ai/6-mamba.html#ssm">Mamba</a> bên module AI. Mamba mượn thẳng ý tưởng này từ ngành điều khiển, rồi để mạng nơ-ron tự học các ma trận A, B, C.</div>
+  </div>
+</section>
+
+<!-- ================= 3.4 BỘ LỌC HẠT ================= -->
+<section class="part tint" id="bo-loc-hat">
+  <div class="wrap">
+    <h2>Bộ lọc hạt: robot đi lạc tìm lại mình</h2>
+    <div class="prose">
+      <p>Kalman giỏi khi mình đã biết đại khái mình ở đâu, chỉ cần tinh chỉnh. Nhưng thử tưởng tượng robot vừa được bật lên trong một tòa nhà có hai hành lang giống y nhau. Nó có thể ở hành lang A <i>hoặc</i> hành lang B. Một quả chuông đặt ở giữa hai hành lang (ngay trong vách tường!) là sai bét. Mình cần cách giữ <b>nhiều giả thuyết cùng lúc</b>.</p>
+      <p><span class="term">Bộ lọc hạt</span> <span class="en">(particle filter)</span>, hay <span class="term">định vị Monte Carlo</span> <span class="en">(Monte Carlo localization)</span>, làm chuyện đó bằng sức đông: rải vài ngàn “hạt”, mỗi hạt là một lời đoán “robot đang đứng ở đây, quay mặt hướng này”. Rồi lặp ba bước:</p>
+      <ol>
+        <li><b>Dời:</b> robot đi tới 35 phân thì mọi hạt cũng đi tới 35 phân theo hướng của chính nó, cộng thêm chút ngẫu nhiên vì bánh xe hổng chính xác.</li>
+        <li><b>Chấm điểm:</b> robot đo khoảng cách tới vách và đồ đạc. Với mỗi hạt, hỏi: “nếu robot đứng đúng chỗ hạt này, nhìn vô bản đồ thì đo ra mấy con số?”. Khớp với số đo thật thì điểm cao, lệch xa thì điểm thấp. Hạt nằm trong tường thì 0 điểm.</li>
+        <li><b>Bốc lại:</b> tạo đàn hạt mới bằng cách bốc ngẫu nhiên từ đàn cũ, hạt điểm cao dễ được bốc nhiều lần. Kết quả: hạt dồn về những chỗ hợp lý, chỗ vô lý bị bỏ.</li>
+      </ol>
+    </div>
+    <div class="demo" id="demoPf" data-demo="particle">
+      <div class="demo-title"><h4>Bộ lọc hạt: robot đi lạc tìm lại mình</h4><span>Mỗi chấm xanh là một phỏng đoán “robot đang ở đây”</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Bấm “Đi 1 bước” từ từ: sau vài bước, hạt rút về vài cụm; sau vài chục bước, còn đúng một cụm quanh robot. Đây là lúc robot “biết” mình ở đâu.</li>
+        <li>Bấm “Bắt cóc robot” khi các hạt đã tụ lại: robot bị nhấc qua chỗ khác mà hổng hay. Đàn hạt ban đầu chạy sai chỗ, nhưng nhờ 1% hạt được rải ngẫu nhiên mỗi bước, vài hạt rơi trúng chỗ mới, được điểm cao, rồi nhân bản lên. Bài toán này gọi là <span class="term">robot bị bắt cóc</span> <span class="en">(kidnapped robot problem)</span>.</li>
+        <li>Giảm số hạt xuống 100: hội tụ lẹ hơn nhưng dễ “chốt nhầm” chỗ sai. Tăng nhiễu cảm biến: hội tụ chậm hơn, cụm hạt rộng hơn.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3.5 SLAM ================= -->
+<section class="part" id="slam">
+  <div class="wrap">
+    <h2>SLAM: vừa vẽ bản đồ, vừa tìm mình trên bản đồ</h2>
+    <div class="prose">
+      <p>Bộ lọc hạt ở trên được cho sẵn bản đồ. Còn robot hút bụi mới mua về nhà bạn thì chưa có. Muốn định vị phải có bản đồ; muốn vẽ bản đồ phải biết mình đang đứng đâu để ghi chỗ cái tủ cho đúng. Con gà và quả trứng. Bài toán làm cả hai cùng lúc gọi là <span class="term">SLAM</span> <span class="en">(simultaneous localization and mapping)</span>.</p>
+      <p>Ý tưởng chính: robot ghi lại các <b>mốc</b> dễ nhận ra (góc tường, khung cửa, chân bàn) cùng với vị trí của chính nó, và giữ luôn độ mơ hồ của tất cả. Đi càng xa, sai số trôi càng tích lại, bản đồ méo dần. Cho tới khi robot quay về một chỗ cũ và nhận ra: “ủa, cái góc tường này mình thấy rồi!”. Khoảnh khắc đó gọi là <span class="term">khép vòng</span> <span class="en">(loop closure)</span>: biết điểm cuối phải trùng điểm đầu, robot nắn lại toàn bộ đường đi và bản đồ cho khớp, độ mơ hồ co lại hết.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/slam.svg" alt="Hai khung. Trái, trước khi khép vòng: đường đi robot ước lượng màu xanh lệch dần khỏi đường đi thật màu xám, các vòng bất định to dần, các mốc ngôi sao bị dời chỗ; về gần điểm đầu mà robot tưởng là chỗ mới. Phải, sau khi khép vòng: đường đi trùng đường thật, các vòng bất định nhỏ lại, mốc về đúng chỗ." loading="lazy">
+      <figcaption><b>SLAM và khép vòng.</b> Trước khi nhận ra chỗ cũ, sai số chỉ có tăng; khép vòng xong thì cả bản đồ được nắn lại một lượt. Hình tự vẽ, minh họa ý tưởng.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>SLAM có mặt ở khắp nơi: robot hút bụi có lidar vẽ sơ đồ nhà bạn trên app; kính thực tế ảo và app đo đạc trên điện thoại dùng camera để biết điện thoại đang ở đâu trong phòng (gọi là SLAM thị giác); xe tự lái thì xài bản đồ vẽ sẵn cực kỳ chi tiết, rồi định vị trên đó bằng lidar và camera, chính xác tới cỡ chục phân.</p>
+    </div>
+    <div class="callout"><b>Gói lại chương này:</b> robot hổng bao giờ biết chắc mình ở đâu, nó chỉ giữ một “niềm tin” có độ mơ hồ, rồi cập nhật niềm tin đó mỗi khi có tin mới. Cách nghĩ theo xác suất này là nền móng của robot hiện đại. Biết mình ở đâu rồi thì câu hỏi kế tiếp là: <b>đi đường nào tới đích?</b> Đó là chuyện của Phần 4.</div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Cảm biến tự thân / ngoại cảnh</td><td>proprioceptive / exteroceptive sensor</td><td>Đo chính robot / đo thế giới bên ngoài.</td></tr>
+          <tr><td>Bộ mã hóa vòng quay</td><td>encoder</td><td>Đếm vòng quay của bánh xe hay trục động cơ.</td></tr>
+          <tr><td>IMU</td><td>inertial measurement unit</td><td>Chip đo gia tốc và tốc độ xoay.</td></tr>
+          <tr><td>Lidar</td><td>lidar (light detection and ranging)</td><td>Quét tia laser để đo khoảng cách tới mọi thứ xung quanh.</td></tr>
+          <tr><td>Nhiễu</td><td>noise</td><td>Sai lệch ngẫu nhiên mỗi lần đo.</td></tr>
+          <tr><td>Trôi, độ lệch</td><td>drift, bias</td><td>Sai lệch về một phía, cộng dồn theo thời gian.</td></tr>
+          <tr><td>Dự đoán theo quán tính</td><td>dead reckoning</td><td>Đoán vị trí bằng cách cộng dồn quãng đường đã đi.</td></tr>
+          <tr><td>Phân phối chuẩn</td><td>Gaussian distribution</td><td>Quả chuông tả “quanh giá trị này, lệch chừng này”.</td></tr>
+          <tr><td>Bộ lọc Kalman</td><td>Kalman filter</td><td>Trộn dự đoán và số đo, mỗi bên một quả chuông, thành ước lượng tốt nhất.</td></tr>
+          <tr><td>Hệ số Kalman</td><td>Kalman gain</td><td>Số từ 0 tới 1 quyết định tin số đo nhiều hay ít.</td></tr>
+          <tr><td>Bộ lọc hạt</td><td>particle filter</td><td>Giữ ngàn lời đoán cùng lúc, loại dần lời đoán sai.</td></tr>
+          <tr><td>Robot bị bắt cóc</td><td>kidnapped robot problem</td><td>Robot bị dời chỗ mà hổng hay; phải tự phát hiện và định vị lại.</td></tr>
+          <tr><td>SLAM</td><td>simultaneous localization and mapping</td><td>Vừa vẽ bản đồ vừa định vị trên bản đồ đó.</td></tr>
+          <tr><td>Khép vòng</td><td>loop closure</td><td>Nhận ra chỗ cũ, nhờ đó nắn lại cả bản đồ.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(\hat x\)</td><td>x hat</td><td>Giá trị ước lượng của x (dấu mũ = “ước lượng”).</td></tr>
+          <tr><td class="sym">\(P\)</td><td>P</td><td>Phương sai của ước lượng: độ mơ hồ, bằng bình phương độ lệch chuẩn.</td></tr>
+          <tr><td class="sym">\(Q,\ R\)</td><td>Q, R</td><td>Phương sai nhiễu của bước dự đoán và của số đo.</td></tr>
+          <tr><td class="sym">\(K\)</td><td>Kalman gain</td><td>Hệ số Kalman, từ 0 tới 1.</td></tr>
+          <tr><td class="sym">\(z\)</td><td>z</td><td>Số đo từ cảm biến.</td></tr>
+          <tr><td class="sym">\(u\)</td><td>u</td><td>Đầu vào điều khiển, ở đây là vận tốc bánh xe báo.</td></tr>
+          <tr><td class="sym">\(\Delta t\)</td><td>delta t</td><td>Thời gian một bước.</td></tr>
+          <tr><td class="sym">\(\sigma\)</td><td>sigma</td><td>Độ lệch chuẩn; khoảng ±2σ chứa cỡ 95% khả năng.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1960</span><div><h4>Bộ lọc Kalman</h4><p>Rudolf Kálmán công bố bài báo về lọc tuyến tính. Ở NASA, nhóm của Stanley Schmidt nhanh chóng mở rộng nó cho bài toán phi tuyến và đưa vô máy tính dẫn đường của chương trình Apollo.</p></div></li>
+      <li><span class="yr">1978</span><div><h4>Vệ tinh GPS đầu tiên</h4><p>Mỹ phóng vệ tinh đầu tiên của hệ NAVSTAR GPS; hệ thống chạy đủ năm 1995. Từ tháng 5/2000, tín hiệu dân sự hết bị cố ý làm nhiễu, độ chính xác cải thiện hẳn.</p></div></li>
+      <li><span class="yr">1986</span><div><h4>Bản đồ có xác suất</h4><p>Randall Smith và Peter Cheeseman đề xuất giữ vị trí robot và vị trí các mốc chung trong một mô hình xác suất, nền móng của SLAM. Cái tên SLAM xuất hiện giữa thập niên 1990.</p></div></li>
+      <li><span class="yr">1998–99</span><div><h4>Định vị Monte Carlo</h4><p>Dellaert, Fox, Burgard và Thrun đưa bộ lọc hạt vô định vị robot. Robot hướng dẫn viên Minerva chạy giữa đám đông khách tham quan ở bảo tàng Smithsonian nhờ cách này.</p></div></li>
+      <li><span class="yr">2005</span><div><h4>Stanley thắng DARPA</h4><p>Xe tự lái Stanley của Đại học Stanford, nhóm do Sebastian Thrun dẫn dắt, thắng cuộc đua xuyên sa mạc DARPA Grand Challenge, mở màn cho ngành xe tự lái.</p></div></li>
+      <li><span class="yr">2007–15</span><div><h4>SLAM thị giác</h4><p>PTAM (Klein và Murray, 2007) rồi ORB-SLAM (Mur-Artal và cộng sự, 2015) cho thấy chỉ cần một camera là làm SLAM thời gian thực được, nền cho các app thực tế ảo tăng cường trên điện thoại.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>S. Thrun, W. Burgard, D. Fox, <i>Probabilistic Robotics</i>, MIT Press, 2005.</li>
+      <li>R. E. Kalman, “A New Approach to Linear Filtering and Prediction Problems”, <i>Journal of Basic Engineering</i> 82(1), 1960.</li>
+      <li>F. Dellaert, D. Fox, W. Burgard, S. Thrun, “Monte Carlo Localization for Mobile Robots”, ICRA 1999.</li>
+      <li>H. Durrant-Whyte, T. Bailey, “Simultaneous Localization and Mapping: Part I”, <i>IEEE Robotics &amp; Automation Magazine</i>, 2006.</li>
+      <li>R. Mur-Artal, J. M. M. Montiel, J. D. Tardós, “ORB-SLAM: A Versatile and Accurate Monocular SLAM System”, <i>IEEE Transactions on Robotics</i>, 2015.</li>
+      <li>R. R. Labbe, <a href="https://github.com/rlabbe/Kalman-and-Bayesian-Filters-in-Python" rel="noopener">Kalman and Bayesian Filters in Python</a> (sách miễn phí dạng notebook, giấy phép CC BY 4.0; dễ đọc cho người mới).</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="2-dieu-khien.html"><small>Phần 2</small><b>Điều khiển và phản hồi</b></a>
+      <a class="next" href="4-tim-duong.html"><small>Phần 4</small><b>Tìm đường</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="14" fill="#1B1920">
+  <title>Hình học của cánh tay hai khâu: góc θ1, θ2, độ dài L1, L2 và tọa độ đầu tay (x, y)</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="760" height="380" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <!-- trục -->
+  <path d="M60 330H520" stroke="#1B1920" stroke-width="1.6" marker-end="url(#a)"/><text x="528" y="335">x</text>
+  <path d="M80 350V30" stroke="#1B1920" stroke-width="1.6" marker-end="url(#a)"/><text x="72" y="26">y</text>
+  <!-- khâu 1: từ (80,330) góc 40° dài 220 -> (248.5, 188.6) -->
+  <path d="M80 330L248.5 188.6" stroke="#3787c4" stroke-width="9" stroke-linecap="round"/>
+  <!-- phần kéo dài khâu 1 (để đo θ2) -->
+  <path d="M248.5 188.6L340 111.8" stroke="#9DA4AD" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <!-- khâu 2: góc tuyệt đối 40-55 = -15°, dài 180 -> (422.4, 235.2) -->
+  <path d="M248.5 188.6L422.4 235.2" stroke="#7bcde8" stroke-width="9" stroke-linecap="round"/>
+  <!-- hình chiếu -->
+  <path d="M422.4 235.2V330M422.4 235.2H80" stroke="#f2c230" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <!-- cung θ1 -->
+  <path d="M150 330A70 70 0 0 0 133.6 285" fill="none" stroke="#d8312a" stroke-width="2.2"/>
+  <text x="158" y="312" fill="#d8312a" font-weight="700">θ₁</text>
+  <!-- cung θ2: từ hướng 40° quay xuống -15° -->
+  <path d="M294.5 150A60 60 0 0 1 306.5 204.1" fill="none" stroke="#d8312a" stroke-width="2.2"/>
+  <text x="316" y="178" fill="#d8312a" font-weight="700">θ₂</text>
+  <!-- khớp -->
+  <circle cx="80" cy="330" r="9" fill="#f2c230" stroke="#1B1920" stroke-width="2"/>
+  <circle cx="248.5" cy="188.6" r="8" fill="#f2c230" stroke="#1B1920" stroke-width="2"/>
+  <circle cx="422.4" cy="235.2" r="7" fill="#1B1920"/>
+  <!-- nhãn -->
+  <text x="140" y="240" font-weight="700" fill="#3787c4">L₁</text>
+  <text x="330" y="234" font-weight="700" fill="#3787c4">L₂</text>
+  <text x="432" y="228" font-weight="700">(x, y)</text>
+  <text x="422" y="352" text-anchor="middle" font-size="12.5" fill="#59606B">x</text>
+  <text x="62" y="240" text-anchor="end" font-size="12.5" fill="#59606B">y</text>
+  <!-- công thức -->
+  <rect x="540" y="60" width="200" height="140" fill="#fff" stroke="#1B1920" stroke-width="1.6"/>
+  <text x="552" y="86" font-weight="700" font-size="13">Động học thuận</text>
+  <text x="552" y="112" font-size="13">x = L₁cos θ₁</text>
+  <text x="570" y="130" font-size="13">+ L₂cos(θ₁+θ₂)</text>
+  <text x="552" y="156" font-size="13">y = L₁sin θ₁</text>
+  <text x="570" y="174" font-size="13">+ L₂sin(θ₁+θ₂)</text>
+  <text x="540" y="230" font-size="12" fill="#59606B">θ₁ đo từ trục x;</text>
+  <text x="540" y="248" font-size="12" fill="#59606B">θ₂ đo từ hướng của khâu 1</text>
+  <text x="540" y="266" font-size="12" fill="#59606B">(đường đứt màu xám).</text>
+</svg>

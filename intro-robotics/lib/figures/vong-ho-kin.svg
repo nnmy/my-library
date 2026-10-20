@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Điều khiển vòng hở (lò nướng hẹn giờ) và vòng kín (máy lạnh có cảm biến nhiệt)</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="900" height="400" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker>
+  <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#d8312a"/></marker></defs>
+  <text x="20" y="30" font-weight="700" font-size="15">Vòng hở: làm theo lệnh, hổng ngó kết quả</text>
+  <g text-anchor="middle">
+    <rect x="20" y="50" width="170" height="54" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="105" y="74">lệnh</text><text x="105" y="92" font-size="12" fill="#59606B">“nướng 3 phút”</text>
+    <rect x="270" y="50" width="170" height="54" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/><text x="355" y="74" font-weight="600">lò nướng</text><text x="355" y="92" font-size="12" fill="#59606B">hẹn giờ</text>
+    <rect x="520" y="50" width="170" height="54" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/><text x="605" y="74">bánh mì</text><text x="605" y="92" font-size="12" fill="#59606B">vàng, sống hay cháy?</text>
+  </g>
+  <path d="M192 77H266" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M442 77H516" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <text x="710" y="72" font-size="12.5" fill="#59606B">Bánh dày hay mỏng,</text>
+  <text x="710" y="90" font-size="12.5" fill="#59606B">lò cũ hay mới: kệ, cứ 3 phút.</text>
+
+  <path d="M20 140H880" stroke="#DCE6EC" stroke-width="2"/>
+  <text x="20" y="176" font-weight="700" font-size="15">Vòng kín (có phản hồi): đo kết quả, so với mong muốn, sửa liên tục</text>
+  <g text-anchor="middle">
+    <rect x="20" y="210" width="130" height="54" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="85" y="234">muốn</text><text x="85" y="252" font-size="12" fill="#59606B">26 °C</text>
+    <circle cx="210" cy="237" r="20" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="210" y="243" font-size="18">Σ</text>
+    <text x="186" y="222" font-size="14" font-weight="700">+</text><text x="226" y="276" font-size="16" font-weight="700" fill="#d8312a">−</text>
+    <rect x="290" y="210" width="150" height="54" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/><text x="365" y="234" font-weight="600">bộ điều khiển</text><text x="365" y="252" font-size="12" fill="#59606B">lệch nhiều thì chạy mạnh</text>
+    <rect x="500" y="210" width="150" height="54" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/><text x="575" y="234" font-weight="600">máy nén lạnh</text><text x="575" y="252" font-size="12" fill="#59606B">cơ cấu chấp hành</text>
+    <rect x="710" y="210" width="150" height="54" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/><text x="785" y="234" font-weight="600">căn phòng</text><text x="785" y="252" font-size="12" fill="#59606B">nắng chiếu, người vô ra</text>
+    <rect x="500" y="320" width="150" height="50" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/><text x="575" y="342" font-weight="600">cảm biến nhiệt</text><text x="575" y="359" font-size="12" fill="#59606B">đo được 28 °C</text>
+  </g>
+  <path d="M152 237H186" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M232 237H286" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <text x="259" y="226" text-anchor="middle" font-size="12" font-weight="600">sai số e</text>
+  <text x="259" y="290" text-anchor="middle" font-size="11.5" fill="#59606B">26 − 28 = −2</text>
+  <path d="M442 237H496" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M652 237H706" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M785 266V345H654" fill="none" stroke="#d8312a" stroke-width="2.4" marker-end="url(#r)"/>
+  <path d="M498 345H210V261" fill="none" stroke="#d8312a" stroke-width="2.4" marker-end="url(#r)"/>
+  <text x="350" y="338" text-anchor="middle" font-size="12.5" fill="#d8312a" font-weight="600">đường phản hồi</text>
+</svg>

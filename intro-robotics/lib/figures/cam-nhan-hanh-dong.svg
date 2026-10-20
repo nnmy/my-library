@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Vòng lặp cảm nhận, suy nghĩ, hành động của một robot hút bụi</title>
+  <!-- Tự vẽ. My Academia / Robotics. -->
+  <rect width="900" height="300" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <g text-anchor="middle">
+    <rect x="30" y="50" width="220" height="120" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/>
+    <text x="140" y="80" font-weight="700" font-size="16">1. Cảm nhận</text>
+    <text x="140" y="104">cảm biến đo thế giới:</text>
+    <text x="140" y="122">camera, lidar, công tắc va chạm,</text>
+    <text x="140" y="140">bộ đếm vòng quay bánh xe</text>
+    <text x="140" y="160" font-size="11.5" fill="#59606B">sense</text>
+
+    <rect x="340" y="50" width="220" height="120" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="450" y="80" font-weight="700" font-size="16">2. Suy nghĩ</text>
+    <text x="450" y="104">máy tính trên robot tự hỏi:</text>
+    <text x="450" y="122">mình đang ở đâu?</text>
+    <text x="450" y="140">đi đường nào cho khỏi đụng?</text>
+    <text x="450" y="160" font-size="11.5" fill="#59606B">think / plan</text>
+
+    <rect x="650" y="50" width="220" height="120" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/>
+    <text x="760" y="80" font-weight="700" font-size="16">3. Hành động</text>
+    <text x="760" y="104">cơ cấu chấp hành:</text>
+    <text x="760" y="122">động cơ bánh xe quay,</text>
+    <text x="760" y="140">chổi chạy, máy hút bật</text>
+    <text x="760" y="160" font-size="11.5" fill="#59606B">act</text>
+  </g>
+  <path d="M252 110H334" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M562 110H644" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <rect x="300" y="222" width="300" height="50" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/>
+  <text x="450" y="244" text-anchor="middle" font-weight="700">Thế giới thay đổi</text>
+  <text x="450" y="262" text-anchor="middle" font-size="12">robot dời chỗ, sàn sạch hơn, gặp chân ghế mới</text>
+  <path d="M760 172C760 230 700 247 604 247" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M296 247C200 247 140 230 140 176" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <text x="450" y="30" text-anchor="middle" font-size="12.5" fill="#59606B">lặp lại hàng chục tới hàng ngàn lần mỗi giây</text>
+</svg>

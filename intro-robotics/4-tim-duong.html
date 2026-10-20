@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tìm đường | Robotics | My N. Nguyen</title>
+<meta name="description" content="Tìm đường cho robot, cho người mới: bản đồ lưới, phình vật cản, loang đều, tham lam, A*, không gian cấu hình, RRT, các tầng điều hướng, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/4-tim-duong.html, Phần 4: TÌM ĐƯỜNG)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      astar-grid : lưới 32 × 20, loang đều / tham lam / A*, vẽ tường, kéo điểm đầu và đích
+      cspace-arm : cánh tay 2 khâu + 2 vật cản tròn, bản đồ không gian cấu hình (θ1, θ2)
+      rrt        : cây ngẫu nhiên RRT trong phòng 10 × 7 m, làm mượt đường
+  - Số liệu trên trang (đo bằng chính mã của minh họa): bức tường chữ U, đi 4 hướng:
+      loang đều xét 590 ô, A* 224 ô, tham lam 143 ô, cả ba ra đường 37 bước;
+      bản đồ ngẫu nhiên 28% tường: tham lam ra đường dài hơn ngắn nhất ở 103/189 bản đồ có lời giải.
+  - Hình tự vẽ: lib/figures/ban-do-luoi.svg, a-sao.svg, tang-hoach-dinh.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Robotics</a> / Phần 4</p>
+  <h1><span class="dot"></span>Tìm đường</h1>
+  <p class="lead">Robot đã biết mình đang ở đâu (<a href="3-dinh-vi.html">Phần 3</a>). Giờ ai đó bấm “đi tới phòng bếp”. Đi đường nào để khỏi đụng ghế, đụng tường, mà lại đừng đi vòng vèo? Bài toán này gọi là <b>hoạch định đường đi</b> <span class="en">(path planning)</span>, và cách giải nó cũng chính là cách Google Maps chỉ đường hay nhân vật trong game tìm tới bạn.</p>
+</header>
+
+<!-- ================= 4.1 BẢN ĐỒ ================= -->
+<section class="part" id="ban-do">
+  <div class="wrap">
+    <h2>Bài toán và tấm bản đồ</h2>
+    <div class="prose">
+      <p>Đầu vào gồm ba thứ: <b>chỗ đứng hiện tại</b>, <b>chỗ muốn tới</b>, và <b>bản đồ</b> cho biết chỗ nào đi được. Đầu ra là một đường đi không đụng gì, và thường là “tốt nhất” theo một tiêu chí: ngắn nhất, nhanh nhất, hay an toàn nhất (tránh xa người và mép cầu thang).</p>
+      <p>Cách tả bản đồ phổ biến nhất là <span class="term">bản đồ lưới ô chiếm chỗ</span> <span class="en">(occupancy grid)</span>: chia mặt sàn thành ô vuông, cỡ 5 phân một ô, mỗi ô ghi “trống” hay “có vật”. Robot hút bụi vẽ ra đúng cái bản đồ này bằng SLAM ở Phần 3.</p>
+      <p>Mẹo nhỏ mà quan trọng: robot đâu phải một chấm, nó có thân. Thay vì mỗi bước phải kiểm tra cả cái thân có đụng gì hông, người ta <b>phình vật cản ra</b> đúng bằng bán kính robot. Sau đó coi robot như một điểm: điểm đó đi được ở đâu thì thân robot cũng lọt ở đó.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/ban-do-luoi.svg" alt="Trái: lưới 16 × 10 ô, ba khối ô đen là vật cản, một robot tròn màu vàng chiếm cỡ hai ô. Phải: cùng lưới, quanh mỗi khối đen có viền ô màu hồng (vùng phình), robot giờ chỉ là một chấm đen." loading="lazy">
+      <figcaption><b>Bản đồ lưới và phình vật cản.</b> Sau khi phình, bài toán “cái thân tròn đi lọt hông” thành bài toán đơn giản hơn: “một điểm đi lọt hông”. Hình tự vẽ.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 4.2 TÌM TRÊN LƯỚI ================= -->
+<section class="part tint" id="tim-tren-luoi">
+  <div class="wrap">
+    <h2>Tìm trên lưới: loang đều, tham lam, A*</h2>
+    <div class="prose">
+      <p>Có bản đồ lưới rồi, tìm đường là bài toán tìm kiếm: từ ô đầu, xét dần các ô kề bên cho tới khi chạm đích. Khác nhau ở chỗ <b>xét ô nào trước</b>:</p>
+      <ul>
+        <li><b>Loang đều</b> <span class="en">(breadth-first search, BFS; trên lưới mà bước nào cũng tốn như nhau thì nó trùng với thuật toán Dijkstra)</span>: xét ô gần điểm đầu trước, ô xa sau, giống nước đổ ra sàn loang đều mọi phía. Chắc chắn ra đường ngắn nhất, nhưng phí công xét cả những ô ở phía ngược với đích.</li>
+        <li><b>Tham lam</b> <span class="en">(greedy best-first search)</span>: luôn xét ô trông có vẻ gần đích nhất. Lao thẳng về đích nên rất lẹ, nhưng gặp ngõ cụt thì lúng túng, và đường tìm ra có thể vòng vèo.</li>
+        <li><span class="term">A*</span> (đọc là “A sao”): mỗi ô được chấm một điểm gồm hai phần, đã đi bao xa cộng với còn phải đi chừng bao xa, rồi xét ô có tổng nhỏ nhất.</li>
+      </ul>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/a-sao.svg" alt="Lưới 12 × 5 ô. Ô đầu màu xanh lá bên trái, ô đích màu đỏ bên phải, ô đang xét màu vàng. Đường xanh dương từ ô đầu tới ô đang xét dài 6 bước, ghi g = 6. Đường đỏ đứt từ ô đang xét tới đích, ghi h = 7. Hộp bên phải: f = g + h = 13." loading="lazy">
+      <figcaption><b>A* chấm điểm một ô.</b> g là phần đã biết chắc, h là phần đoán. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="formula">
+      <div class="eq">\[ f(n) = g(n) + h(n) \]</div>
+      <p class="where"><b>n</b>: một ô; <b>g(n)</b>: số bước đã đi từ điểm đầu tới n, theo đường tốt nhất tìm được tới giờ; <b>h(n)</b>: <span class="term">hàm ước lượng</span> <span class="en">(heuristic)</span>, đoán số bước còn lại tới đích. Trên lưới đi 4 hướng, người ta lấy khoảng cách “kiểu bàn cờ” \(|x_n - x_{\text{đích}}| + |y_n - y_{\text{đích}}|\), tức đi ngang rồi đi dọc, bỏ qua tường. Vì h hổng bao giờ đoán <i>dư</i> so với thật, A* bảo đảm ra đường ngắn nhất.</p>
+    </div>
+    <div class="demo" id="demoAstar" data-demo="astar-grid">
+      <div class="demo-title"><h4>Tìm đường trên lưới</h4><span>Vẽ tường, kéo điểm đầu và đích, so ba cách tìm</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Với bức tường chữ U có sẵn, cả ba cách đều ra đường 37 bước, nhưng công sức khác hẳn: loang đều xét 590 ô (gần hết bản đồ), A* xét 224 ô, tham lam xét 143 ô. Bấm “Chạy hoạt hình” để coi: tham lam chui tọt vô lòng chữ U rồi mới lần mò ra.</li>
+        <li>Bấm “Lối đi ngẫu nhiên” vài lần rồi chọn “Tham lam”: rất hay gặp cảnh đường của nó dài hơn đường ngắn nhất. Tui thử 189 bản đồ ngẫu nhiên có lời giải thì gặp 103 lần, cỡ phân nửa. A* thì lần nào cũng ra đúng đường ngắn nhất.</li>
+        <li>Xóa hết tường: A* đi thẳng một mạch, chỉ xét đúng mấy ô trên đường đi.</li>
+      </ul>
+      <p>A* ra đời năm 1968 cho robot Shakey ở Viện Nghiên cứu Stanford, và tới giờ vẫn là nền của các bộ tìm đường trong robot, game và bản đồ số. Mấy hệ chỉ đường cho xe hơi xài thêm nhiều mẹo tính sẵn để chạy lẹ trên bản đồ cả nước, nhưng ý tưởng “đã đi bao xa + còn chừng bao xa” vẫn y vậy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.3 KHÔNG GIAN CẤU HÌNH ================= -->
+<section class="part" id="khong-gian-cau-hinh">
+  <div class="wrap">
+    <h2>Không gian cấu hình: tìm đường cho cánh tay</h2>
+    <div class="prose">
+      <p>Với xe chạy trên sàn, “vị trí” là hai con số (x, y), nên tìm đường trên bản đồ sàn nhà là hợp lý. Còn cánh tay robot ở <a href="1-dong-hoc.html">Phần 1</a> thì sao? Muốn biết nó có đụng cái bình hông, phải biết <b>góc của mọi khớp</b>. Vậy hãy vẽ bản đồ theo các góc khớp: mỗi điểm trên bản đồ là một tư thế đầy đủ của cánh tay. Bản đồ đó gọi là <span class="term">không gian cấu hình</span> <span class="en">(configuration space, C-space)</span>, ý tưởng của Tomás Lozano-Pérez đầu thập niên 1980.</p>
+      <p>Trong không gian cấu hình, cả cánh tay biến thành <b>một điểm</b>, còn vật cản biến thành những vùng “tư thế cấm”. Tìm đường cho cánh tay né vật cản chỉ còn là tìm đường cho một điểm né những vùng đó, y như bài toán lưới ở trên.</p>
+    </div>
+    <div class="demo" id="demoCspace" data-demo="cspace-arm">
+      <div class="demo-title"><h4>Không gian cấu hình của cánh tay</h4><span>Mỗi điểm bên phải là một tư thế của cánh tay bên trái</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Rê chấm vàng bên phải chạm vô mảng đỏ: cánh tay bên trái đụng vật cản đỏ. Hai vùng màu chính là bản đồ “tư thế cấm”.</li>
+        <li>Kéo vật cản tím lại gần đế robot: mảng tím bên phải phình to ra, vì vật cản càng gần đế thì càng nhiều tư thế đụng nó (khâu 1 quét qua là đụng, bất kể khâu 2).</li>
+        <li>Đặt hai vật cản sát nhau: có khi hai mảng nhập lại chặn đứt bản đồ, cánh tay hổng có cách nào đi từ tư thế này qua tư thế kia.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Lời nguyền số chiều.</b> Cánh tay 2 khớp có bản đồ 2 chiều, chia mỗi góc làm 120 phần là được 14 400 ô, máy tính duyệt trong nháy mắt. Cánh tay công nghiệp 6 khớp có bản đồ 6 chiều: chia mỗi góc làm 100 phần thôi đã ra 10<sup>12</sup> ô, cả ngàn tỷ. Chia lưới rồi chạy A* là hết đường. Đó là lý do cần cách khác ở mục kế tiếp.</div>
+  </div>
+</section>
+
+<!-- ================= 4.4 RRT ================= -->
+<section class="part tint" id="rrt">
+  <div class="wrap">
+    <h2>RRT: rải cây ngẫu nhiên</h2>
+    <div class="prose">
+      <p>Ý tưởng của Steven LaValle (1998) nghe như chơi mà hiệu quả bất ngờ: khỏi chia lưới, cứ <b>bốc ngẫu nhiên</b> một điểm trong không gian, rồi cho cây mọc về phía nó một chút. <span class="term">RRT</span> <span class="en">(rapidly-exploring random tree)</span> lặp lại mấy bước sau:</p>
+      <ol>
+        <li>Bốc một điểm ngẫu nhiên. Thỉnh thoảng (ví dụ 5% số lần) bốc thẳng điểm đích, để cây có khuynh hướng mọc về phía đích.</li>
+        <li>Tìm nút trên cây gần điểm đó nhất.</li>
+        <li>Từ nút đó, mọc một nhánh ngắn hướng về điểm vừa bốc. Nếu nhánh đụng vật cản thì bỏ, khỏi mọc.</li>
+        <li>Nếu nhánh mới đủ gần đích và nối thẳng được: xong, lần ngược theo cây là ra đường đi.</li>
+      </ol>
+      <p>Vì điểm bốc ngẫu nhiên rơi vô vùng trống lớn nhiều hơn, cây tự động lan về những chỗ chưa khám phá, “phủ” không gian rất lẹ. Và nó chỉ cần đúng một khả năng: kiểm tra một tư thế có đụng hông. Bởi vậy nó chạy được cho cánh tay 7 khớp, robot hình người hàng chục khớp, hay xe có ràng buộc quẹo cua.</p>
+    </div>
+    <div class="demo" id="demoRrt" data-demo="rrt">
+      <div class="demo-title"><h4>RRT: rải cây ngẫu nhiên</h4><span>Cây mọc từ điểm đầu, lan khắp chỗ trống cho tới khi chạm đích</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Đường RRT tìm ra thường ngoằn ngoèo vì toàn là bước ngẫu nhiên. Một lần chạy thử của tui ra đường dài 26 m; bấm “Làm mượt đường” hai lần (nối tắt các đoạn nhìn thấy nhau) thì còn 19,5 m. RRT bảo đảm <b>sớm muộn gì cũng tìm ra</b> đường nếu có, nhưng hổng bảo đảm đường ngắn nhất. Bản cải tiến <b>RRT*</b> (Karaman và Frazzoli, 2011) thêm bước “nối lại” các nhánh cho gọn, nên càng chạy lâu đường càng tiến về ngắn nhất.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.5 TẦNG ĐIỀU HƯỚNG ================= -->
+<section class="part" id="tang">
+  <div class="wrap">
+    <h2>Từ đường đi tới chuyển động</h2>
+    <div class="prose">
+      <p>Một đường đi vẽ trên bản đồ chưa phải là chuyển động. Robot thật còn phải lo: đường đó có quẹo gắt quá so với bánh xe hông, chạy nhanh cỡ nào ở khúc nào, và nếu có người bước ngang qua thì sao. Hệ điều hướng thực tế, như bộ Nav2 trong ROS 2 (hệ điều hành robot mã nguồn mở phổ biến nhất), chia việc thành ba tầng:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/tang-hoach-dinh.svg" alt="Ba hộp nối nhau: hoạch định toàn cục (cả bản đồ, A*, RRT, chạy lại vài giây một lần) đưa đường đi cho hoạch định cục bộ (vài mét trước mặt, né người, 10–50 lần mỗi giây), đưa vận tốc cho bộ điều khiển (PID cho từng bánh xe, hàng trăm tới hàng ngàn lần mỗi giây). Đường đứt màu đỏ: cảm biến và định vị báo về mọi tầng." loading="lazy">
+      <figcaption><b>Các tầng điều hướng.</b> Càng xuống dưới, tầng đó nhìn càng gần và phản ứng càng lẹ, giống các vòng lồng nhau ở Phần 2. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Thêm vài chuyện đời thực:</p>
+      <ul>
+        <li><b>Vật cản di động.</b> Người, xe đẩy, con mèo hổng có trên bản đồ. Tầng cục bộ thấy chúng qua lidar, camera, rồi né tại chỗ; nếu bị chặn hẳn thì báo tầng toàn cục tìm đường khác.</li>
+        <li><b>Ràng buộc chuyển động.</b> Xe hơi hổng đi ngang được, phải quẹo theo cung tròn. Người ta tìm đường trong không gian (x, y, hướng xe), ví dụ với “A* lai” <span class="en">(hybrid A*)</span> mà xe tự lái của Stanford dùng để đậu xe trong cuộc thi DARPA Urban Challenge 2007.</li>
+        <li><b>Quỹ đạo theo thời gian.</b> Đường đi chỉ nói đi qua đâu; <span class="term">quỹ đạo</span> <span class="en">(trajectory)</span> nói thêm lúc nào tới đâu, với vận tốc bao nhiêu, sao cho êm, khỏi giật, khỏi vượt giới hạn động cơ.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Tới đây, mọi thứ đều do người viết ra:</b> công thức động học, luật PID, bộ lọc, thuật toán tìm đường. Cách này chạy rất tốt trong nhà máy, nơi mọi thứ ngăn nắp. Nhưng gấp cái áo, rót ly nước, đi trên đá sỏi thì sao? Viết luật cho từng chuyện là bó tay. Phần 5 kể chuyện robot <b>tự học</b> những kỹ năng đó.</div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Hoạch định đường đi</td><td>path planning</td><td>Tìm đường từ chỗ này tới chỗ kia mà hổng đụng gì.</td></tr>
+          <tr><td>Bản đồ lưới ô chiếm chỗ</td><td>occupancy grid</td><td>Mặt sàn chia ô, mỗi ô ghi trống hay có vật.</td></tr>
+          <tr><td>Phình vật cản</td><td>obstacle inflation</td><td>Nới vật cản ra một bán kính robot để coi robot như một điểm.</td></tr>
+          <tr><td>Loang đều</td><td>breadth-first search (BFS)</td><td>Xét ô gần trước, xa sau, theo mọi hướng.</td></tr>
+          <tr><td>Tìm kiếm tham lam</td><td>greedy best-first search</td><td>Luôn xét ô trông gần đích nhất.</td></tr>
+          <tr><td>A*</td><td>A-star</td><td>Xét ô có (đã đi + còn ước chừng) nhỏ nhất.</td></tr>
+          <tr><td>Hàm ước lượng</td><td>heuristic</td><td>Cách đoán nhanh còn bao xa nữa tới đích.</td></tr>
+          <tr><td>Không gian cấu hình</td><td>configuration space (C-space)</td><td>Bản đồ mà mỗi điểm là một tư thế đầy đủ của robot.</td></tr>
+          <tr><td>RRT</td><td>rapidly-exploring random tree</td><td>Cây mọc dần về các điểm bốc ngẫu nhiên.</td></tr>
+          <tr><td>Hoạch định toàn cục / cục bộ</td><td>global / local planner</td><td>Tìm đường trên cả bản đồ / né vật trước mặt từng lúc.</td></tr>
+          <tr><td>Quỹ đạo</td><td>trajectory</td><td>Đường đi kèm thời gian và vận tốc ở từng chỗ.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(f(n)\)</td><td>f of n</td><td>Điểm của ô n trong A*: tổng g và h.</td></tr>
+          <tr><td class="sym">\(g(n)\)</td><td>g of n</td><td>Quãng đường đã đi từ điểm đầu tới n.</td></tr>
+          <tr><td class="sym">\(h(n)\)</td><td>h of n</td><td>Ước lượng quãng đường còn lại từ n tới đích.</td></tr>
+          <tr><td class="sym">\(|a|\)</td><td>absolute value of a</td><td>Giá trị tuyệt đối: bỏ dấu trừ.</td></tr>
+          <tr><td class="sym">\(10^{12}\)</td><td>ten to the twelfth</td><td>Một ngàn tỷ (số 1 với 12 số 0).</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1959</span><div><h4>Thuật toán Dijkstra</h4><p>Edsger Dijkstra công bố cách tìm đường ngắn nhất trên đồ thị có trọng số. Ông kể đã nghĩ ra nó trong khoảng hai chục phút, ngồi uống cà phê ở Amsterdam năm 1956.</p></div></li>
+      <li><span class="yr">1966–72</span><div><h4>Robot Shakey</h4><p>Ở Viện Nghiên cứu Stanford (SRI), Shakey là robot di động đầu tiên tự lập kế hoạch hành động. Để nó tìm đường, Peter Hart, Nils Nilsson và Bertram Raphael công bố thuật toán A* năm 1968.</p></div></li>
+      <li><span class="yr">1983</span><div><h4>Không gian cấu hình</h4><p>Tomás Lozano-Pérez (MIT) đưa ra cách nhìn “cả robot là một điểm trong không gian cấu hình”, nền tảng của hoạch định chuyển động.</p></div></li>
+      <li><span class="yr">1996</span><div><h4>Bản đồ lộ trình xác suất</h4><p>Kavraki, Švestka, Latombe và Overmars đề xuất PRM: rải điểm ngẫu nhiên khắp không gian cấu hình rồi nối thành mạng đường, mở màn các phương pháp dựa trên lấy mẫu.</p></div></li>
+      <li><span class="yr">1998</span><div><h4>RRT</h4><p>Steven LaValle giới thiệu cây ngẫu nhiên RRT, nhanh chóng thành công cụ chuẩn cho cánh tay robot và xe tự hành.</p></div></li>
+      <li><span class="yr">2007</span><div><h4>DARPA Urban Challenge</h4><p>Xe tự lái chạy trong khu phố giả lập, phải nhường đường, đậu xe. Đội Đại học Carnegie Mellon thắng; xe của Stanford dùng “A* lai” để tìm đường có tính tới cách xe quẹo.</p></div></li>
+      <li><span class="yr">2011</span><div><h4>RRT*</h4><p>Sertac Karaman và Emilio Frazzoli chứng minh bản cải tiến RRT* tiến dần về đường ngắn nhất khi chạy đủ lâu.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>S. M. LaValle, <i>Planning Algorithms</i>, Cambridge University Press, 2006 (bản điện tử miễn phí trên trang của tác giả).</li>
+      <li>P. E. Hart, N. J. Nilsson, B. Raphael, “A Formal Basis for the Heuristic Determination of Minimum Cost Paths”, <i>IEEE Transactions on Systems Science and Cybernetics</i>, 1968.</li>
+      <li>E. W. Dijkstra, “A Note on Two Problems in Connexion with Graphs”, <i>Numerische Mathematik</i> 1, 1959.</li>
+      <li>T. Lozano-Pérez, “Spatial Planning: A Configuration Space Approach”, <i>IEEE Transactions on Computers</i>, 1983.</li>
+      <li>S. Karaman, E. Frazzoli, “Sampling-based Algorithms for Optimal Motion Planning”, <i>International Journal of Robotics Research</i>, 2011.</li>
+      <li>A. Patel, <a href="https://www.redblobgames.com/pathfinding/a-star/introduction.html" rel="noopener">Introduction to the A* Algorithm</a>, Red Blob Games (giải thích bằng minh họa tương tác rất dễ hiểu).</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="3-dinh-vi.html"><small>Phần 3</small><b>Cảm biến và định vị</b></a>
+      <a class="next" href="5-tu-hoc.html"><small>Phần 5</small><b>Robot tự học</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

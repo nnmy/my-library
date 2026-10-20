@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot cử động ra sao | Robotics | My N. Nguyen</title>
+<meta name="description" content="Robot cử động ra sao, cho người mới: vòng cảm nhận, suy nghĩ, hành động; khớp, khâu, bậc tự do; hệ tọa độ; động học thuận; động học ngược bằng công thức và bằng cách dò từng bước; kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/1-dong-hoc.html, Phần 1: ROBOT CỬ ĐỘNG RA SAO)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      arm-fk      : động học thuận, cánh tay 2 khâu
+      arm-ik      : động học ngược bằng công thức, hai nghiệm, vùng với tới
+      ik-gradient : động học ngược bằng gradient descent, cánh tay 3 khâu
+    (cả ba dùng chung lib/demos/arm-common.js)
+  - Hình tự vẽ: lib/figures/cam-nhan-hanh-dong.svg, canh-tay.svg, hai-khau.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Robotics</a> / Phần 1</p>
+  <h1><span class="dot"></span>Robot cử động ra sao</h1>
+  <p class="lead">Bạn muốn cánh tay robot gắp ly cà phê trên bàn. Nghe thì dễ, nhưng robot hổng hiểu “gắp ly”; nó chỉ biết quay từng động cơ một góc bao nhiêu độ. Trang này kể từ đầu: robot là gì, cánh tay robot ráp từ những gì, và làm sao đổi qua đổi lại giữa <b>góc của các khớp</b> với <b>vị trí của bàn tay</b>, chuyện mà dân robot gọi là <b>động học</b>.</p>
+</header>
+
+<!-- ================= 1.1 ROBOT LÀ GÌ ================= -->
+<section class="part" id="robot-la-gi">
+  <div class="wrap">
+    <h2>Robot là gì?</h2>
+    <div class="prose">
+      <p>Hổng có định nghĩa nào ai cũng chịu, nhưng cách hiểu dễ xài nhất là: <b>robot là cái máy tự cảm nhận thế giới, tự quyết định, rồi tự hành động lên thế giới</b>. Cái máy giặt chạy theo chương trình cố định thì chưa tới; con robot hút bụi biết né chân ghế, biết quay về sạc khi hết pin thì đúng là robot.</p>
+      <p>Mọi robot, từ con hút bụi trong nhà, cánh tay hàn sườn xe hơi, xe tự lái, tới drone giao hàng, đều chạy một vòng lặp ba bước:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/cam-nhan-hanh-dong.svg" alt="Ba ô nối nhau: 1. Cảm nhận (camera, lidar, công tắc va chạm, bộ đếm vòng quay bánh xe), 2. Suy nghĩ (mình đang ở đâu, đi đường nào cho khỏi đụng), 3. Hành động (động cơ bánh xe, chổi, máy hút). Mũi tên từ hành động xuống ô Thế giới thay đổi, rồi quay lại cảm nhận." loading="lazy">
+      <figcaption><b>Vòng cảm nhận, suy nghĩ, hành động</b> <span class="en">(sense, think, act)</span> của một robot hút bụi. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="callout"><b>Bản đồ của module này:</b> Phần 1 (trang này) và Phần 2 lo khâu <b>hành động</b>: cử động ra sao, giữ cho đúng ra sao. Phần 3 lo khâu <b>cảm nhận</b>: robot biết mình đang ở đâu. Phần 4, 5, 6 lo khâu <b>suy nghĩ</b>: tìm đường, tự học, và các mô hình AI lớn điều khiển robot.</div>
+  </div>
+</section>
+
+<!-- ================= 1.2 KHỚP, KHÂU ================= -->
+<section class="part tint" id="khop-khau">
+  <div class="wrap">
+    <h2>Khớp, khâu và bậc tự do</h2>
+    <div class="prose">
+      <p>Coi cánh tay của chính mình: xương cánh tay, xương cẳng tay là những đoạn cứng; vai, khuỷu, cổ tay là chỗ gập được. Cánh tay robot cũng y vậy. Đoạn cứng gọi là <span class="term">khâu</span> <span class="en">(link)</span>, chỗ gập gọi là <span class="term">khớp</span> <span class="en">(joint)</span>. Mỗi khớp thường có một động cơ điện riêng, gắn hộp số để quay chậm mà mạnh. Động cơ và những thứ làm robot cử động nói chung gọi là <span class="term">cơ cấu chấp hành</span> <span class="en">(actuator)</span>.</p>
+      <p>Hai loại khớp hay gặp nhất là <span class="term">khớp xoay</span> <span class="en">(revolute joint)</span>, đổi một <b>góc</b> như bản lề cửa, và <span class="term">khớp trượt</span> <span class="en">(prismatic joint)</span>, đổi một <b>độ dài</b> như ngăn kéo. Món gắn ở cuối cánh tay, như tay kẹp, giác hút hay mỏ hàn, gọi là <span class="term">bộ phận tác động cuối</span> <span class="en">(end effector)</span>, nói gọn là “bàn tay”.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/canh-tay.svg" alt="Cánh tay robot đứng trên đế bắt vít xuống sàn, gồm ba khâu màu xanh nối bằng bốn khớp xoay màu vàng, cuối cùng là tay kẹp. Hộp phụ bên phải so sánh khớp xoay (đổi góc θ) và khớp trượt (đổi độ dài d)." loading="lazy">
+      <figcaption><b>Giải phẫu một cánh tay robot.</b> Mỗi khớp có một động cơ. Biết góc của mọi khớp là biết toàn bộ tư thế của cánh tay. Hình tự vẽ, giản lược kiểu cánh tay công nghiệp.</figcaption>
+    </figure>
+    <div class="prose">
+      <p><span class="term">Bậc tự do</span> <span class="en">(degrees of freedom, DOF)</span> là số con số độc lập cần biết để tả hết tư thế của robot. Với cánh tay nối tiếp, mỗi khớp góp một bậc, nên đếm khớp là ra. Vì sao cánh tay công nghiệp hay có đúng <b>6 bậc</b>? Vì muốn đặt một món đồ ở chỗ bất kỳ trong không gian, phải chọn được <b>3 con số cho vị trí</b> (trước sau, trái phải, lên xuống) và <b>3 con số cho hướng</b> (cúi ngửa, nghiêng trái phải, xoay). Ít hơn 6 thì có những tư thế bó tay; nhiều hơn 6, như tay người cỡ 7 bậc từ vai tới cổ tay, thì dư ra để né vật cản hay đổi kiểu cầm.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.3 HỆ TỌA ĐỘ ================= -->
+<section class="part" id="toa-do">
+  <div class="wrap">
+    <h2>Hệ tọa độ: nói cho robot biết “chỗ đó” là chỗ nào</h2>
+    <div class="prose">
+      <p>Nói với người: “để cái ly kế bên laptop”. Nói với robot: phải ra số. Người ta chọn một điểm gốc (thường là chân đế robot), vẽ ba trục vuông góc x, y, z, rồi mọi vị trí đều thành ba con số. Đó là <span class="term">hệ tọa độ</span> <span class="en">(coordinate frame)</span>.</p>
+      <p>Cái khó là robot có <b>nhiều</b> hệ tọa độ cùng lúc: một cái gắn với đế, một cái gắn với camera, một cái gắn với bàn tay, mỗi khâu một cái. Camera thấy cái ly “cách tui 40 phân, lệch trái 5 phân”, nhưng động cơ cần biết cái ly nằm đâu <i>so với đế</i>. Đổi tọa độ từ hệ này qua hệ kia gồm hai bước: <b>xoay</b> cho các trục trùng hướng, rồi <b>dời</b> gốc. Trên mặt phẳng, xoay một điểm (x, y) quanh gốc một góc θ là:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \begin{bmatrix} x' \\ y' \end{bmatrix} = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} \begin{bmatrix} x \\ y \end{bmatrix} \]</div>
+      <p class="where"><b>θ</b> (theta): góc xoay, chiều dương là ngược chiều kim đồng hồ; bảng 2×2 ở giữa là <span class="term">ma trận xoay</span> <span class="en">(rotation matrix)</span>. Nhân ma trận với cột (x, y) nghĩa là: x′ = x cos θ − y sin θ, y′ = x sin θ + y cos θ. Trong không gian 3 chiều thì ma trận xoay cỡ 3×3, và người ta gộp luôn bước dời vô một ma trận 4×4 cho gọn.</p>
+    </div>
+    <div class="prose">
+      <p>Cánh tay robot thực chất là một chuỗi phép “xoay rồi dời”: từ đế qua khâu 1, từ khâu 1 qua khâu 2, cứ vậy tới bàn tay. Năm 1955, Denavit và Hartenberg đề ra cách tả mỗi chặng chỉ bằng 4 con số, tới giờ vẫn là chuẩn trong sách giáo khoa và phần mềm robot.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.4 ĐỘNG HỌC THUẬN ================= -->
+<section class="part tint" id="dong-hoc-thuan">
+  <div class="wrap">
+    <h2>Động học thuận: biết góc, tìm vị trí</h2>
+    <div class="prose">
+      <p>Câu hỏi dễ trước: <b>cho biết góc của từng khớp, bàn tay đang ở đâu?</b> Bài này gọi là <span class="term">động học thuận</span> <span class="en">(forward kinematics)</span>. “Động học” nghĩa là chỉ lo hình học của chuyển động, chưa tính lực hay khối lượng.</p>
+      <p>Để dễ thấy, mình xài cánh tay hai khâu nằm trên mặt bàn, nhìn từ trên xuống, giống mấy con robot SCARA gắp linh kiện điện tử trong nhà máy. Đi từ đế: khâu 1 dài \(L_1\) chĩa theo góc \(\theta_1\); tới khuỷu, khâu 2 dài \(L_2\) bẻ thêm một góc \(\theta_2\) so với hướng của khâu 1. Cộng hai đoạn lại là ra vị trí bàn tay.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/hai-khau.svg" alt="Trục x, y. Khâu 1 dài L1 đi từ gốc theo góc θ1 so với trục x. Khâu 2 dài L2 bẻ thêm góc θ2 so với đường kéo dài của khâu 1, tới đầu tay (x, y). Hộp công thức: x = L1 cos θ1 + L2 cos(θ1+θ2), y = L1 sin θ1 + L2 sin(θ1+θ2)." loading="lazy">
+      <figcaption><b>Hình học của cánh tay hai khâu.</b> Góc θ₂ đo từ hướng của khâu 1, nên hướng thật của khâu 2 so với trục x là θ₁ + θ₂. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="formula">
+      <div class="eq">\[ x = L_1\cos\theta_1 + L_2\cos(\theta_1+\theta_2), \qquad y = L_1\sin\theta_1 + L_2\sin(\theta_1+\theta_2) \]</div>
+      <p class="where"><b>L<sub>1</sub>, L<sub>2</sub></b>: độ dài hai khâu; <b>θ<sub>1</sub>, θ<sub>2</sub></b>: góc hai khớp; <b>cos</b>, <b>sin</b>: hàm lượng giác, cho biết một đoạn dài 1 chĩa theo góc θ thì đi ngang bao nhiêu (cos θ) và đi dọc bao nhiêu (sin θ); <b>(x, y)</b>: vị trí bàn tay so với đế.</p>
+    </div>
+    <div class="demo" id="demoFk" data-demo="arm-fk">
+      <div class="demo-title"><h4>Động học thuận</h4><span>Vặn hai khớp, coi đầu tay chạy tới đâu</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Mấy chuyện nên thử:</p>
+      <ul>
+        <li>Giữ θ₂ đứng yên, chỉ kéo θ₁: đầu tay vẽ ra một vòng tròn quanh đế, vì cả cánh tay quay như một khối cứng.</li>
+        <li>Bấm “Quét vùng với tới”: mấy ngàn tư thế ngẫu nhiên tô ra một hình vành khăn. Đó là <span class="term">không gian làm việc</span> <span class="en">(workspace)</span> của robot, chỗ bàn tay có thể tới.</li>
+        <li>Cho L₁ bằng L₂ rồi quét lại: lỗ ở giữa biến mất, tay với tới được cả chân đế của chính nó.</li>
+      </ul>
+      <p>Động học thuận lúc nào cũng có đúng <b>một</b> đáp án và tính rất lẹ: chỉ nhân cộng dọc theo chuỗi khâu, dù robot có bao nhiêu khớp đi nữa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.5 ĐỘNG HỌC NGƯỢC ================= -->
+<section class="part" id="dong-hoc-nguoc">
+  <div class="wrap">
+    <h2>Động học ngược: biết vị trí, tìm góc</h2>
+    <div class="prose">
+      <p>Ngoài đời thì mình cần câu hỏi ngược lại: camera thấy cái ly ở chỗ (x, y), vậy <b>mỗi khớp phải quay bao nhiêu độ</b> để bàn tay tới đó? Bài này gọi là <span class="term">động học ngược</span> <span class="en">(inverse kinematics, IK)</span>, và nó khó hơn hẳn vì đáp án có thể là:</p>
+      <ul>
+        <li><b>Hổng có:</b> cái ly nằm ngoài tầm với.</li>
+        <li><b>Hai đáp án:</b> với cánh tay hai khâu, gần như mọi điểm đều với tới được bằng hai cách, khuỷu gập kiểu này hoặc kiểu kia.</li>
+        <li><b>Vô số đáp án:</b> khi robot có dư khớp, như phần sau.</li>
+      </ul>
+      <p>Với cánh tay hai khâu, giải được bằng hình học cấp ba. Ba điểm đế, khuỷu, bàn tay làm thành một tam giác có ba cạnh đã biết: \(L_1\), \(L_2\) và khoảng cách \(r\) từ đế tới đích. Định lý hàm số cos cho ra góc khuỷu, rồi suy ra góc vai:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \cos\theta_2 = \frac{r^2 - L_1^2 - L_2^2}{2L_1L_2}, \qquad \theta_1 = \operatorname{atan2}(y, x) \;-\; \operatorname{atan2}\!\big(L_2\sin\theta_2,\; L_1 + L_2\cos\theta_2\big) \]</div>
+      <p class="where"><b>r</b> = \(\sqrt{x^2+y^2}\): khoảng cách từ đế tới đích; <b>atan2(y, x)</b>: góc của điểm (x, y) so với trục x, tính đúng ở cả bốn góc phần tư. Biết cos θ₂ thì θ₂ có hai giá trị, một dương một âm: đó chính là hai cách gập khuỷu. Nếu vế phải lớn hơn 1 hay nhỏ hơn −1 thì không có góc nào thỏa: đích nằm ngoài tầm với.</p>
+    </div>
+    <div class="demo" id="demoIk" data-demo="arm-ik">
+      <div class="demo-title"><h4>Động học ngược</h4><span>Kéo điểm đích màu đỏ, cánh tay tự tính góc để với tới</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="callout"><b>Chọn nghiệm nào?</b> Trong nhà máy, robot phải chọn nghiệm sao cho khỏi đụng bàn, khỏi xoắn dây cáp, và khỏi nhảy khuỷu cái rụp từ kiểu A qua kiểu B giữa chừng. Kéo đích đi một vòng sát mép ngoài vành khăn trong minh họa, bạn sẽ thấy có chỗ hai nghiệm nhập làm một, khi cánh tay duỗi thẳng tưng.</div>
+  </div>
+</section>
+
+<!-- ================= 1.6 DÒ TỪNG BƯỚC ================= -->
+<section class="part tint" id="do-tung-buoc">
+  <div class="wrap">
+    <h2>Khi công thức bó tay: dò từng bước</h2>
+    <div class="prose">
+      <p>Cánh tay hai khâu thì có công thức đẹp. Cánh tay 6 khớp, 7 khớp thì công thức hoặc rất rối, hoặc hổng tồn tại vì có vô số đáp án. Cách phổ biến là <b>dò từng bước nhỏ</b>, y chang trái banh lăn xuống dốc trong phần huấn luyện mạng nơ-ron (<a href="../intro-ai/1-cnn.html#huan-luyen">AI, Phần 1</a>):</p>
+      <ol>
+        <li>Đo sai số: bàn tay đang cách đích bao xa.</li>
+        <li>Với mỗi khớp, hỏi: nhích khớp này một chút thì bàn tay dời theo hướng nào? Bảng câu trả lời cho mọi khớp gọi là <span class="term">ma trận Jacobian</span> <span class="en">(Jacobian matrix)</span> \(J\).</li>
+        <li>Nhích mỗi khớp một chút theo hướng làm sai số giảm. Lặp lại tới khi chạm đích.</li>
+      </ol>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \boldsymbol\theta \;\leftarrow\; \boldsymbol\theta \;-\; \alpha\, J^\top \big(\mathbf p(\boldsymbol\theta) - \mathbf p_{\text{đích}}\big) \]</div>
+      <p class="where"><b>θ</b> (in đậm): cả bộ góc khớp; <b>p(θ)</b>: vị trí bàn tay, tính bằng động học thuận; <b>p<sub>đích</sub></b>: vị trí cần tới; <b>J<sup>⊤</sup></b>: Jacobian chuyển vị (lật hàng thành cột); <b>α</b> (alpha): cỡ bước. Đây chính là gradient descent trên sai số \(E = \tfrac12\lVert \mathbf p(\boldsymbol\theta) - \mathbf p_{\text{đích}}\rVert^2\): \(J^\top(\mathbf p - \mathbf p_{\text{đích}})\) là gradient của E theo các góc.</p>
+    </div>
+    <div class="demo" id="demoIkGd" data-demo="ik-gradient">
+      <div class="demo-title"><h4>Động học ngược bằng cách lăn xuống dốc</h4><span>Cánh tay 3 khâu tự dò góc, từng bước nhỏ</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Kéo đích sát đường tròn đứt (tầm với tối đa): cánh tay duỗi gần thẳng và bò tới rất chậm. Ở tư thế duỗi thẳng, nhích khớp nào thì bàn tay cũng chỉ đi ngang, hổng đi ra xa thêm được. Tư thế kiểu đó gọi là <span class="term">điểm kỳ dị</span> <span class="en">(singularity)</span>, nỗi sợ của mọi kỹ sư robot.</li>
+        <li>Kéo đích ra ngoài tầm với: sai số giảm tới một mức rồi đứng, cánh tay chỉ duỗi về phía đích.</li>
+        <li>Bấm “Xáo tư thế” vài lần với cùng một đích: mỗi lần tay tới đích bằng một tư thế khác, vì 3 khớp mà chỉ cần 2 con số.</li>
+      </ul>
+      <p>Phần mềm robot thật xài các biến thể chắc ăn hơn (giả nghịch đảo, bình phương tối thiểu có giảm chấn) để bước đi mượt quanh điểm kỳ dị và tận dụng khớp dư để né vật cản, nhưng ý tưởng gốc vẫn là: <b>nhích từng chút theo hướng sai số giảm</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Khâu</td><td>link</td><td>Đoạn cứng của cánh tay, nối hai khớp.</td></tr>
+          <tr><td>Khớp xoay / khớp trượt</td><td>revolute / prismatic joint</td><td>Chỗ gập đổi góc / chỗ trượt đổi độ dài.</td></tr>
+          <tr><td>Cơ cấu chấp hành</td><td>actuator</td><td>Thứ làm robot cử động: động cơ điện, xi lanh thủy lực, khí nén.</td></tr>
+          <tr><td>Bộ phận tác động cuối</td><td>end effector</td><td>“Bàn tay” của robot: tay kẹp, giác hút, mỏ hàn.</td></tr>
+          <tr><td>Bậc tự do</td><td>degrees of freedom (DOF)</td><td>Số con số độc lập tả hết tư thế của robot.</td></tr>
+          <tr><td>Hệ tọa độ</td><td>coordinate frame</td><td>Gốc và ba trục để biến vị trí thành con số.</td></tr>
+          <tr><td>Động học thuận</td><td>forward kinematics</td><td>Biết góc khớp, tính vị trí bàn tay.</td></tr>
+          <tr><td>Động học ngược</td><td>inverse kinematics (IK)</td><td>Biết vị trí muốn tới, tính góc khớp.</td></tr>
+          <tr><td>Không gian làm việc</td><td>workspace</td><td>Vùng bàn tay robot có thể tới.</td></tr>
+          <tr><td>Ma trận Jacobian</td><td>Jacobian matrix</td><td>Bảng cho biết nhích mỗi khớp thì bàn tay dời theo hướng nào.</td></tr>
+          <tr><td>Điểm kỳ dị</td><td>singularity</td><td>Tư thế mà bàn tay mất khả năng đi theo một vài hướng.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part tint" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(\theta_i\)</td><td>theta sub i</td><td>Góc của khớp thứ i.</td></tr>
+          <tr><td class="sym">\(L_i\)</td><td>L sub i</td><td>Độ dài khâu thứ i.</td></tr>
+          <tr><td class="sym">\(\cos,\ \sin\)</td><td>cosine, sine</td><td>Phần đi ngang, phần đi dọc của một đoạn dài 1 chĩa theo góc θ.</td></tr>
+          <tr><td class="sym">\(\operatorname{atan2}(y,x)\)</td><td>two-argument arctangent</td><td>Góc của điểm (x, y) so với trục x, đúng ở cả bốn góc phần tư.</td></tr>
+          <tr><td class="sym">\(r\)</td><td>r</td><td>Khoảng cách từ đế tới đích.</td></tr>
+          <tr><td class="sym">\(J,\ J^\top\)</td><td>J, J transpose</td><td>Ma trận Jacobian và bản lật hàng thành cột của nó.</td></tr>
+          <tr><td class="sym">\(\alpha\)</td><td>alpha</td><td>Cỡ bước khi dò từng bước.</td></tr>
+          <tr><td class="sym">\(\lVert\mathbf v\rVert\)</td><td>norm of v</td><td>Độ dài của vector v.</td></tr>
+          <tr><td class="sym">\(\leftarrow\)</td><td>is assigned, gets</td><td>Gán giá trị mới.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1920</span><div><h4>Chữ “robot” ra đời</h4><p>Nhà văn Séc Karel Čapek viết vở kịch R.U.R. về những người máy làm công. Chữ “robot” lấy từ <i>robota</i>, tiếng Séc nghĩa là lao dịch.</p></div></li>
+      <li><span class="yr">1940s</span><div><h4>Asimov và “robotics”</h4><p>Isaac Asimov xài chữ <i>robotics</i> trong truyện ngắn đầu thập niên 1940 và đặt ra “ba định luật robot” (1942), ảnh hưởng tới cách người ta nghĩ về robot suốt mấy chục năm.</p></div></li>
+      <li><span class="yr">1955</span><div><h4>Quy ước Denavit–Hartenberg</h4><p>Jacques Denavit và Richard Hartenberg đề ra cách tả mỗi chặng khâu–khớp bằng 4 tham số, nền tảng cho động học robot tới ngày nay.</p></div></li>
+      <li><span class="yr">1961</span><div><h4>Unimate</h4><p>Cánh tay công nghiệp đầu tiên, do George Devol và Joseph Engelberger làm ra, vô làm ở nhà máy General Motors: gắp chi tiết đúc còn nóng, việc vừa nặng vừa nguy hiểm cho người.</p></div></li>
+      <li><span class="yr">1969</span><div><h4>Stanford Arm</h4><p>Victor Scheinman làm cánh tay 6 khớp chạy điện, điều khiển bằng máy tính, mở đường cho các cánh tay hiện đại.</p></div></li>
+      <li><span class="yr">1973</span><div><h4>KUKA Famulus</h4><p>Cánh tay công nghiệp đầu tiên có 6 trục đều chạy bằng động cơ điện, thay cho thủy lực.</p></div></li>
+      <li><span class="yr">1978</span><div><h4>PUMA và SCARA</h4><p>Unimation ra cánh tay PUMA; ở Nhật, nhóm của Hiroshi Makino làm ra kiểu SCARA, cánh tay nằm ngang chuyên gắp đặt linh kiện, đúng kiểu cánh tay trong các minh họa trên trang này.</p></div></li>
+      <li><span class="yr">2000</span><div><h4>ASIMO và da Vinci</h4><p>Honda giới thiệu robot hình người ASIMO đi đứng khá tự nhiên; robot phẫu thuật da Vinci được cơ quan FDA của Mỹ cho phép dùng.</p></div></li>
+      <li><span class="yr">Nay</span><div><h4>Hàng triệu cánh tay</h4><p>Theo Liên đoàn Robot Quốc tế (IFR), hiện có hơn 4 triệu robot công nghiệp đang chạy trong các nhà máy trên thế giới, nhiều nhất ở Trung Quốc, Nhật, Hàn Quốc, Mỹ và Đức.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>K. M. Lynch, F. C. Park, <i>Modern Robotics: Mechanics, Planning, and Control</i>, Cambridge University Press, 2017. Sách và video bài giảng miễn phí tại <a href="http://modernrobotics.org" rel="noopener">modernrobotics.org</a>.</li>
+      <li>J. J. Craig, <i>Introduction to Robotics: Mechanics and Control</i>, 4th ed., Pearson, 2017.</li>
+      <li>B. Siciliano, O. Khatib (eds.), <i>Springer Handbook of Robotics</i>, 2nd ed., Springer, 2016.</li>
+      <li>J. Denavit, R. S. Hartenberg, “A Kinematic Notation for Lower-Pair Mechanisms Based on Matrices”, <i>ASME Journal of Applied Mechanics</i>, 1955.</li>
+      <li>S. R. Buss, “Introduction to Inverse Kinematics with Jacobian Transpose, Pseudoinverse and Damped Least Squares Methods”, ghi chú kỹ thuật, University of California San Diego, 2004.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="index.html"><small>Quay lại</small><b>Robotics</b></a>
+      <a class="next" href="2-dieu-khien.html"><small>Phần 2</small><b>Điều khiển và phản hồi</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

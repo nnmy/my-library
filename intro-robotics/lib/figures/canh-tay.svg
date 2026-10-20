@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-80 0 980 380" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Giải phẫu một cánh tay robot: đế, khâu, khớp xoay, khớp trượt, bộ phận tác động cuối</title>
+  <!-- Tự vẽ, giản lược kiểu cánh tay công nghiệp. My Academia / Robotics. -->
+  <rect x="-80" width="980" height="380" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z" fill="#59606B"/></marker></defs>
+  <!-- mặt đất -->
+  <path d="M40 330H560" stroke="#1B1920" stroke-width="2"/>
+  <g stroke="#9DA4AD" stroke-width="1.2"><path d="M50 342l12-12M80 342l12-12M110 342l12-12M140 342l12-12M170 342l12-12M200 342l12-12M230 342l12-12M260 342l12-12M290 342l12-12M320 342l12-12M350 342l12-12M380 342l12-12M410 342l12-12M440 342l12-12M470 342l12-12M500 342l12-12M530 342l12-12"/></g>
+  <!-- đế -->
+  <rect x="150" y="290" width="100" height="40" fill="#59606B" stroke="#1B1920" stroke-width="2"/>
+  <!-- khâu 1: thẳng đứng -->
+  <path d="M200 290L200 200" stroke="#3787c4" stroke-width="22" stroke-linecap="round"/>
+  <!-- khâu 2 -->
+  <path d="M200 200L360 120" stroke="#7bcde8" stroke-width="20" stroke-linecap="round"/>
+  <!-- khâu 3 -->
+  <path d="M360 120L470 170" stroke="#3787c4" stroke-width="16" stroke-linecap="round"/>
+  <!-- khớp -->
+  <g fill="#f2c230" stroke="#1B1920" stroke-width="2.4">
+    <circle cx="200" cy="290" r="13"/><circle cx="200" cy="200" r="13"/><circle cx="360" cy="120" r="12"/><circle cx="470" cy="170" r="10"/>
+  </g>
+  <!-- tay kẹp -->
+  <g stroke="#1B1920" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M478 176L500 196M500 196L520 190M478 176L492 202M492 202L510 214"/>
+  </g>
+  <!-- chú thích -->
+  <g font-size="12.5">
+    <path d="M110 300H148" stroke="#59606B" marker-end="url(#a)"/><text x="104" y="296" text-anchor="end" font-weight="600">đế</text><text x="104" y="312" text-anchor="end" fill="#59606B">bắt vít xuống sàn</text>
+    <path d="M110 245H184" stroke="#59606B" marker-end="url(#a)"/><text x="104" y="241" text-anchor="end" font-weight="600">khâu</text><text x="104" y="257" text-anchor="end" fill="#59606B">thanh cứng nối hai khớp</text>
+    <path d="M300 260L212 205" stroke="#59606B" marker-end="url(#a)"/><text x="306" y="262" font-weight="600">khớp xoay</text><text x="306" y="278" fill="#59606B">mỗi khớp có một động cơ</text>
+    <path d="M390 70L364 106" stroke="#59606B" marker-end="url(#a)"/><text x="384" y="64" font-weight="600">khớp xoay (khuỷu)</text>
+    <path d="M560 150L520 186" stroke="#59606B" marker-end="url(#a)"/><text x="566" y="146" font-weight="600">bộ phận tác động cuối</text><text x="566" y="162" fill="#59606B">tay kẹp, giác hút, mỏ hàn…</text>
+  </g>
+  <!-- hộp phụ: hai loại khớp -->
+  <rect x="610" y="210" width="270" height="150" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <text x="745" y="232" text-anchor="middle" font-weight="700">Hai loại khớp cơ bản</text>
+  <g>
+    <path d="M640 310L700 280" stroke="#3787c4" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="640" cy="310" r="9" fill="#f2c230" stroke="#1B1920" stroke-width="2"/>
+    <path d="M690 255A55 55 0 0 1 712 300" fill="none" stroke="#d8312a" stroke-width="2" marker-end="url(#a)"/>
+    <text x="672" y="346" text-anchor="middle" font-size="12.5" font-weight="600">khớp xoay</text>
+    <text x="630" y="262" font-size="11.5" fill="#59606B">đổi góc θ</text>
+  </g>
+  <g>
+    <rect x="770" y="296" width="90" height="22" fill="#59606B" stroke="#1B1920" stroke-width="2"/>
+    <rect x="790" y="300" width="50" height="14" fill="#7bcde8" stroke="#1B1920" stroke-width="1.5"/>
+    <path d="M790 276H850" stroke="#d8312a" stroke-width="2" marker-end="url(#a)"/>
+    <text x="815" y="346" text-anchor="middle" font-size="12.5" font-weight="600">khớp trượt</text>
+    <text x="815" y="266" text-anchor="middle" font-size="11.5" fill="#59606B">đổi độ dài d</text>
+  </g>
+  <text x="300" y="30" text-anchor="middle" font-size="13" fill="#59606B">Cánh tay này có 4 khớp xoay, tức 4 bậc tự do (chưa tính tay kẹp).</text>
+</svg>

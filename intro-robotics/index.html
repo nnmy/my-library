@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robotics | My N. Nguyen</title>
+<meta name="description" content="Nhập môn robotics bằng tiếng Việt cho người mới: động học, điều khiển, cảm biến và định vị, tìm đường, robot tự học, mô hình nền tảng cho robot, với các minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-robotics/index.html, trang chủ module Robotics)
+  - Danh sách trang con: mảng PAGES ở cuối file.
+      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
+  - num: số thứ tự, hiện liền trước tiêu đề trên cùng dòng.
+  =====================================================================
+-->
+<style>
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
+  .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
+    border: 2px solid var(--ink); box-shadow: 0 6px 18px rgba(27,25,32,.10); padding: 20px 20px 18px; transition: transform .15s, box-shadow .15s; }
+  a.card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(27,25,32,.16); }
+  .card.soon { box-shadow: 0 4px 12px rgba(27,25,32,.06); border-color: #9DA4AD; color: var(--muted); }
+  .card-body { display: flex; align-items: flex-start; gap: 16px; flex: 1; }
+  .card h3 .num { color: var(--sea); margin-right: 12px; }
+  .card.soon .num { color: var(--muted); }
+  .card h3 { margin: 2px 0 6px; font: 400 30px/1.05 var(--pixel-vi); }
+  .card p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.5; text-align: justify; hyphens: auto; }
+  .page-head .lead { text-align: justify; hyphens: auto; }
+  .grid > li, .card h3 { text-align: left; }
+  .page-head h1 { align-items: flex-start; }
+  .page-head h1 .dot { margin-top: .42em; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
+  .tags li { font-size: 12.5px; padding: 1px 9px; background: var(--mist); border: 1px solid var(--line); color: var(--ink); }
+  .badge { align-self: flex-start; margin-top: 12px; font-size: 12.5px; font-weight: 600; padding: 1px 8px; border: 1px dashed #9DA4AD; }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } a.card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main class="wrap">
+  <header class="page-head">
+    <h1><span class="dot"></span>Robotics</h1>
+    <p class="lead">Nhập môn robotics cho người mới, viết theo giọng miền Nam: robot cử động ra sao, giữ thăng bằng nhờ vòng phản hồi, biết mình đang ở đâu, tự tìm đường, tự học từ thử và sai, tới các mô hình nền tảng điều khiển robot hiện nay (2026). Mỗi phần đi kèm minh họa tương tác chạy ngay trên trình duyệt, và nối qua module <a href="../intro-ai/index.html">AI</a> ở những chỗ hai bên gặp nhau.</p>
+  </header>
+
+  <ul class="grid" id="pages"></ul>
+
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script>
+/* =====================================================================
+   EDIT: danh sách trang con
+   ===================================================================== */
+const PAGES = [
+  {
+    num: '1', name: 'Robot cử động ra sao', href: '1-dong-hoc.html', done: true,
+    desc: 'Khớp, khâu, bậc tự do, hệ tọa độ, động học thuận và động học ngược.',
+    tags: ['Bậc tự do', 'Động học thuận', 'Động học ngược'],
+  },
+  {
+    num: '2', name: 'Điều khiển và phản hồi', href: '2-dieu-khien.html', done: true,
+    desc: 'Vòng phản hồi, bộ điều khiển PID, vọt lố, dao động và ổn định.',
+    tags: ['Phản hồi', 'PID', 'Ổn định'],
+  },
+  {
+    num: '3', name: 'Cảm biến và định vị', href: '3-dinh-vi.html', done: true,
+    desc: 'Encoder, IMU, lidar, camera, nhiễu, bộ lọc Kalman, bộ lọc hạt và SLAM.',
+    tags: ['Kalman', 'Bộ lọc hạt', 'SLAM'],
+  },
+  {
+    num: '4', name: 'Tìm đường', href: '4-tim-duong.html', done: true,
+    desc: 'Không gian cấu hình, A*, RRT, tránh vật cản.',
+    tags: ['A*', 'RRT', 'Vật cản'],
+  },
+  {
+    num: '5', name: 'Robot tự học', href: '5-tu-hoc.html', done: true,
+    desc: 'Học bắt chước, học tăng cường, mô phỏng rồi chuyển qua đời thật.',
+    tags: ['Bắt chước', 'Học tăng cường', 'Sim-to-real'],
+  },
+  {
+    num: '6', name: 'Mô hình nền tảng cho robot', href: '6-mo-hinh-nen-tang.html', done: true,
+    desc: 'Mô hình thị giác–ngôn ngữ–hành động (VLA), robot hình người, world model.',
+    tags: ['VLA', 'Humanoid', 'World model'],
+  },
+];
+
+const list = document.getElementById('pages');
+PAGES.forEach(p => {
+  const li = document.createElement('li');
+  const card = document.createElement(p.done ? 'a' : 'div');
+  card.className = 'card' + (p.done ? '' : ' soon');
+  if (p.done) card.href = p.href; else card.setAttribute('aria-disabled', 'true');
+  const body = document.createElement('div'); body.className = 'card-body';
+  const text = document.createElement('div');
+  const h = document.createElement('h3');
+  const num = document.createElement('span'); num.className = 'num'; num.textContent = p.num;
+  h.append(num, document.createTextNode(p.name));   // số phần + tiêu đề trên cùng một dòng
+  const d = document.createElement('p'); d.textContent = p.desc;
+  text.append(h, d);
+  body.append(text);
+  const tags = document.createElement('ul'); tags.className = 'tags';
+  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body, tags);
+  if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
+  li.appendChild(card); list.appendChild(li);
+});
+</script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
