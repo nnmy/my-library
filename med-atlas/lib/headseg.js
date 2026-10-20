@@ -251,15 +251,61 @@ function unframe(m, dims, fr) {
 
 /* ---------------- 5. mạng ---------------- */
 let session = null, backend = '';
-async function loadModel(url, progress) {
-  if (session) return session;
-  ort.env.wasm.wasmPaths = new URL(S.cfg.ort, location.href).href;      // phải là URL đầy đủ (import động)
-  ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(8, navigator.hardwareConcurrency || 4) : 1;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Không tải được mô hình ${url} (HTTP ${res.status}). Xem README-head-seg.md để tạo file này.`);
-  const total = +res.headers.get('content-length') || 0, rd = res.body.getReader(), parts = []; let got = 0;
-  for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; if (total) progress(got / total); }
+/* File lớn có hai dạng: nguyên file (dùng trên máy), hoặc các phần nhỏ <= 20 MB trong thư mục khác
+   (tools/split_large_files.py; cho nơi giới hạn dung lượng mỗi file). Tìm nguyên file trước, không có thì ghép các phần. */
+async function readBody(res, onBytes) {
+  const rd = res.body.getReader(), parts = []; let got = 0;
+  for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; onBytes(value.length); }
   const buf = new Uint8Array(got); let o = 0; parts.forEach(p => { buf.set(p, o); o += p.length; });
+  return buf;
+}
+const exists = url => fetch(url, { method: 'HEAD' }).then(r => r.ok, () => false);
+async function fetchBig(src, progress) {
+  const whole = await fetch(src.file).catch(() => null);
+  if (whole && whole.ok) {
+    const total = +whole.headers.get('content-length') || 0; let got = 0;
+    return readBody(whole, k => { got += k; if (total) progress(got / total); });
+  }
+  const mres = await fetch(src.split).catch(() => null);
+  if (!mres || !mres.ok) throw new Error(`Không tìm thấy ${src.file} hay các phần của nó (${src.split}). Xem README-head-seg.md.`);
+  const man = await mres.json(), base = new URL(src.split, location.href), out = new Uint8Array(man.size);
+  let got = 0, off = 0;
+  const offs = man.parts.map(p => { const o = off; off += p.size; return o; });
+  await Promise.all(man.parts.map(async (p, i) => {
+    const r = await fetch(new URL(p.file, base));
+    if (!r.ok) throw new Error(`Thiếu phần ${p.file} (HTTP ${r.status}).`);
+    const b = await readBody(r, k => { got += k; progress(got / man.size); });
+    if (b.length !== p.size) throw new Error(`Phần ${p.file} có ${b.length} byte, cần ${p.size}.`);
+    out.set(b, offs[i]);
+  }));
+  const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', out))].map(x => x.toString(16).padStart(2, '0')).join('');
+  if (hash !== man.sha256) throw new Error(`Ghép các phần của ${man.name} không khớp (SHA-256 sai). Hãy chạy lại tools/split_large_files.py.`);
+  return out;
+}
+/* nạp onnxruntime-web (ort.webgpu.min.js) từ thư mục đầu tiên trong cfg.ort có nó; trả về thư mục đó
+   (file .mjs đi kèm phải nằm cùng thư mục). Thư mục -split có sẵn bản sao các file nhỏ này. */
+let ortDir = null;
+async function loadOrt() {
+  if (ortDir) return ortDir;
+  for (const dir of S.cfg.ort) {
+    const ok = await new Promise(res => {
+      const s = document.createElement('script');
+      s.src = dir + 'ort.webgpu.min.js'; s.onload = () => res(true); s.onerror = () => { s.remove(); res(false); };
+      document.head.appendChild(s);
+    });
+    if (ok && window.ort) return (ortDir = dir);
+  }
+  throw new Error(`Không tìm thấy onnxruntime-web (ort.webgpu.min.js) trong ${S.cfg.ort.join(' hay ')}.`);
+}
+async function loadModel(progress) {
+  if (session) return session;
+  const dir = await loadOrt();
+  ort.env.wasm.wasmPaths = new URL(dir, location.href).href;            // phải là URL đầy đủ (import động)
+  ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(8, navigator.hardwareConcurrency || 4) : 1;
+  // bộ chạy WebAssembly: nguyên file trong thư mục onnxruntime-web; không có thì ghép các phần và giao thẳng cho onnxruntime
+  const W = { file: dir + S.cfg.ortWasm.name, split: S.cfg.ortWasm.split };
+  if (!(await exists(W.file))) ort.env.wasm.wasmBinary = (await fetchBig(W, f => progress(0.2 * f))).buffer;
+  const buf = await fetchBig(S.cfg.model, f => progress(0.2 + 0.8 * f));
   // GPU (WebGPU) nếu có; không thì CPU (WebAssembly) chạy trong worker riêng (proxy) để trang không bị đứng
   let gpu = false;
   if ('gpu' in navigator) { try { gpu = !!(await navigator.gpu.requestAdapter()); } catch (e) { gpu = false; } }
@@ -345,7 +391,7 @@ async function run() {
     const [X, Y, Z] = c1.dims, fr = frameOf(Y, X);
     const u1 = toU8(frame(c1, fr)), u2 = toU8(frame(c2r, fr));
     step('model', 0);
-    await loadModel(S.cfg.model, f => step('model', f));
+    await loadModel(f => step('model', f));
     step('infer', 0);
     const lab = await infer(u1, u2, Z, f => step('infer', f));
     step('out');
