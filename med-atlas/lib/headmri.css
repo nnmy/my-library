@@ -1,0 +1,54 @@
+/* =====================================================================
+   Trình xem MRI đầu: mô và độ dẫn điện (head-mri.html). Dùng chung atlas.css; file này chỉ thêm phần riêng.
+   ===================================================================== */
+/* bốn ảnh 2 × 2, vuông; bề rộng giới hạn theo chiều cao màn hình để cả bốn ảnh cùng nằm trên màn hình */
+.hm-films { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: var(--ink);
+  width: min(100%, max(380px, calc(100svh - var(--nav-h) - 210px))); margin: 0 auto; }
+.hm-films .film { aspect-ratio: 1 / 1; }
+.hm-films .film .tag { font-size: 24px; }
+.hm-films .loader { grid-column: 1 / -1; }
+
+/* ô màu nhỏ cạnh tên mô */
+.hm-sw { display: inline-block; width: 11px; height: 11px; border: 1px solid rgba(0,0,0,.55); margin-right: 6px; vertical-align: -1px; flex: none; }
+.readout-strip .hm-sw { border-color: #DCE3EA; }
+
+/* dải mật độ của mô được chọn: một ô mỗi lát */
+.hm-strip { padding: 8px 14px 6px; background: var(--ink); color: #DCE3EA; font-size: 13.5px; border-top: 1px solid #3a3742; }
+.hm-strip-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; margin-bottom: 4px; text-align: left; }
+.hm-strip-head b { color: #fff; }
+.hm-strip .q { color: #A9B4C0; }
+.hm-strip svg { display: block; width: 100%; height: 18px; cursor: pointer; touch-action: none; }
+.hm-strip svg:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.hm-strip svg .bg { fill: none; stroke: #6b7280; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.hm-strip svg .cells rect { fill: rgb(236, 72, 153); }
+.hm-strip svg .now { fill: #f2c230; }
+.hm-strip-ticks { display: flex; justify-content: space-between; font: 12px var(--mono); color: #A9B4C0; }
+.hm-clear { font: 600 13px var(--body); color: #f9a8d4; background: transparent; border: 1px solid #f9a8d4; padding: 1px 8px; cursor: pointer; }
+.hm-clear:hover { background: #f9a8d4; color: var(--ink); }
+
+/* khung thông tin: điểm khóa + bảng Các mô */
+.info .hm-at { margin: 6px 0 10px; color: var(--ink); }
+.info h4.hm-th { font: 700 15px var(--body); margin: 20px 0 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.hm-table { width: 100%; border-collapse: collapse; font-size: 13.5px; line-height: 1.3; }
+.hm-table th { font-weight: 600; font-size: 12.5px; color: var(--muted); text-align: right; padding: 3px 4px; border-bottom: 1.5px solid var(--ink); white-space: nowrap; }
+.hm-table th:first-child, .hm-table td:first-child { text-align: left; }
+.hm-table td { padding: 4px 4px; text-align: right; font-family: var(--mono); font-size: 12.5px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.hm-table td:first-child { font-family: var(--body); font-size: 13.5px; font-weight: 600; white-space: normal; }
+.hm-table td small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; padding-left: 17px; }
+.hm-table tbody tr { cursor: pointer; }
+.hm-table tbody tr:hover td { background: rgba(236, 72, 153, .08); }
+.hm-table tbody tr.sel td { background: rgba(236, 72, 153, .18); }
+.hm-table tbody tr:focus-visible { outline: 2px solid var(--sea); outline-offset: -2px; }
+.hm-tnote { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; text-align: left !important; }
+
+.ctl .inline .sublab { font-size: 13px; color: var(--muted); white-space: nowrap; }
+@media (max-width: 700px) {
+  .hm-films { width: 100%; }
+  .hm-films .film .tag { font-size: 20px; }
+  .hm-strip { font-size: 12.5px; padding: 6px 10px; }
+}
+
+/* ba ảnh một hàng (head-seg.html: T1 | T2 | Mô) */
+.hm-films.hm-three { grid-template-columns: repeat(3, 1fr); width: 100%; }
+.info p.hm-row { font-size: 14.5px; line-height: 1.55; margin: 8px 0 0; }
+.info p.hm-row b { font-weight: 700; }

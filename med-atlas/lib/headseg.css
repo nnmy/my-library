@@ -1,0 +1,34 @@
+/* =====================================================================
+   Trang phân vùng mô đầu (head-seg.html): ô chọn file, các bước, kết quả. Trình xem dùng atlas.css + headmri.css.
+   ===================================================================== */
+.hs-box { background: #fff; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--sky); padding: 18px 20px 20px; margin-bottom: 28px; }
+.hs-files { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.hs-drop { position: relative; display: block; border: 2px dashed #9DB3C2; padding: 14px 16px; cursor: pointer; background: var(--paper); text-align: left; }
+.hs-drop:hover, .hs-drop.over { border-color: var(--sea); background: var(--mist); }
+.hs-drop.has { border-style: solid; border-color: var(--sea); }
+.hs-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.hs-drop:focus-within { outline: 3px solid var(--sea); outline-offset: 2px; }
+.hs-drop b { display: block; font: 400 30px/1 var(--pixel-vi); }
+.hs-drop .hs-hint { display: block; font-size: 13.5px; color: var(--muted); margin-top: 4px; }
+.hs-drop .hs-name { display: block; font: 13.5px var(--mono); margin-top: 8px; color: var(--ink); word-break: break-all; }
+.hs-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; }
+.hs-actions .btn { padding: 8px 18px; font-size: 15px; }
+.hs-actions small { color: var(--muted); font-size: 13.5px; }
+.hs-msg { margin: 14px 0 0; padding: 10px 14px; font-size: 14.5px; text-align: left !important; }
+.hs-msg.err { background: #FBEDEB; border-left: 3px solid var(--pos); }
+.hs-steps { list-style: none; margin: 14px 0 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; }
+.hs-steps li { position: relative; display: flex; justify-content: space-between; gap: 4px; padding: 3px 6px; overflow: hidden;
+  font-size: 12px; line-height: 1.3; color: var(--muted); background: var(--mist); border: 1px solid var(--line); white-space: nowrap; text-align: left; }
+.hs-steps li::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 0; background: var(--sky); opacity: .55; }
+.hs-steps li > span { position: relative; overflow: hidden; text-overflow: ellipsis; }
+.hs-steps li.now { color: var(--ink); font-weight: 600; border-color: var(--sea); }
+.hs-steps li.now::before { width: calc(var(--p, 0) * 100%); transition: width .2s; }
+.hs-steps li.done { color: #fff; background: var(--sea); border-color: var(--sea); }
+.hs-steps .hs-p { font: 11px var(--mono); flex: none; }
+.hs-out { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 12px; font-size: 14px; }
+.hs-out p { margin: 0; text-align: left; }
+.hs-links { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0; padding: 0; list-style: none; }
+.hs-links li { text-align: left; white-space: nowrap; }
+.hs-links a { font-weight: 600; }
+.hs-links span { color: var(--muted); font-size: 12px; margin-left: 4px; }
+@media (max-width: 700px) { .hs-files { grid-template-columns: 1fr; } .hs-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
