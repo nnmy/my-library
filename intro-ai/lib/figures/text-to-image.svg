@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 330" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13.5" fill="#1B1920">
+  <title>Quy trình text-to-image kiểu latent diffusion (Stable Diffusion)</title>
+  <!-- Tự vẽ, giản lược theo Rombach et al. 2022 (Hình 3). My Academia / AI. -->
+  <rect width="900" height="330" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <g text-anchor="middle">
+    <!-- prompt -->
+    <rect x="20" y="30" width="170" height="54" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+    <text x="105" y="53" font-style="italic">"một con mèo ngồi</text><text x="105" y="72" font-style="italic">trước ngôi nhà"</text>
+    <path d="M192 57H232" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="235" y="32" width="150" height="50" fill="#7bcde8" stroke="#1B1920" stroke-width="2"/>
+    <text x="310" y="54" font-weight="700">Text encoder</text><text x="310" y="72" font-size="12">CLIP / T5 (đóng băng)</text>
+    <path d="M387 57H430" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <g stroke="#1B1920" fill="#DCEFF8"><rect x="434" y="40" width="14" height="34"/><rect x="450" y="40" width="14" height="34"/><rect x="466" y="40" width="14" height="34"/><rect x="482" y="40" width="14" height="34"/><rect x="498" y="40" width="14" height="34"/></g>
+    <text x="474" y="95" font-size="12">embedding token (K, V)</text>
+    <path d="M474 102V150" stroke="#3787c4" stroke-width="2.5" stroke-dasharray="6 4" marker-end="url(#a)"/>
+    <text x="545" y="132" font-size="12" fill="#3787c4" text-anchor="start">cross-attention</text>
+
+    <!-- nhiễu ẩn -->
+    <rect x="40" y="180" width="70" height="70" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+    <g fill="#9DA4AD"><rect x="46" y="186" width="12" height="12"/><rect x="70" y="190" width="12" height="12" fill="#59606B"/><rect x="92" y="200" width="12" height="12"/><rect x="52" y="212" width="12" height="12" fill="#C9CED6"/><rect x="80" y="222" width="12" height="12" fill="#59606B"/><rect x="48" y="232" width="12" height="12"/></g>
+    <text x="75" y="270">nhiễu z_T</text><text x="75" y="287" font-size="12" fill="#59606B">64×64×4</text>
+    <path d="M112 215H162" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <!-- vòng lặp khử nhiễu -->
+    <rect x="165" y="155" width="560" height="120" fill="#EEF6FA" stroke="#1B1920" stroke-width="2.5"/>
+    <text x="260" y="300" font-size="12.5" fill="#59606B">lặp 20–50 bước (DDIM, DPM-Solver…)</text>
+    <path d="M190 190L250 205V225L190 240Z" fill="#f2c230" stroke="#1B1920" stroke-width="1.5"/>
+    <path d="M250 205H320V225H250" fill="none" stroke="#1B1920" stroke-width="1.5"/>
+    <rect x="320" y="195" width="300" height="40" fill="#f2c230" stroke="#1B1920" stroke-width="2"/>
+    <text x="470" y="212" font-weight="700">U-Net hoặc DiT: đoán nhiễu ε</text>
+    <text x="470" y="228" font-size="12">conv / self-attn / cross-attn với chữ</text>
+    <path d="M620 215H690" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <text x="660" y="205" font-size="12">zₜ → zₜ₋₁</text>
+    <path d="M700 230V262H180V240" fill="none" stroke="#1B1920" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#a)"/>
+    <path d="M727 215H770" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <!-- giải mã -->
+    <path d="M773 190L823 175V255L773 240Z" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="798" y="220" font-weight="700" font-size="12">VAE</text>
+    <text x="798" y="272" font-size="12">decoder</text>
+    <path d="M825 215H845" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="848" y="190" width="44" height="50" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/>
+    <text x="870" y="260" font-size="12">ảnh</text><text x="868" y="276" font-size="11" fill="#59606B">512²×3</text>
+  </g>
+</svg>

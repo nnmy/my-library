@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Một khối Mamba: chiếu tuyến tính, tích chập 1D, SSM chọn lọc, cổng nhân, chiếu xuống</title>
+  <!-- Tự vẽ, giản lược theo Gu &amp; Dao 2023 (Hình 3). My Academia / AI. -->
+  <rect width="760" height="470" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <g text-anchor="middle">
+    <!-- input -->
+    <rect x="180" y="420" width="140" height="32" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/><text x="250" y="441">chuỗi vector vô</text>
+    <path d="M250 418V392" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="160" y="356" width="180" height="34" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="250" y="378">Linear (nở rộng ×2)</text>
+    <!-- split -->
+    <path d="M200 354V330H140V312" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <path d="M300 354V330H360V266" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <!-- left branch -->
+    <rect x="70" y="276" width="140" height="34" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/><text x="140" y="298">Conv1d nhân quả</text>
+    <path d="M140 274V256" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="90" y="222" width="100" height="32" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="140" y="243">SiLU</text>
+    <path d="M140 220V200" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="60" y="150" width="160" height="48" fill="#FBE4CF" stroke="#1B1920" stroke-width="2.5"/><text x="140" y="172" font-weight="700">SSM chọn lọc</text><text x="140" y="189" font-size="11.5">Δ, B, C tính từ đầu vào</text>
+    <!-- right branch -->
+    <rect x="310" y="232" width="100" height="32" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="360" y="253">SiLU</text>
+    <!-- multiply -->
+    <path d="M140 148V120H232" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <path d="M360 230V120H268" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <circle cx="250" cy="120" r="16" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="250" y="126" font-size="18">×</text>
+    <path d="M250 102V86" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="160" y="50" width="180" height="34" fill="#fff" stroke="#1B1920" stroke-width="2"/><text x="250" y="72">Linear (thu nhỏ lại)</text>
+    <path d="M250 48V22" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <text x="250" y="14">ra (cộng với đường tắt, qua khối kế tiếp)</text>
+  </g>
+  <!-- annotations -->
+  <g font-size="12.5">
+    <path d="M440 293H226" stroke="#9DA4AD" stroke-dasharray="3 3"/>
+    <text x="448" y="289" font-weight="600">Trộn vài token kề nhau</text>
+    <text x="448" y="306" fill="#59606B">như một “kính lúp” nhìn 4 chữ gần nhất.</text>
+    <path d="M440 174H222" stroke="#9DA4AD" stroke-dasharray="3 3"/>
+    <text x="448" y="170" font-weight="600">Trái tim của Mamba</text>
+    <text x="448" y="187" fill="#59606B">trạng thái h chạy dọc chuỗi, quyết định</text>
+    <text x="448" y="203" fill="#59606B">ghi gì, quên gì cho từng token.</text>
+    <path d="M440 248H412" stroke="#9DA4AD" stroke-dasharray="3 3"/>
+    <text x="448" y="244" font-weight="600">Nhánh cổng</text>
+    <text x="448" y="261" fill="#59606B">quyết định cho bao nhiêu kết quả đi qua.</text>
+    <path d="M440 92L264 112" stroke="#9DA4AD" stroke-dasharray="3 3"/>
+    <text x="448" y="88" font-weight="600">Nhân từng phần tử</text>
+    <text x="448" y="105" fill="#59606B">cổng gần 0 thì chặn, gần 1 thì cho qua.</text>
+  </g>
+</svg>

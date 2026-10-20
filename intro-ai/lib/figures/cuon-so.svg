@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 360" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Ba cách nhớ khi đọc một câu chuyện dài: Transformer, RNN và Mamba</title>
+  <!-- Tự vẽ. My Academia / AI. -->
+  <rect width="960" height="360" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker>
+  <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z" fill="#9DA4AD"/></marker></defs>
+  <g stroke="#1B1920" stroke-width="2" fill="none"><path d="M320 20V340M640 20V340" stroke="#DCE6EC"/></g>
+  <text x="160" y="36" text-anchor="middle" font-weight="700" font-size="16">Transformer</text>
+  <text x="160" y="56" text-anchor="middle" fill="#59606B">giữ lại bản chụp của mọi trang</text>
+  <rect x="30" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M35 88H55" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M35 97H55" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M35 106H55" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="45" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">1</text>
+  <rect x="68" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M73 88H93" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M73 97H93" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M73 106H93" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="83" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">2</text>
+  <rect x="106" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M111 88H131" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M111 97H131" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M111 106H131" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="121" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">3</text>
+  <rect x="144" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M149 88H169" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M149 97H169" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M149 106H169" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="159" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">4</text>
+  <rect x="182" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M187 88H207" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M187 97H207" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M187 106H207" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="197" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">5</text>
+  <rect x="220" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M225 88H245" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M225 97H245" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M225 106H245" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="235" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">6</text>
+  <rect x="258" y="78" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M263 88H283" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M263 97H283" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M263 106H283" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="273" y="134" text-anchor="middle" font-size="10.5" fill="#59606B">7</text>
+  <rect x="30" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M35 160H55" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M35 169H55" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M35 178H55" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="45" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">8</text>
+  <rect x="68" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M73 160H93" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M73 169H93" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M73 178H93" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="83" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">9</text>
+  <rect x="106" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M111 160H131" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M111 169H131" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M111 178H131" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="121" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">10</text>
+  <rect x="144" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M149 160H169" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M149 169H169" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M149 178H169" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="159" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">11</text>
+  <rect x="182" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M187 160H207" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M187 169H207" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M187 178H207" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="197" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">12</text>
+  <rect x="220" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M225 160H245" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M225 169H245" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M225 178H245" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="235" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">13</text>
+  <rect x="258" y="150" width="30" height="40" fill="#fff" stroke="#1B1920" stroke-width="1.5"/>
+  <path d="M263 160H283" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M263 169H283" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M263 178H283" stroke="#9DA4AD" stroke-width="1.5"/>
+  <text x="273" y="206" text-anchor="middle" font-size="10.5" fill="#59606B">14</text>
+  <text x="160" y="248" text-anchor="middle" font-size="22" fill="#59606B">… còn nữa</text>
+  <g text-anchor="middle"><text x="160" y="284" font-size="12.5">Nhớ đủ hết, tra lại chỗ nào cũng được.</text>
+  <text x="160" y="302" font-size="12.5">Mà đọc càng dài, chồng giấy càng bự</text>
+  <text x="160" y="320" font-size="12.5">và mỗi chữ mới phải so với mọi chữ cũ.</text></g>
+  <text x="480" y="36" text-anchor="middle" font-weight="700" font-size="16">RNN</text>
+  <text x="480" y="56" text-anchor="middle" fill="#59606B">một tờ giấy nhỏ, ghi đè liên tục</text>
+  <rect x="420" y="96" width="120" height="140" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <path d="M432 114h75" stroke="#1B1920" stroke-width="1.7926409106271657" opacity="0.25"/>
+  <path d="M436 118h48" stroke="#59606B" stroke-width="1" opacity="0.20"/>
+  <path d="M432 127h83" stroke="#1B1920" stroke-width="2.115944811730981" opacity="0.32"/>
+  <path d="M436 131h70" stroke="#59606B" stroke-width="1" opacity="0.26"/>
+  <path d="M432 140h64" stroke="#1B1920" stroke-width="1.8055995301393268" opacity="0.39"/>
+  <path d="M436 144h70" stroke="#59606B" stroke-width="1" opacity="0.32"/>
+  <path d="M432 153h76" stroke="#1B1920" stroke-width="1.7507846417600732" opacity="0.46"/>
+  <path d="M436 157h52" stroke="#59606B" stroke-width="1" opacity="0.38"/>
+  <path d="M432 166h90" stroke="#1B1920" stroke-width="1.7409738856290389" opacity="0.53"/>
+  <path d="M436 170h75" stroke="#59606B" stroke-width="1" opacity="0.44"/>
+  <path d="M432 179h90" stroke="#1B1920" stroke-width="1.5971345770289609" opacity="0.60"/>
+  <path d="M436 183h49" stroke="#59606B" stroke-width="1" opacity="0.50"/>
+  <path d="M432 192h74" stroke="#1B1920" stroke-width="1.8348606582851885" opacity="0.67"/>
+  <path d="M436 196h73" stroke="#59606B" stroke-width="1" opacity="0.56"/>
+  <path d="M432 205h84" stroke="#1B1920" stroke-width="1.9412518562014902" opacity="0.74"/>
+  <path d="M436 209h82" stroke="#59606B" stroke-width="1" opacity="0.62"/>
+  <path d="M432 218h64" stroke="#1B1920" stroke-width="1.3593999397622811" opacity="0.81"/>
+  <path d="M436 222h77" stroke="#59606B" stroke-width="1" opacity="0.68"/>
+  <text x="480" y="84" text-anchor="middle" font-size="11.5" fill="#d8312a">chữ cũ bị viết chồng lên, mờ dần</text>
+  <g text-anchor="middle"><text x="480" y="284" font-size="12.5">Nhẹ hều, bộ nhớ cố định.</text>
+  <text x="480" y="302" font-size="12.5">Mà hay quên đoạn đầu, và phải đọc</text>
+  <text x="480" y="320" font-size="12.5">từng chữ một nên huấn luyện chậm.</text></g>
+  <text x="800" y="36" text-anchor="middle" font-weight="700" font-size="16">Mamba</text>
+  <text x="800" y="56" text-anchor="middle" fill="#59606B">sổ tay có chọn lọc</text>
+  <rect x="664" y="82" width="44" height="19" fill="#fff" stroke="#B9C1CA" stroke-width="1.3"/>
+  <text x="686" y="96" text-anchor="middle" font-size="12" fill="#9DA4AD">ờ</text>
+  <path d="M710 91h26" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#g)"/>
+  <rect x="664" y="104" width="44" height="19" fill="#fff" stroke="#B9C1CA" stroke-width="1.3"/>
+  <text x="686" y="118" text-anchor="middle" font-size="12" fill="#9DA4AD">thì</text>
+  <path d="M710 113h26" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#g)"/>
+  <rect x="664" y="126" width="44" height="19" fill="#F6E3B0" stroke="#1B1920" stroke-width="1.3"/>
+  <text x="686" y="140" text-anchor="middle" font-size="12" font-weight="700">Lan</text>
+  <path d="M710 135C760 135 760 150 812 150" fill="none" stroke="#1B1920" stroke-width="1.8" marker-end="url(#a)"/>
+  <rect x="664" y="148" width="44" height="19" fill="#fff" stroke="#B9C1CA" stroke-width="1.3"/>
+  <text x="686" y="162" text-anchor="middle" font-size="12" fill="#9DA4AD">ừm</text>
+  <path d="M710 157h26" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#g)"/>
+  <rect x="664" y="170" width="44" height="19" fill="#fff" stroke="#B9C1CA" stroke-width="1.3"/>
+  <text x="686" y="184" text-anchor="middle" font-size="12" fill="#9DA4AD">ở</text>
+  <path d="M710 179h26" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#g)"/>
+  <rect x="664" y="192" width="44" height="19" fill="#F6E3B0" stroke="#1B1920" stroke-width="1.3"/>
+  <text x="686" y="206" text-anchor="middle" font-size="12" font-weight="700">Huế</text>
+  <path d="M710 201C760 201 760 150 812 150" fill="none" stroke="#1B1920" stroke-width="1.8" marker-end="url(#a)"/>
+  <rect x="664" y="214" width="44" height="19" fill="#fff" stroke="#B9C1CA" stroke-width="1.3"/>
+  <text x="686" y="228" text-anchor="middle" font-size="12" fill="#9DA4AD">nha</text>
+  <path d="M710 223h26" stroke="#9DA4AD" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#g)"/>
+  <text x="738" y="252" font-size="11" fill="#59606B">bỏ qua</text>
+  <rect x="816" y="100" width="120" height="130" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+  <circle cx="816" cy="114" r="4" fill="#FBFCFD" stroke="#1B1920" stroke-width="1.3"/>
+  <circle cx="816" cy="138" r="4" fill="#FBFCFD" stroke="#1B1920" stroke-width="1.3"/>
+  <circle cx="816" cy="162" r="4" fill="#FBFCFD" stroke="#1B1920" stroke-width="1.3"/>
+  <circle cx="816" cy="186" r="4" fill="#FBFCFD" stroke="#1B1920" stroke-width="1.3"/>
+  <circle cx="816" cy="210" r="4" fill="#FBFCFD" stroke="#1B1920" stroke-width="1.3"/>
+  <text x="876" y="134" text-anchor="middle" font-weight="700" fill="#3787c4">Lan</text>
+  <text x="876" y="160" text-anchor="middle" font-weight="700" fill="#3787c4">Huế</text>
+  <path d="M836 184h80M836 200h60" stroke="#DCE6EC" stroke-width="2"/>
+  <text x="876" y="252" text-anchor="middle" font-size="11" fill="#59606B">số trang cố định</text>
+  <g text-anchor="middle"><text x="800" y="284" font-size="12.5">Bộ nhớ cố định như RNN, nhưng tự</text>
+  <text x="800" y="302" font-size="12.5">quyết chữ nào đáng ghi, chữ nào bỏ qua.</text>
+  <text x="800" y="320" font-size="12.5">Huấn luyện song song được.</text></g>
+</svg>

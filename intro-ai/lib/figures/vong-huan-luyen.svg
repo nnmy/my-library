@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 248" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Vòng huấn luyện: đoán, chấm điểm, truy lỗi ngược, chỉnh trọng số</title>
+  <!-- Tự vẽ. My Academia / AI. -->
+  <rect width="900" height="248" fill="#FBFCFD"/>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#d8312a"/></marker>
+  </defs>
+  <g text-anchor="middle">
+    <rect x="20" y="40" width="190" height="100" fill="#DCEFF8" stroke="#1B1920" stroke-width="2"/>
+    <text x="115" y="68" font-weight="700" font-size="15">1. Đoán</text>
+    <text x="115" y="90">ảnh đi xuyên qua mạng</text>
+    <text x="115" y="108">từ trái qua phải</text>
+    <text x="115" y="128" font-size="11.5" fill="#59606B">lan truyền tới (forward)</text>
+
+    <rect x="243" y="40" width="190" height="100" fill="#F6E3B0" stroke="#1B1920" stroke-width="2"/>
+    <text x="338" y="68" font-weight="700" font-size="15">2. Chấm điểm</text>
+    <text x="338" y="90">so với đáp án đúng,</text>
+    <text x="338" y="108">sai nhiều thì điểm phạt cao</text>
+    <text x="338" y="128" font-size="11.5" fill="#59606B">hàm mất mát (loss)</text>
+
+    <rect x="466" y="40" width="190" height="100" fill="#F6D6D2" stroke="#1B1920" stroke-width="2"/>
+    <text x="561" y="68" font-weight="700" font-size="15">3. Truy lỗi ngược</text>
+    <text x="561" y="90">mỗi trọng số “gánh”</text>
+    <text x="561" y="108">bao nhiêu phần lỗi?</text>
+    <text x="561" y="128" font-size="11.5" fill="#59606B">lan truyền ngược (backprop)</text>
+
+    <rect x="689" y="40" width="190" height="100" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/>
+    <text x="784" y="68" font-weight="700" font-size="15">4. Chỉnh nhẹ</text>
+    <text x="784" y="90">đẩy mỗi trọng số một chút</text>
+    <text x="784" y="108">về phía làm lỗi giảm</text>
+    <text x="784" y="128" font-size="11.5" fill="#59606B">gradient descent</text>
+  </g>
+  <path d="M212 90H239" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M435 90H462" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M658 90H685" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M784 142C784 215 115 215 115 146" fill="none" stroke="#1B1920" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#a)"/>
+  <text x="450" y="232" text-anchor="middle" font-weight="600">lặp lại với ảnh khác, hàng ngàn tới hàng triệu lần</text>
+</svg>

@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="14" fill="#1B1920">
+  <title>Sơ đồ GAN: generator và discriminator</title>
+  <!-- Tự vẽ, giản lược theo Goodfellow et al. 2014. My Academia / AI. -->
+  <rect width="860" height="300" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <g text-anchor="middle">
+    <!-- nhiễu z -->
+    <g transform="translate(30,170)">
+      <rect width="70" height="70" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+      <g fill="#9DA4AD"><rect x="6" y="6" width="10" height="10"/><rect x="30" y="6" width="10" height="10" fill="#59606B"/><rect x="50" y="18" width="10" height="10"/><rect x="18" y="20" width="10" height="10" fill="#C9CED6"/><rect x="40" y="34" width="10" height="10" fill="#59606B"/><rect x="8" y="42" width="10" height="10"/><rect x="26" y="52" width="10" height="10" fill="#C9CED6"/><rect x="52" y="52" width="10" height="10"/></g>
+    </g>
+    <text x="65" y="262">nhiễu z ~ N(0, I)</text>
+    <path d="M102 205H152" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <!-- G: hình thang mở rộng -->
+    <path d="M155 180L255 160V250L155 230Z" fill="#7bcde8" stroke="#1B1920" stroke-width="2"/>
+    <text x="205" y="210" font-weight="700" font-size="20">G</text>
+    <text x="205" y="280">Generator</text>
+    <path d="M257 205H300" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <!-- ảnh giả -->
+    <rect x="303" y="170" width="70" height="70" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="338" y="211" font-size="12">G(z)</text>
+    <text x="338" y="262">ảnh giả</text>
+    <!-- ảnh thật -->
+    <rect x="303" y="40" width="70" height="70" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/>
+    <text x="338" y="81" font-size="12">x</text>
+    <text x="338" y="30">ảnh thật (dữ liệu)</text>
+    <path d="M375 75C420 75 430 140 470 150" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <path d="M375 205C420 205 430 170 470 162" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <!-- D: hình thang thu hẹp -->
+    <path d="M475 110L575 135V180L475 205Z" fill="#f2c230" stroke="#1B1920" stroke-width="2"/>
+    <text x="520" y="164" font-weight="700" font-size="20">D</text>
+    <text x="520" y="232">Discriminator</text>
+    <path d="M577 157H620" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="623" y="137" width="120" height="40" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+    <text x="683" y="162">P(thật) ∈ [0, 1]</text>
+  </g>
+  <g font-size="13" fill="#59606B">
+    <text x="620" y="60">D muốn: ảnh thật → 1, ảnh giả → 0.</text>
+    <text x="620" y="80">G muốn: lừa D, ảnh giả → 1.</text>
+    <text x="620" y="226">Gradient từ D chảy ngược</text>
+    <text x="620" y="244">qua G(z) để cập nhật G.</text>
+  </g>
+  <path d="M640 255C500 295 260 295 210 262" fill="none" stroke="#d8312a" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#a)"/>
+</svg>

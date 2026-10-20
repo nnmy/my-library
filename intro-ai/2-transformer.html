@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformer | AI | My N. Nguyen</title>
+<meta name="description" content="Transformer cho người đã biết CNN: token, embedding, self-attention, multi-head, mã hóa vị trí, khối Transformer, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-ai/2-transformer.html, Phần 2: TRANSFORMER)
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      bpe        : tokenizer BPE thu nhỏ
+      tokenizer-real : ⚠ tokenizer thật GPT-2/4/4o, tải thư viện từ CDN jsDelivr (tự ẩn nếu CDN lỗi)
+      attn-2d    : query/key 2D kéo rê, nhiệt độ softmax
+      attn-heads : ma trận attention nhiều head, mask nhân quả
+      posenc     : mã hóa vị trí hình sin
+  - Hình: lib/figures/tam-nhin-cnn-rnn-attention.svg, lib/figures/khoi-transformer.svg
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">AI</a> / Phần 2</p>
+  <h1><span class="dot"></span>Transformer</h1>
+  <p class="lead">Transformer là kiến trúc đứng sau gần như mọi mô hình AI lớn hiện nay: GPT, Llama, Gemini, Claude, các mô hình sinh ảnh và mô hình thị giác. Ý tưởng cốt lõi chỉ có một: cho mỗi token tự quyết định nên lấy thông tin từ những token nào khác, bằng cơ chế <b>attention</b>.</p>
+</header>
+
+<!-- ================= 1.1 BỐI CẢNH ================= -->
+<section class="part" id="boi-canh">
+  <div class="wrap">
+    <h2>Từ CNN đến Transformer</h2>
+    <div class="prose">
+      <p>Bạn đã biết CNN (xem <a href="1-cnn.html">Phần 1</a>): mỗi neuron chỉ nhìn một vùng nhỏ (ví dụ 3×3), và phải chồng nhiều lớp thì <span class="term">trường tiếp nhận</span> <span class="en">(receptive field)</span> mới đủ rộng để thấy cả bức ảnh. Giả định "điểm gần nhau thì liên quan nhau" <span class="en">(locality bias)</span> rất hợp với ảnh, nhưng với ngôn ngữ thì không: trong câu "Con mèo đuổi con chuột vì <b>nó</b> đói", từ "nó" cần nối với "mèo" ở cách đó 5 từ.</p>
+      <p>Trước 2017, dữ liệu chuỗi thường được xử lý bằng <span class="term">RNN/LSTM</span>: đọc lần lượt từng token và nén mọi thứ đã đọc vào một vector trạng thái. Cách này chậm (không song song được theo chiều dài chuỗi) và hay "quên" phần đầu của câu dài. Transformer bỏ hẳn tính tuần tự: trong <b>một lớp</b>, mỗi token có thể nhìn trực tiếp mọi token khác.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/tam-nhin-cnn-rnn-attention.svg" alt="Ba sơ đồ: CNN với trường tiếp nhận 3×3 rồi 5×5; RNN là chuỗi trạng thái h1 đến h4 nối tiếp; self-attention với token 'nó' nối trực tiếp tới mọi token, đậm nhất tới 'mèo'." loading="lazy">
+      <figcaption><b>Một token "nhìn" được bao xa?</b> CNN mở rộng tầm nhìn dần theo số lớp; RNN truyền thông tin qua từng bước; self-attention nối mọi cặp token ngay trong một lớp. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Tiêu chí</th><th>CNN</th><th>RNN / LSTM</th><th>Transformer</th></tr></thead>
+        <tbody>
+          <tr><td>Phép toán cốt lõi</td><td>Tích chập với kernel trượt</td><td>Cập nhật trạng thái \(h_t = f(h_{t-1}, x_t)\)</td><td>Attention: trộn có trọng số mọi token</td></tr>
+          <tr><td>Tầm nhìn sau 1 lớp</td><td>Cục bộ (k×k)</td><td>Toàn bộ quá khứ, nhưng nén qua \(h_t\)</td><td>Toàn cục</td></tr>
+          <tr><td>Song song hóa khi huấn luyện</td><td>Cao</td><td>Thấp (phải chạy tuần tự)</td><td>Cao</td></tr>
+          <tr><td>Chi phí theo độ dài n</td><td>\(O(n)\)</td><td>\(O(n)\)</td><td>\(O(n^2)\)</td></tr>
+          <tr><td>Giả định sẵn <span class="en">inductive bias</span></td><td>Mạnh: cục bộ, bất biến dịch chuyển</td><td>Vừa: thứ tự thời gian</td><td>Yếu: phải học từ dữ liệu</td></tr>
+          <tr><td>Khi nào mạnh nhất</td><td>Ảnh, ít dữ liệu</td><td>Chuỗi ngắn, thiết bị nhỏ</td><td>Dữ liệu và mô hình rất lớn</td></tr>
+        </tbody>
+        <caption>Giả định yếu là con dao hai lưỡi: Transformer cần nhiều dữ liệu hơn CNN để học tốt, nhưng khi có đủ dữ liệu thì không bị giới hạn bởi giả định sai.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.2 TOKEN & EMBEDDING ================= -->
+<section class="part tint" id="token">
+  <div class="wrap">
+    <h2>Token &amp; embedding</h2>
+    <div class="prose">
+      <p>Mạng nơ-ron chỉ làm việc với số. Bước đầu tiên là cắt văn bản thành <span class="term">token</span>: đơn vị nhỏ nằm giữa ký tự và từ. Tách theo từ thì từ vựng quá lớn và gặp từ lạ là bó tay; tách theo ký tự thì chuỗi quá dài. Giải pháp phổ biến là <span class="term">Byte-Pair Encoding</span> <span class="en">(BPE)</span>: bắt đầu từ ký tự, lặp lại việc gộp cặp token xuất hiện nhiều nhất thành một token mới.</p>
+      <p>Mỗi token có một số nguyên (ID). ID được tra trong <span class="term">ma trận embedding</span> \(E\) để lấy một vector \(d\) chiều. Ma trận này là tham số học được, giống trọng số của một lớp fully connected nhận vector one-hot.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \text{"mô hình học"} \;\to\; [\,\texttt{▁mô},\ \texttt{▁hình},\ \texttt{▁học}\,] \;\to\; [86,\,81,\,96] \;\to\; X = \begin{bmatrix} E_{86} \\ E_{81} \\ E_{96} \end{bmatrix} \in \mathbb{R}^{n \times d} \]</div>
+      <p class="where"><b>E</b> ∈ ℝ<sup>|V|×d</sup>: ma trận embedding, một bảng có |V| hàng (mỗi token một hàng) và d cột; <b>E<sub>86</sub></b>: hàng thứ 86 của bảng đó, tức vector của token có ID 86; dấu ngoặc vuông lớn xếp các hàng chồng lên nhau thành ma trận <b>X</b>. Ký hiệu <b>∈ ℝ<sup>n×d</sup></b> đọc là "thuộc tập các ma trận số thực cỡ n hàng × d cột": chỉ để nói kích thước. Ký hiệu ▁ đánh dấu đầu một từ; <b>|V|</b>: kích thước từ vựng; <b>n</b>: số token; <b>d</b>: số chiều mô hình <span class="en">(d_model)</span>.</p>
+    </div>
+
+    <div class="demo" id="demoBpe" data-demo="bpe">
+      <div class="demo-title"><h4>Tokenizer BPE thu nhỏ</h4><span>Chỉnh số phép gộp, gõ câu bất kỳ</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="prose">
+      <p>Tokenizer trong demo trên chỉ học từ vài trăm từ. Minh họa dưới đây dùng đúng bảng từ vựng thật của ba thế hệ GPT, để thấy kích thước từ vựng ảnh hưởng đến độ dài chuỗi ra sao, nhất là với tiếng Việt.</p>
+    </div>
+    <div class="demo" id="demoTokReal" data-demo="tokenizer-real">
+      <div class="demo-title"><h4>Tokenizer thật của GPT</h4><span>So sánh 3 thế hệ tokenizer</span><b class="ext-badge" title="Minh họa này gọi dịch vụ bên ngoài: jsDelivr CDN (thư viện gpt-tokenizer). Nếu dịch vụ ngừng hoạt động, minh họa sẽ tự ẩn."><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 1.5 15 14H1z" fill="#f2c230" stroke="#1B1920" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6v4" stroke="#1B1920" stroke-width="1.6"/><circle cx="8" cy="12" r=".9" fill="#1B1920"/></svg>Dịch vụ ngoài: jsDelivr CDN (thư viện gpt-tokenizer)</b></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây (tải khoảng 3,5 MB từ CDN bên ngoài).</div>
+    </div>
+
+    <div class="callout"><b>Vì sao điều này quan trọng?</b> Giá API, độ dài ngữ cảnh và tốc độ đều tính theo token, không theo từ. Tokenizer học chủ yếu trên tiếng Anh nên cùng một ý, tiếng Việt thường tốn nhiều token hơn. Lỗi "LLM không đếm được chữ r trong strawberry" cũng bắt nguồn từ đây: tokenizer của GPT-4o cắt từ này thành <span class="kbd">st</span><span class="kbd">raw</span><span class="kbd">berry</span> (GPT-4: <span class="kbd">str</span><span class="kbd">aw</span><span class="kbd">berry</span>), nên mô hình thấy ba mảnh, không thấy từng chữ cái.</div>
+  </div>
+</section>
+
+<!-- ================= 1.3 SELF-ATTENTION ================= -->
+<section class="part" id="attention">
+  <div class="wrap">
+    <h2>Self-attention</h2>
+    <div class="prose">
+      <p>Hãy nghĩ attention như một <b>phép tra từ điển mềm</b>. Mỗi token phát ra ba vector, đều là phép chiếu tuyến tính của embedding \(x\):</p>
+      <ul>
+        <li><span class="term">Query</span> \(q = xW_Q\): "tôi đang tìm thông tin gì?"</li>
+        <li><span class="term">Key</span> \(k = xW_K\): "tôi chứa loại thông tin gì?" (nhãn để được tìm thấy)</li>
+        <li><span class="term">Value</span> \(v = xW_V\): "nếu được chọn, tôi đưa ra nội dung gì?"</li>
+      </ul>
+      <p>Độ hợp giữa query của token \(i\) và key của token \(j\) là tích vô hướng \(q_i \cdot k_j\). Softmax biến các điểm số này thành trọng số dương có tổng bằng 1, rồi đầu ra là trung bình có trọng số của các value. Viết cho cả chuỗi cùng lúc bằng ma trận:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V, \qquad Q = XW_Q,\; K = XW_K,\; V = XW_V \]</div>
+      <p class="where"><b>X</b>: ma trận embedding của cả câu (mỗi token một hàng); <b>W<sub>Q</sub>, W<sub>K</sub>, W<sub>V</sub></b>: ba ma trận trọng số học được; <b>Q, K, V</b>: query, key, value của mọi token xếp thành ma trận; <b>Kᵀ</b>: <b>chuyển vị</b> <span class="en">(transpose)</span> của K, lật hàng thành cột, để phép nhân QKᵀ tính được tích vô hướng q<sub>i</sub>·k<sub>j</sub> cho mọi cặp (i, j) cùng lúc; <b>QKᵀ</b> ∈ ℝ<sup>n×n</sup>: bảng điểm số của mọi cặp token; <b>softmax</b>: biến một hàng điểm số z<sub>1</sub>, z<sub>2</sub>, … thành các trọng số e<sup>z<sub>j</sub></sup> / Σ<sub>k</sub> e<sup>z<sub>k</sub></sup>, đều dương và cộng lại bằng 1 (điểm cao nhất được phần lớn nhất); softmax lấy theo từng hàng; softmax lấy theo từng hàng; <b>d<sub>k</sub></b>: số chiều của q và k. Chia cho \(\sqrt{d_k}\) vì tích vô hướng của hai vector ngẫu nhiên có phương sai tăng theo \(d_k\); không chia thì softmax bão hòa và gradient gần bằng 0.</p>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Để dễ nhìn, mọi vector ở đây chỉ có 2 chiều nên vẽ được trên mặt phẳng. Mũi tên q(nó) là query của token "nó"; các mũi tên còn lại là key của những token khác trong câu. Key càng cùng hướng với query thì tích vô hướng q·k càng lớn và trọng số attention càng cao (vẽ càng đậm); đường nét đứt là chỗ q·k = 0. <b>Nhiệt độ τ</b> là số mà điểm số được chia cho trước khi qua softmax (trong công thức trên là √d<sub>k</sub>): τ nhỏ làm attention dồn hết vào một token, τ lớn làm attention rải đều. <b>Entropy</b> đo mức "rải đều" đó.</div>
+    <div class="demo" id="demoAttn2d" data-demo="attn-2d">
+      <div class="demo-title"><h4>Attention trên mặt phẳng</h4><span>Kéo query hoặc các key; chỉnh nhiệt độ</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên demo:</p>
+      <ul>
+        <li>Key nằm cùng hướng với query được trọng số cao; key nằm phía bên kia đường nét đứt (\(q\cdot k &lt; 0\)) gần như bị bỏ qua.</li>
+        <li>Kéo query dài ra (tăng độ lớn) có tác dụng giống giảm nhiệt độ: attention "sắc" hơn.</li>
+        <li>Đầu ra luôn là tổ hợp lồi của các value: nó không tạo ra thông tin mới, chỉ <b>định tuyến</b> thông tin giữa các vị trí. Phần "tính toán" nằm ở lớp FFN phía sau.</li>
+      </ul>
+      <p>So với CNN: kernel tích chập là trọng số <b>cố định</b> sau huấn luyện và chỉ phụ thuộc vị trí tương đối. Trọng số attention được tính <b>động</b> từ chính nội dung đầu vào, nên mỗi câu có một "kernel" riêng.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.4 MULTI-HEAD ================= -->
+<section class="part tint" id="multi-head">
+  <div class="wrap">
+    <h2>Multi-head &amp; mask nhân quả</h2>
+    <div class="prose">
+      <p>Một token thường cần nhiều loại thông tin cùng lúc: từ đứng trước nó, chủ ngữ của câu, danh từ mà đại từ thay thế... Thay vì một attention lớn, <span class="term">multi-head attention</span> chạy \(h\) attention nhỏ song song, mỗi head có \(W_Q, W_K, W_V\) riêng với \(d_k = d/h\), rồi nối kết quả lại. Tương tự việc một lớp CNN có nhiều kênh, mỗi kênh học một loại đặc trưng.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \mathrm{MultiHead}(X) = \mathrm{Concat}(\mathrm{head}_1, \dots, \mathrm{head}_h)\,W_O, \qquad \mathrm{head}_i = \mathrm{Attention}(XW_Q^{(i)}, XW_K^{(i)}, XW_V^{(i)}) \]</div>
+      <p class="where"><b>head<sub>i</sub></b>: kết quả của head thứ i; chỉ số trên <b>(i)</b> trong W<sub>Q</sub><sup>(i)</sup> nghĩa là "bộ trọng số riêng của head i" (không phải lũy thừa); <b>Concat</b> <span class="en">(concatenate)</span>: nối các vector kết quả nằm cạnh nhau thành một vector dài; <b>W<sub>O</sub></b>: ma trận trộn kết quả các head lại (O là <i>output</i>); <b>…</b>: "và cứ thế tới". Ví dụ GPT-2 small: \(d = 768\), \(h = 12\), mỗi head \(d_k = 64\). Tổng chi phí tính toán gần bằng một head lớn.</p>
+    </div>
+    <div class="prose">
+      <p>Với mô hình sinh văn bản (decoder), token thứ \(i\) không được nhìn các token sau nó, vì lúc sinh thật chúng chưa tồn tại. <span class="term">Mask nhân quả</span> <span class="en">(causal mask)</span> cộng \(-\infty\) vào các ô phía trên đường chéo của \(QK^\top\) trước softmax:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}} + M\right), \qquad M_{ij} = \begin{cases} 0 & j \le i \\ -\infty & j &gt; i \end{cases} \]</div>
+      <p class="where"><b>M</b>: ma trận "mặt nạ" cùng cỡ với bảng điểm; dấu ngoặc nhọn một bên đọc là "tùy trường hợp": M<sub>ij</sub> = 0 nếu token j đứng trước hoặc chính là token i (j ≤ i), và bằng <b>−∞</b> (âm vô cùng) nếu j đứng sau. Vì e<sup>−∞</sup> = 0, softmax cho các ô đó trọng số đúng bằng 0: token i hoàn toàn không "nhìn" thấy tương lai.</p>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Phía trên là một câu; các cung nối từ token đang chọn tới các token mà nó chú ý, cung càng đậm thì trọng số càng lớn. Phía dưới là cùng thông tin đó dạng bảng (heatmap): hàng là token đang "hỏi", cột là token được nhìn. Các head trong demo được dựng tay để mỗi cái làm một việc dễ thấy (nhìn token liền trước, nối đại từ với danh từ…). Chuyển sang <b>Nhân quả (decoder)</b>: nửa trên đường chéo của bảng bị che, vì mỗi token chỉ được nhìn về phía trước nó.</div>
+    <div class="demo" id="demoHeads" data-demo="attn-heads">
+      <div class="demo-title"><h4>Nhiều head, một câu</h4><span>Chọn head, bấm vào một hàng, bật mask nhân quả</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="callout"><b>Mô hình thật có những head như vậy không?</b> Có, ở mức độ nhất định. Các nghiên cứu diễn giải <span class="en">(interpretability)</span> đã tìm thấy head nhìn token liền trước, head nối đại từ với danh từ, và "induction head" chép lại mẫu đã gặp trong ngữ cảnh. Nhưng phần lớn head có hành vi pha trộn, khó gán nhãn gọn như trong demo.</div>
+  </div>
+</section>
+
+<!-- ================= 1.5 VỊ TRÍ ================= -->
+<section class="part" id="vi-tri">
+  <div class="wrap">
+    <h2>Mã hóa vị trí</h2>
+    <div class="prose">
+      <p>Có một điều lạ: nếu xáo trộn thứ tự các token đầu vào, attention chỉ xáo trộn đầu ra theo đúng cách đó (<span class="term">hoán vị đẳng biến</span>, <span class="en">permutation equivariant</span>). Nói cách khác, attention tự nó coi câu là một <b>tập hợp</b> token, không biết "mèo đuổi chuột" khác "chuột đuổi mèo". Thông tin vị trí phải được đưa vào thêm.</p>
+      <p>Transformer gốc cộng vào mỗi embedding một vector vị trí cố định gồm các hàm sin, cos với tần số giảm dần theo chiều:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ PE_{(pos,\,2i)} = \sin\!\left(\frac{pos}{10000^{2i/d}}\right), \qquad PE_{(pos,\,2i+1)} = \cos\!\left(\frac{pos}{10000^{2i/d}}\right), \qquad x_{pos} \leftarrow x_{pos} + PE_{pos} \]</div>
+      <p class="where"><b>pos</b>: vị trí của token trong câu (0, 1, 2, …); <b>PE<sub>(pos, k)</sub></b>: thành phần thứ k của vector vị trí; các chiều chẵn (2i) dùng <b>sin</b>, các chiều lẻ (2i+1) dùng <b>cos</b>; <b>i</b>: chạy từ 0 tới d/2 − 1. Mẫu số 10000<sup>2i/d</sup> tăng dần theo i, nên chiều đầu dao động rất nhanh theo vị trí (như kim giây), chiều cuối dao động rất chậm (như kim giờ): mỗi vị trí có một "mặt đồng hồ" riêng. <b>←</b>: "gán bằng", tức cộng vector vị trí vào embedding rồi dùng kết quả thay cho x<sub>pos</sub> cũ.</p>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Bảng màu ở trên: mỗi hàng là một vị trí, mỗi cột là một chiều của vector vị trí; đỏ là −1, trắng là 0, xanh là +1. Các cột bên trái đổi màu rất nhanh từ hàng này sang hàng kia, các cột bên phải đổi rất chậm. Đồ thị bên dưới đo độ giống nhau (cos) giữa vị trí đã chọn và mọi vị trí khác: vị trí gần nhau thì vector vị trí giống nhau, xa nhau thì khác, nên mô hình có thể suy ra khoảng cách giữa hai token.</div>
+    <div class="demo" id="demoPosenc" data-demo="posenc">
+      <div class="demo-title"><h4>Mã hóa vị trí hình sin</h4><span>Chỉnh số chiều d, chọn một vị trí</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Cách mã hóa</th><th>Ý tưởng</th><th>Dùng ở</th></tr></thead>
+        <tbody>
+          <tr><td>Hình sin cố định</td><td>Cộng vector sin/cos vào embedding</td><td>Transformer gốc (2017)</td></tr>
+          <tr><td>Học được <span class="en">learned absolute</span></td><td>Mỗi vị trí 0…n<sub>max</sub> có một vector tham số</td><td>BERT, GPT-2, ViT</td></tr>
+          <tr><td>RoPE <span class="en">rotary position embedding</span></td><td>Xoay q và k một góc tỉ lệ với vị trí; tích \(q_i\cdot k_j\) chỉ còn phụ thuộc \(i-j\)</td><td>Llama, Qwen, Mistral, phần lớn LLM hiện nay</td></tr>
+          <tr><td>ALiBi</td><td>Trừ vào điểm attention một lượng tỉ lệ với khoảng cách</td><td>BLOOM, MPT</td></tr>
+        </tbody>
+        <caption>RoPE thắng thế vì mã hóa trực tiếp khoảng cách tương đối và dễ kéo dài ngữ cảnh sau huấn luyện.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.6 KHỐI TRANSFORMER ================= -->
+<section class="part tint" id="khoi">
+  <div class="wrap">
+    <h2>Khối Transformer</h2>
+    <div class="prose">
+      <p>Một mô hình Transformer là \(L\) khối giống hệt nhau xếp chồng. Mỗi khối có hai lớp con, mỗi lớp con được bọc bởi <span class="term">LayerNorm</span> và <span class="term">kết nối tắt</span> <span class="en">(residual connection)</span>, đúng như trong ResNet mà bạn đã biết:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ h = x + \mathrm{MultiHead}(\mathrm{LN}(x)), \qquad y = h + \mathrm{FFN}(\mathrm{LN}(h)), \qquad \mathrm{FFN}(z) = \sigma(zW_1 + b_1)\,W_2 + b_2 \]</div>
+      <p class="where"><b>x</b>: đầu vào của khối; <b>h</b>: kết quả sau lớp attention; <b>y</b>: đầu ra của khối; phép cộng "x + …" chính là kết nối tắt; <b>LN</b>: LayerNorm, đưa mỗi vector về trung bình 0, độ lệch chuẩn 1 rồi co giãn lại; <b>z</b>: biến tạm đại diện cho đầu vào của FFN; <b>W₁</b> ∈ ℝ<sup>d×4d</sup>, <b>W₂</b> ∈ ℝ<sup>4d×d</sup>: hai ma trận trọng số (lớp ẩn rộng gấp 4 lần d); <b>b₁, b₂</b>: hai vector độ lệch (bias); <b>σ</b>: hàm kích hoạt, ReLU (bản gốc) hoặc GELU (GPT-2); chữ σ ở đây không liên quan tới độ lệch chuẩn. Llama dùng biến thể SwiGLU với ba ma trận và lớp ẩn khoảng \(\tfrac{8}{3}d\), tổng số tham số tương đương. Đây là dạng <i>pre-norm</i> (LN đặt trước), dùng trong GPT-2 trở về sau vì ổn định hơn dạng <i>post-norm</i> của bài báo gốc.</p>
+    </div>
+    <div class="figrow">
+      <figure class="fig">
+        <img src="lib/figures/khoi-transformer.svg" alt="Sơ đồ Transformer decoder-only: token, embedding, L khối mỗi khối gồm LayerNorm, masked multi-head attention, phép cộng residual, LayerNorm, FFN, phép cộng residual; cuối cùng là LayerNorm, Linear và softmax cho xác suất token kế tiếp." loading="lazy">
+        <figcaption><b>Transformer decoder-only (kiểu GPT, Llama).</b> Hình tự vẽ, giản lược theo Hình 1 của Vaswani et al. (2017) và cấu trúc pre-norm.</figcaption>
+      </figure>
+      <div class="prose">
+        <p><b>Chia việc rõ ràng.</b> Attention trộn thông tin <i>giữa các token</i>; FFN biến đổi <i>từng token riêng lẻ</i>. Có thể xem chuỗi vector đi qua mô hình như một "dòng chảy residual" <span class="en">(residual stream)</span>: mỗi lớp đọc từ dòng chảy này và cộng thêm một chút thông tin vào.</p>
+        <p><b>Đếm tham số.</b> Mỗi khối có \(4d^2\) tham số cho attention (\(W_Q, W_K, W_V, W_O\)) và \(8d^2\) cho FFN, tổng khoảng \(12d^2\). Với GPT-2 small (\(L=12, d=768\)): \(12 \times 12 \times 768^2 \approx 85\) triệu, cộng embedding \(50257 \times 768 \approx 39\) triệu, ra đúng con số 124 triệu tham số được công bố.</p>
+        <p><b>Đầu ra.</b> Vector cuối của mỗi vị trí được nhân với một ma trận \(d \times |V|\) rồi qua softmax, cho phân phối xác suất của token tiếp theo. <a href="3-generative.html#tu-hoi-quy">Phần 3</a> sẽ nói cách lấy mẫu từ phân phối này.</p>
+      </div>
+    </div>
+
+    <h3>Ba dạng Transformer</h3>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Dạng</th><th>Attention</th><th>Huấn luyện để</th><th>Ví dụ</th><th>Hợp với</th></tr></thead>
+        <tbody>
+          <tr><td>Encoder-only</td><td>Hai chiều (không mask)</td><td>Đoán token bị che <span class="en">masked language modeling</span></td><td>BERT, RoBERTa, ViT</td><td>Phân loại, trích xuất, embedding cho tìm kiếm</td></tr>
+          <tr><td>Decoder-only</td><td>Nhân quả</td><td>Đoán token tiếp theo</td><td>GPT, Llama, Claude, Gemini</td><td>Sinh văn bản, trò chuyện, gần như mọi việc khi đủ lớn</td></tr>
+          <tr><td>Encoder–decoder</td><td>Encoder hai chiều; decoder nhân quả + cross-attention sang encoder</td><td>Biến chuỗi này thành chuỗi khác</td><td>Transformer gốc, T5, Whisper</td><td>Dịch máy, tóm tắt, nhận dạng giọng nói</td></tr>
+        </tbody>
+        <caption>Cross-attention (query từ decoder, key và value từ encoder) sẽ xuất hiện lại ở <a href="4-multimodal.html#text-to-image">Phần 4</a> khi văn bản điều khiển việc sinh ảnh.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part" id="bang">
+  <div class="wrap">
+    <h2>Bảng thuật ngữ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Ký hiệu</th><th>Kích thước</th><th>Ý nghĩa</th></tr></thead>
+        <tbody>
+          <tr><td>Token</td><td class="sym">—</td><td class="unit">—</td><td>Mảnh văn bản (hoặc mảnh ảnh, âm thanh) mà mô hình xử lý như một đơn vị.</td></tr>
+          <tr><td>Từ vựng<span class="en">vocabulary</span></td><td class="sym">\(V\)</td><td class="unit">30k – 260k</td><td>Tập mọi token mà tokenizer biết.</td></tr>
+          <tr><td>Embedding</td><td class="sym">\(E\)</td><td class="unit">\(|V|\times d\)</td><td>Bảng tra ID → vector, học được.</td></tr>
+          <tr><td>Ngữ cảnh<span class="en">context length</span></td><td class="sym">\(n\)</td><td class="unit">2k – 1M+</td><td>Số token tối đa mô hình xử lý cùng lúc.</td></tr>
+          <tr><td>Query, Key, Value</td><td class="sym">\(Q, K, V\)</td><td class="unit">\(n\times d_k\)</td><td>Câu hỏi, nhãn, nội dung của mỗi token trong attention.</td></tr>
+          <tr><td>Ma trận attention</td><td class="sym">\(A\)</td><td class="unit">\(n\times n\)</td><td>\(\mathrm{softmax}(QK^\top/\sqrt{d_k})\); mỗi hàng có tổng bằng 1.</td></tr>
+          <tr><td>Head</td><td class="sym">\(h\)</td><td class="unit">8 – 128</td><td>Một attention con với phép chiếu riêng.</td></tr>
+          <tr><td>Mask nhân quả<span class="en">causal mask</span></td><td class="sym">\(M\)</td><td class="unit">\(n\times n\)</td><td>Chặn token nhìn về tương lai.</td></tr>
+          <tr><td>FFN / MLP</td><td class="sym">—</td><td class="unit">\(d\to 4d\to d\)</td><td>Mạng truyền thẳng áp dụng cho từng token; chứa phần lớn tham số.</td></tr>
+          <tr><td>Residual stream</td><td class="sym">\(x\)</td><td class="unit">\(n\times d\)</td><td>Chuỗi vector đi xuyên các khối, mỗi khối cộng thêm vào.</td></tr>
+          <tr><td>Logit</td><td class="sym">\(z\)</td><td class="unit">\(|V|\)</td><td>Điểm số chưa chuẩn hóa cho từng token kế tiếp, trước softmax.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHỤ LỤC KÝ HIỆU ================= -->
+<section class="part tint" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này (khác với <a href="#bang">bảng thuật ngữ</a> ở trên, vốn liệt kê các khái niệm). Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(\in\)</td><td>is an element of, in</td><td>"Thuộc". Ví dụ X ∈ ℝ<sup>n×d</sup>: X là một ma trận số thực n hàng, d cột.</td></tr>
+          <tr><td class="sym">\(\mathbb{R}^{n\times d}\)</td><td>R n by d</td><td>Tập các ma trận số thực cỡ n × d; dùng để ghi kích thước.</td></tr>
+          <tr><td class="sym">\(K^\top\)</td><td>K transpose</td><td>Chuyển vị: lật hàng thành cột.</td></tr>
+          <tr><td class="sym">\(q\cdot k\)</td><td>q dot k</td><td>Tích vô hướng: lớn khi hai vector cùng hướng.</td></tr>
+          <tr><td class="sym">\(\sqrt{d_k}\)</td><td>square root of d k</td><td>Căn bậc hai của số chiều key, dùng để "hạ nhiệt" điểm số.</td></tr>
+          <tr><td class="sym">\(\mathrm{softmax}\)</td><td>softmax</td><td>Biến một dãy điểm số thành các xác suất dương, tổng bằng 1; điểm cao được phần lớn.</td></tr>
+          <tr><td class="sym">\(W^{(i)}\)</td><td>W superscript i</td><td>Bộ trọng số của head thứ i (chỉ số trên trong ngoặc không phải lũy thừa).</td></tr>
+          <tr><td class="sym">\(\mathrm{Concat}\)</td><td>concatenate</td><td>Nối nhiều vector nằm cạnh nhau thành một vector dài.</td></tr>
+          <tr><td class="sym">\(-\infty\)</td><td>minus infinity</td><td>Âm vô cùng; e<sup>−∞</sup> = 0, nên softmax cho trọng số 0.</td></tr>
+          <tr><td class="sym">\(\begin{cases}\ldots\end{cases}\)</td><td>cases</td><td>Định nghĩa theo từng trường hợp.</td></tr>
+          <tr><td class="sym">\(\le\), \(&gt;\)</td><td>less than or equal to, greater than</td><td>Nhỏ hơn hoặc bằng; lớn hơn.</td></tr>
+          <tr><td class="sym">\(\sin\), \(\cos\)</td><td>sine, cosine</td><td>Hai hàm dao động đều đặn giữa −1 và +1.</td></tr>
+          <tr><td class="sym">\(\leftarrow\)</td><td>is assigned, gets</td><td>Gán giá trị mới (cập nhật biến).</td></tr>
+          <tr><td class="sym">\(\mathrm{LN}\)</td><td>LayerNorm</td><td>Chuẩn hóa mỗi vector về trung bình 0, độ lệch chuẩn 1.</td></tr>
+          <tr><td class="sym">\(\sigma\)</td><td>sigma</td><td>Ở trang này: hàm kích hoạt (ReLU, GELU) trong FFN.</td></tr>
+          <tr><td class="sym">\(|V|\)</td><td>size of V</td><td>Số phần tử của tập V, ở đây là kích thước từ vựng.</td></tr>
+          <tr><td class="sym">\(\tau\)</td><td>tau, temperature</td><td>Nhiệt độ: số chia điểm số trước softmax; nhỏ thì "sắc", lớn thì "tù".</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1997</span><div><h4>LSTM</h4><p>Hochreiter và Schmidhuber đề xuất LSTM, giải quyết một phần vấn đề gradient biến mất trong RNN. LSTM thống trị xử lý chuỗi gần 20 năm.</p></div></li>
+      <li><span class="yr">2013</span><div><h4>word2vec</h4><p>Mikolov và cộng sự cho thấy vector từ học được có cấu trúc ngữ nghĩa: "vua" − "đàn ông" + "phụ nữ" ≈ "nữ hoàng". Embedding trở thành điểm khởi đầu chuẩn.</p></div></li>
+      <li><span class="yr">2014</span><div><h4>Attention cho dịch máy</h4><p>Bahdanau, Cho và Bengio thêm attention vào mô hình encoder–decoder RNN: khi dịch mỗi từ, decoder "nhìn lại" các từ nguồn liên quan thay vì chỉ dựa vào một vector nén.</p></div></li>
+      <li><span class="yr">2016</span><div><h4>BPE cho mạng nơ-ron</h4><p>Sennrich, Haddow và Birch đưa BPE (vốn là thuật toán nén dữ liệu từ 1994) vào dịch máy để xử lý từ hiếm.</p></div></li>
+      <li><span class="yr">2017</span><div><h4>"Attention Is All You Need"</h4><p>Vaswani và cộng sự (Google) bỏ hẳn RNN, chỉ dùng attention. Mô hình vượt kết quả dịch máy tốt nhất lúc đó với thời gian huấn luyện ngắn hơn nhiều.</p></div></li>
+      <li><span class="yr">2018</span><div><h4>BERT và GPT</h4><p>Google công bố BERT (encoder-only), OpenAI công bố GPT (decoder-only). Mô hình "tiền huấn luyện rồi tinh chỉnh" <span class="en">(pretrain, then fine-tune)</span> trở thành chuẩn.</p></div></li>
+      <li><span class="yr">2020</span><div><h4>GPT-3 và ViT</h4><p>GPT-3 (175 tỉ tham số) cho thấy mô hình đủ lớn có thể làm việc mới chỉ từ vài ví dụ trong prompt. Vision Transformer chứng minh Transformer cũng cạnh tranh được với CNN trên ảnh.</p></div></li>
+      <li><span class="yr">2021–22</span><div><h4>RoPE và FlashAttention</h4><p>RoPE (Su và cộng sự) trở thành cách mã hóa vị trí phổ biến. FlashAttention (Dao và cộng sự) tính attention chính xác nhưng tiết kiệm bộ nhớ GPU, mở đường cho ngữ cảnh dài.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>A. Vaswani et al., "Attention Is All You Need", NeurIPS 2017. <a href="https://arxiv.org/abs/1706.03762" rel="noopener">arXiv:1706.03762</a>.</li>
+      <li>J. Alammar, <a href="https://jalammar.github.io/illustrated-transformer/" rel="noopener">The Illustrated Transformer</a> (bài giải thích bằng hình nổi tiếng).</li>
+      <li>A. Karpathy, <a href="https://github.com/karpathy/nanoGPT" rel="noopener">nanoGPT</a> và bài giảng "Let's build GPT" (code GPT tối giản, dễ đọc).</li>
+      <li>R. Sennrich, B. Haddow, A. Birch, "Neural Machine Translation of Rare Words with Subword Units", ACL 2016. <a href="https://arxiv.org/abs/1508.07909" rel="noopener">arXiv:1508.07909</a>.</li>
+      <li>J. Su et al., "RoFormer: Enhanced Transformer with Rotary Position Embedding", 2021. <a href="https://arxiv.org/abs/2104.09864" rel="noopener">arXiv:2104.09864</a>.</li>
+      <li>C. Olsson et al., "In-context Learning and Induction Heads", Anthropic, 2022. <a href="https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html" rel="noopener">transformer-circuits.pub</a>.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="1-cnn.html"><small>Phần 1</small><b>CNN &amp; backpropagation</b></a>
+      <a class="next" href="3-generative.html"><small>Phần 3</small><b>AI tạo sinh</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

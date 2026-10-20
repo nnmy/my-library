@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 260" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="13" fill="#1B1920">
+  <title>Kiến trúc VLM kiểu LLaVA</title>
+  <!-- Tự vẽ, giản lược theo Liu et al. 2023 (LLaVA). My Academia / AI. -->
+  <rect width="860" height="260" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#1B1920"/></marker></defs>
+  <g text-anchor="middle">
+    <rect x="20" y="40" width="80" height="80" fill="#D5EDDD" stroke="#1B1920" stroke-width="2"/><text x="60" y="85">ảnh</text>
+    <path d="M102 80H140" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="144" y="50" width="150" height="60" fill="#7bcde8" stroke="#1B1920" stroke-width="2"/>
+    <text x="219" y="76" font-weight="700">Vision encoder</text><text x="219" y="95" font-size="12">ViT (CLIP / SigLIP)</text>
+    <path d="M296 80H334" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="338" y="50" width="120" height="60" fill="#f2c230" stroke="#1B1920" stroke-width="2"/>
+    <text x="398" y="76" font-weight="700">Projector</text><text x="398" y="95" font-size="12">MLP 2 lớp</text>
+    <path d="M460 80C500 80 500 130 520 140" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <text x="398" y="135" font-size="12" fill="#59606B">đổi vector ảnh sang "ngôn ngữ"</text>
+    <text x="398" y="151" font-size="12" fill="#59606B">của embedding LLM</text>
+    <rect x="20" y="180" width="200" height="44" fill="#fff" stroke="#1B1920" stroke-width="2"/>
+    <text x="120" y="207" font-style="italic">"Trong ảnh có mấy con mèo?"</text>
+    <path d="M222 202H330" stroke="#1B1920" stroke-width="2"/>
+    <text x="276" y="195" font-size="12" fill="#59606B">tokenizer</text>
+    <path d="M330 202C480 202 500 170 520 160" fill="none" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <g stroke="#1B1920">
+      <rect x="524" y="140" width="16" height="22" fill="#f2c230"/><rect x="542" y="140" width="16" height="22" fill="#f2c230"/><rect x="560" y="140" width="16" height="22" fill="#f2c230"/><rect x="578" y="140" width="16" height="22" fill="#f2c230"/>
+      <rect x="596" y="140" width="16" height="22" fill="#DCEFF8"/><rect x="614" y="140" width="16" height="22" fill="#DCEFF8"/><rect x="632" y="140" width="16" height="22" fill="#DCEFF8"/>
+    </g>
+    <text x="586" y="128" font-size="12">token ảnh + token chữ</text>
+    <path d="M650 151H680" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <rect x="684" y="116" width="100" height="70" fill="#E3D7F2" stroke="#1B1920" stroke-width="2"/>
+    <text x="734" y="148" font-weight="700">LLM</text><text x="734" y="166" font-size="12">decoder-only</text>
+    <path d="M786 151H808" stroke="#1B1920" stroke-width="2" marker-end="url(#a)"/>
+    <text x="830" y="148" font-style="italic">"Hai</text><text x="830" y="164" font-style="italic">con."</text>
+  </g>
+</svg>

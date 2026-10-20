@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 380" font-family="'Be Vietnam Pro', 'Segoe UI', Arial, sans-serif" font-size="14" fill="#1B1920">
+  <title>Quét song song: tính tổng dồn của 8 số trong 3 vòng thay vì 7 bước nối tiếp</title>
+  <!-- Tự vẽ, theo thuật toán quét song song Hillis–Steele (1986). My Academia / AI. -->
+  <rect width="900" height="380" fill="#FBFCFD"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 10 5 0 10z" fill="#3787c4"/></marker></defs>
+  <text x="20" y="62" font-size="13" font-weight="600">dãy số vô</text>
+  <rect x="200" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="224.0" y="62" text-anchor="middle" font-weight="400">3</text>
+  <rect x="280" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="304.0" y="62" text-anchor="middle" font-weight="400">1</text>
+  <rect x="360" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="384.0" y="62" text-anchor="middle" font-weight="400">4</text>
+  <rect x="440" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="464.0" y="62" text-anchor="middle" font-weight="400">1</text>
+  <rect x="520" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="544.0" y="62" text-anchor="middle" font-weight="400">5</text>
+  <rect x="600" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="624.0" y="62" text-anchor="middle" font-weight="400">9</text>
+  <rect x="680" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="704.0" y="62" text-anchor="middle" font-weight="400">2</text>
+  <rect x="760" y="40" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="784.0" y="62" text-anchor="middle" font-weight="400">6</text>
+  <text x="20" y="152" font-size="13" font-weight="600">vòng 1: cộng ô cách 1</text>
+  <path d="M224.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M304.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M230.0 74L300.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M384.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M310.0 74L380.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M464.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M390.0 74L460.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M544.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M470.0 74L540.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M624.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M550.0 74L620.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M704.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M630.0 74L700.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M784.0 74V126" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M710.0 74L780.0 126" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <rect x="200" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="224.0" y="152" text-anchor="middle" font-weight="400">3</text>
+  <rect x="280" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="304.0" y="152" text-anchor="middle" font-weight="400">4</text>
+  <rect x="360" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="384.0" y="152" text-anchor="middle" font-weight="400">5</text>
+  <rect x="440" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="464.0" y="152" text-anchor="middle" font-weight="400">5</text>
+  <rect x="520" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="544.0" y="152" text-anchor="middle" font-weight="400">6</text>
+  <rect x="600" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="624.0" y="152" text-anchor="middle" font-weight="400">14</text>
+  <rect x="680" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="704.0" y="152" text-anchor="middle" font-weight="400">11</text>
+  <rect x="760" y="130" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="784.0" y="152" text-anchor="middle" font-weight="400">8</text>
+  <text x="20" y="242" font-size="13" font-weight="600">vòng 2: cộng ô cách 2</text>
+  <path d="M224.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M304.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M384.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M230.0 164L380.0 216" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M464.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M310.0 164L460.0 216" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M544.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M390.0 164L540.0 216" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M624.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M470.0 164L620.0 216" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M704.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M550.0 164L700.0 216" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M784.0 164V216" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M630.0 164L780.0 216" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <rect x="200" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="224.0" y="242" text-anchor="middle" font-weight="400">3</text>
+  <rect x="280" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="304.0" y="242" text-anchor="middle" font-weight="400">4</text>
+  <rect x="360" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="384.0" y="242" text-anchor="middle" font-weight="400">8</text>
+  <rect x="440" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="464.0" y="242" text-anchor="middle" font-weight="400">9</text>
+  <rect x="520" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="544.0" y="242" text-anchor="middle" font-weight="400">11</text>
+  <rect x="600" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="624.0" y="242" text-anchor="middle" font-weight="400">19</text>
+  <rect x="680" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="704.0" y="242" text-anchor="middle" font-weight="400">17</text>
+  <rect x="760" y="220" width="48" height="32" fill="#fff" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="784.0" y="242" text-anchor="middle" font-weight="400">22</text>
+  <text x="20" y="332" font-size="13" font-weight="600">vòng 3: cộng ô cách 4</text>
+  <path d="M224.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M304.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M384.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M464.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M544.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M230.0 254L540.0 306" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M624.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M310.0 254L620.0 306" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M704.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M390.0 254L700.0 306" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <path d="M784.0 254V306" stroke="#9DA4AD" stroke-width="1.5"/>
+  <path d="M470.0 254L780.0 306" stroke="#3787c4" stroke-width="1.6" marker-end="url(#a)"/>
+  <rect x="200" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="224.0" y="332" text-anchor="middle" font-weight="700">3</text>
+  <rect x="280" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="304.0" y="332" text-anchor="middle" font-weight="700">4</text>
+  <rect x="360" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="384.0" y="332" text-anchor="middle" font-weight="700">8</text>
+  <rect x="440" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="464.0" y="332" text-anchor="middle" font-weight="700">9</text>
+  <rect x="520" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="544.0" y="332" text-anchor="middle" font-weight="700">14</text>
+  <rect x="600" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="624.0" y="332" text-anchor="middle" font-weight="700">23</text>
+  <rect x="680" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="704.0" y="332" text-anchor="middle" font-weight="700">25</text>
+  <rect x="760" y="310" width="48" height="32" fill="#D5EDDD" stroke="#1B1920" stroke-width="1.8"/>
+  <text x="784.0" y="332" text-anchor="middle" font-weight="700">31</text>
+  <text x="20" y="370" font-size="12" fill="#59606B">Mỗi vòng, mọi ô tính cùng lúc. 8 số cần 3 vòng; 1 triệu số chỉ cần cỡ 20 vòng.</text>
+</svg>

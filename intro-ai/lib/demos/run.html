@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../../../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minh họa | AI</title>
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../tfg.css">
+<!--
+  =====================================================================
+  CHẠY MINH HỌA ĐỘC LẬP  (intro-ai/lib/demos/run.html)
+  - run.html                 : danh sách mọi minh họa
+  - run.html?demo=attn-2d    : chạy một minh họa (id = tên file .js trong thư mục này)
+  Thêm minh họa mới: tạo lib/demos/<id>.js (gọi TFG.demo) và thêm một dòng vào DEMOS.
+  MINH HỌA DÙNG DỊCH VỤ BÊN NGOÀI (⚠): khai báo def.external = { name, check } trong file demo
+  và thêm trường external: '<tên dịch vụ>' vào dòng tương ứng trong DEMOS. Hiện có:
+    - tokenizer-real : jsDelivr CDN, thư viện gpt-tokenizer@2.9.0 (r50k / cl100k / o200k)
+    - rag-wiki       : Wikipedia MediaWiki Action API (search + extracts, origin=*)
+  Khi dịch vụ không phản hồi, minh họa tự ẩn và hiện thông báo (TFG.externalDown trong ../tfg.js).
+  =====================================================================
+-->
+<style>
+  body { padding: 28px 0 60px; }
+  .runhead { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; margin-bottom: 18px; }
+  .runhead h1 { font-size: clamp(34px, 4.6vw, 52px); }
+  .runhead a { font-weight: 600; }
+  .list h2 { font-size: 30px; margin: 30px 0 10px; }
+  .list ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .list a { display: block; padding: 10px 14px; background: #fff; border: 2px solid var(--ink); color: var(--ink); text-decoration: none; font-weight: 600; }
+  .list a:hover { box-shadow: 4px 4px 0 var(--sky); }
+  .list small { display: block; color: var(--muted); font-weight: 400; }
+</style>
+</head>
+<body data-no-toc>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+<main class="wrap" id="app"></main>
+<script src="../tfg.js"></script>
+<script>
+const DEMOS = [
+  { id: 'conv2d', domId: 'demoConv', title: 'Tích chập tận tay', page: '1-cnn.html', pageTitle: 'CNN & backpropagation' },
+  { id: 'grad-descent', domId: 'demoGd', title: 'Lăn xuống dốc', page: '1-cnn.html', pageTitle: 'CNN & backpropagation' },
+  { id: 'backprop', domId: 'demoBp', title: 'Lan truyền ngược từng bước', page: '1-cnn.html', pageTitle: 'CNN & backpropagation' },
+  { id: 'kernel-learn', domId: 'demoKl', title: 'Bộ lọc tự học', page: '1-cnn.html', pageTitle: 'CNN & backpropagation' },
+  { id: 'bpe', domId: 'demoBpe', title: 'Tokenizer BPE thu nhỏ', page: '2-transformer.html', pageTitle: 'Transformer' },
+  { id: 'tokenizer-real', domId: 'demoTokReal', title: 'Tokenizer thật của GPT', page: '2-transformer.html', pageTitle: 'Transformer', external: 'jsDelivr CDN (thư viện gpt-tokenizer@2.9.0)' },
+  { id: 'attn-2d', domId: 'demoAttn2d', title: 'Attention trên mặt phẳng', page: '2-transformer.html', pageTitle: 'Transformer' },
+  { id: 'attn-heads', domId: 'demoHeads', title: 'Nhiều head, một câu', page: '2-transformer.html', pageTitle: 'Transformer' },
+  { id: 'posenc', domId: 'demoPosenc', title: 'Mã hóa vị trí hình sin', page: '2-transformer.html', pageTitle: 'Transformer' },
+  { id: 'sampling', domId: 'demoSampling', title: 'Chọn token kế tiếp', page: '3-generative.html', pageTitle: 'AI tạo sinh' },
+  { id: 'latent', domId: 'demoLatent', title: 'Không gian ẩn 2D', page: '3-generative.html', pageTitle: 'AI tạo sinh' },
+  { id: 'diffusion-forward', domId: 'demoDiffFwd', title: 'Thêm nhiễu từng bước', page: '3-generative.html', pageTitle: 'AI tạo sinh' },
+  { id: 'diffusion-2d', domId: 'demoDiff2d', title: 'Khử nhiễu: từ nhiễu về dữ liệu', page: '3-generative.html', pageTitle: 'AI tạo sinh' },
+  { id: 'patches', domId: 'demoPatches', title: 'Ảnh thành chuỗi token', page: '4-multimodal.html', pageTitle: 'AI đa phương thức' },
+  { id: 'clip', domId: 'demoClip', title: 'Học tương phản kiểu CLIP', page: '4-multimodal.html', pageTitle: 'AI đa phương thức' },
+  { id: 'cross-attn', domId: 'demoCross', title: 'Cross-attention: chữ nào điều khiển vùng nào', page: '4-multimodal.html', pageTitle: 'AI đa phương thức' },
+  { id: 'scaling', domId: 'demoScaling', title: 'Scaling law kiểu Chinchilla', page: '5-llm.html', pageTitle: 'VLM, RAG & AI khác' },
+  { id: 'kv-cache', domId: 'demoKv', title: 'Bộ nhớ khi chạy LLM', page: '5-llm.html', pageTitle: 'VLM, RAG & AI khác' },
+  { id: 'rag', domId: 'demoRag', title: 'RAG thu nhỏ', page: '5-llm.html', pageTitle: 'VLM, RAG & AI khác' },
+  { id: 'rag-wiki', domId: 'demoRagWiki', title: 'RAG trên Wikipedia', page: '5-llm.html', pageTitle: 'VLM, RAG & AI khác', external: 'Wikipedia API (MediaWiki, vi/en.wikipedia.org)' },
+  { id: 'lora', domId: 'demoLora', title: 'LoRA: cập nhật hạng thấp', page: '5-llm.html', pageTitle: 'VLM, RAG & AI khác' },
+  { id: 'quant', domId: 'demoQuant', title: 'Lượng tử hóa trọng số', page: '5-llm.html', pageTitle: 'VLM, RAG & AI khác' },
+  { id: 'seq-cost', domId: 'demoSeqCost', title: 'Ngữ cảnh càng dài, tốn càng nhiều?', page: '6-mamba.html', pageTitle: 'Mamba' },
+  { id: 'ssm-memory', domId: 'demoSsm', title: 'Trạng thái nhớ rồi quên', page: '6-mamba.html', pageTitle: 'Mamba' },
+  { id: 'selective', domId: 'demoSel', title: 'Nhớ có chọn lọc', page: '6-mamba.html', pageTitle: 'Mamba' },
+  // DEMOS-LIST (thêm dòng mới ở đây)
+];
+const app = document.getElementById('app');
+const id = new URLSearchParams(location.search).get('demo');
+const d = DEMOS.find(x => x.id === id);
+if (d) {
+  document.title = d.title + ' | AI';
+  app.innerHTML = `<div class="runhead"><h1>${d.title}</h1><span><a href="run.html">Tất cả minh họa</a>  |  <a href="../../${d.page}#${d.domId}">Xem trong trang "${d.pageTitle}"</a></span></div>
+    <div class="demo" id="${d.domId}" data-demo="${d.id}"><div class="demo-loading">Đang tải…</div></div>`;
+  TFG.mountDemo(app.querySelector('.demo'), d.id);
+} else {
+  const groups = {};
+  DEMOS.forEach(x => (groups[x.pageTitle] = groups[x.pageTitle] || []).push(x));
+  app.innerHTML = `<div class="runhead"><h1>Minh họa AI</h1><a href="../../index.html">Trang chủ AI</a></div>
+    <p class="note-s">Mỗi minh họa có thể chạy riêng ở đây, hoặc nhúng vào trang bằng một thẻ &lt;div data-demo&gt; và lib/tfg.js.</p>
+    <p class="note-s">${TFG.EXT_ICON} Minh họa có dấu cảnh báo gọi dịch vụ bên ngoài (${DEMOS.filter(x => x.external).map(x => x.id).join(', ')}). Nếu dịch vụ ngừng hoạt động, minh họa tự ẩn và hiện thông báo; các minh họa khác chạy hoàn toàn trên trình duyệt.</p>
+    <div class="list">${Object.entries(groups).map(([g, xs]) => `<h2>${g}</h2><ul>${xs.map(x => `<li><a href="run.html?demo=${x.id}">${x.title}<small>${x.id}.js${x.external ? ' · ' + TFG.EXT_ICON + ' dịch vụ ngoài: ' + x.external : ''}</small></a></li>`).join('')}</ul>`).join('')}</div>`;
+}
+</script>
+</body>
+</html>

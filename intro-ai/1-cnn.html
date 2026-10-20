@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CNN &amp; backpropagation | AI | My N. Nguyen</title>
+<meta name="description" content="CNN và backpropagation cho người mới: ảnh là bảng số, neuron, tích chập, ReLU, pooling, hàm mất mát, gradient descent, lan truyền ngược, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-ai/1-cnn.html, Phần 1: CNN & BACKPROPAGATION)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết machine learning.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      conv2d       : vẽ ảnh, chọn bộ lọc, coi tích chập + ReLU + max pooling
+      grad-descent : trái banh lăn xuống dốc, chỉnh tốc độ học
+      backprop     : lan truyền ngược từng bước trên mạng tí hon
+      kernel-learn : backprop tự tìm lại 9 trọng số của một bộ lọc
+  - Hình tự vẽ: lib/figures/neuron.svg, cnn-pipeline.svg, vong-huan-luyen.svg
+  - Hình nguồn ngoài (hotlink, có dự phòng khi lỗi): CNN Explainer (Polo Club, giấy phép MIT),
+      https://raw.githubusercontent.com/poloclub/cnn-explainer/master/public/assets/figures/convlayer_overview_demo.gif
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">AI</a> / Phần 1</p>
+  <h1><span class="dot"></span>CNN &amp; backpropagation</h1>
+  <p class="lead">Điện thoại mở khóa bằng mặt, app chụp hình đoán tên cây, máy đọc phim X-quang: phía sau đều có <b>mạng nơ-ron tích chập</b> (CNN). Trang này đi từ con số không: máy “thấy” tấm hình ra sao, CNN soi hình kiểu gì, và quan trọng nhất là làm sao một mạng toàn con số lại <b>tự học</b> được, nhờ thuật toán <b>lan truyền ngược</b> (backpropagation).</p>
+</header>
+
+<!-- ================= 1.1 MÁY HỌC LÀ GÌ ================= -->
+<section class="part" id="may-hoc">
+  <div class="wrap">
+    <h2>Máy học là gì?</h2>
+    <div class="prose">
+      <p>Giả sử mình muốn viết chương trình nhận ra con mèo trong hình. Cách cũ là ngồi đặt luật: “có hai cái tai nhọn, có râu, mắt xếch…”. Làm thử chút là thấy bó tay: mèo nằm, mèo quay lưng, mèo đen trong bóng tối, mèo bị che một nửa. Luật nào cũng có ngoại lệ.</p>
+      <p><span class="term">Máy học</span> <span class="en">(machine learning)</span> làm ngược lại: mình hổng đưa luật, mình đưa <b>thật nhiều ví dụ có đáp án</b> (hình này là mèo, hình kia là chó), rồi để máy tự mò ra luật. Y chang cách dạy con nít: hổng ai giảng định nghĩa con mèo cho đứa nhỏ ba tuổi, chỉ cần chỉ cho nó coi đủ nhiều con mèo.</p>
+      <p>Cái “luật” mà máy mò ra nằm trong một mô hình có rất nhiều con số chỉnh được, gọi là <span class="term">tham số</span> hay <span class="term">trọng số</span> <span class="en">(parameters, weights)</span>. Học, nói gọn, là <b>vặn mấy con số đó cho tới khi mô hình đoán trúng</b>. Trang này trả lời hai câu hỏi: mô hình cho hình ảnh nên có hình dạng gì (CNN), và vặn hàng triệu con số kiểu gì cho lẹ (backpropagation).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.2 ẢNH LÀ BẢNG SỐ ================= -->
+<section class="part tint" id="anh-la-so">
+  <div class="wrap">
+    <h2>Với máy, tấm hình là một bảng số</h2>
+    <div class="prose">
+      <p>Máy tính hổng thấy “con mèo”, nó chỉ thấy số. Một tấm hình trắng đen là một bảng ô vuông, mỗi ô là một <span class="term">điểm ảnh</span> <span class="en">(pixel)</span> mang một con số độ sáng: 0 là đen thui, 255 là trắng tinh (hay chia lại cho gọn thành 0 tới 1). Hình màu thì có ba bảng chồng lên nhau, cho ba màu đỏ, xanh lá, xanh dương <span class="en">(RGB)</span>, mỗi bảng gọi là một <span class="term">kênh</span> <span class="en">(channel)</span>.</p>
+      <p>Một tấm hình điện thoại cỡ 1000 × 1000 điểm ảnh là <b>3 triệu con số</b>. Nhiệm vụ của mô hình: nhận 3 triệu con số đó, nhả ra một câu trả lời kiểu “mèo, chắc chừng 91%”.</p>
+    </div>
+    <div class="callout"><b>Coi thử ngay:</b> ở <a href="#tich-chap">minh họa tích chập</a> phía dưới, tấm hình con mèo 16 × 16 chỉ có hai giá trị: ô đen là 1, ô trắng là 0. Bấm lên hình để vẽ thêm hay xóa bớt, mấy con số bên phải thay đổi theo liền.</div>
+  </div>
+</section>
+
+<!-- ================= 1.3 NEURON ================= -->
+<section class="part" id="neuron">
+  <div class="wrap">
+    <h2>Neuron: cộng có trọng số rồi quyết định</h2>
+    <div class="prose">
+      <p>Viên gạch nhỏ nhất của mạng nơ-ron là một <span class="term">neuron nhân tạo</span>. Nó làm đúng ba chuyện: nhận vô mấy con số, <b>nhân mỗi số với một trọng số</b> rồi cộng hết lại (cộng thêm một số gọi là <span class="term">độ lệch</span> <span class="en">(bias)</span>), cuối cùng đưa tổng qua một <span class="term">hàm kích hoạt</span> để ra kết quả.</p>
+      <p>Coi ví dụ dưới: quyết định có nên đi cà phê với bạn hông. “Có bạn rủ” được trọng số 2 (quan trọng lắm), “trời mát” chỉ 0,5, còn “cuối tháng hết tiền” trọng số âm, kéo quyết định về phía ở nhà.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/neuron.svg" alt="Ba đầu vào: trời mát (1), có bạn rủ (1), cuối tháng hết tiền (0), nối tới một nút cộng với trọng số 0,5; 2 và −1,5. Tổng cộng độ lệch −1 ra 1,5, qua hàm kích hoạt hình chữ S ra 0,82, nghĩa là đi uống." loading="lazy">
+      <figcaption><b>Một neuron.</b> Trọng số nói đầu vào nào quan trọng và kéo về phía nào. Hàm kích hoạt nén tổng thành một số dễ hiểu (ở đây từ 0 tới 1). Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="formula">
+      <div class="eq">\[ y = \sigma\big(w_1x_1 + w_2x_2 + \dots + w_nx_n + b\big) \]</div>
+      <p class="where"><b>x<sub>1</sub>…x<sub>n</sub></b>: các đầu vào; <b>w<sub>1</sub>…w<sub>n</sub></b>: trọng số (mạng tự học); <b>b</b>: độ lệch (cũng tự học); <b>σ</b>: hàm kích hoạt. Hàm kích hoạt phổ biến nhất bây giờ là <b>ReLU</b>: số âm thì thành 0, số dương giữ nguyên, \(\mathrm{ReLU}(z) = \max(0, z)\).</p>
+    </div>
+    <div class="prose">
+      <p>Một neuron thì ngây thơ lắm. Nhưng xếp nhiều neuron thành một <span class="term">lớp</span> <span class="en">(layer)</span>, rồi chồng nhiều lớp lên nhau (đầu ra lớp này là đầu vào lớp sau), ta được <span class="term">mạng nơ-ron</span>. Chồng càng nhiều lớp thì gọi là <span class="term">học sâu</span> <span class="en">(deep learning)</span>. Hàm kích hoạt là thứ bắt buộc: thiếu nó, chồng bao nhiêu lớp thì cũng chỉ tương đương một phép nhân cộng, hổng học được gì phức tạp.</p>
+      <p><b>Vậy sao hổng nối thẳng 3 triệu điểm ảnh vô một lớp neuron cho rồi?</b> Có hai cái dở. Một là quá nhiều trọng số: lớp 1000 neuron, mỗi neuron nối với 3 triệu điểm ảnh, là 3 tỷ trọng số chỉ cho lớp đầu. Hai là mạng kiểu đó hổng biết điểm ảnh nào nằm <b>kế bên</b> điểm ảnh nào, trong khi nét, cạnh, hình khối đều nằm ở chỗ các điểm ảnh gần nhau. Hình con mèo dời qua phải 5 điểm ảnh là mạng phải học lại từ đầu. CNN sinh ra để giải quyết đúng hai chuyện này.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.4 TÍCH CHẬP ================= -->
+<section class="part tint" id="tich-chap">
+  <div class="wrap">
+    <h2>Tích chập: soi từng khúc bằng một cái khuôn nhỏ</h2>
+    <div class="prose">
+      <p>Ý tưởng của CNN: thay vì nhìn cả tấm hình một lượt, xài một cái khuôn nhỏ xíu, thường là 3 × 3 ô, gọi là <span class="term">bộ lọc</span> hay <span class="term">kernel</span>. Khuôn này trượt qua từng vị trí trên hình. Ở mỗi chỗ, nhân 9 điểm ảnh bên dưới với 9 trọng số của khuôn rồi cộng lại, ra <b>một con số</b>. Trượt hết tấm hình, mình được một bảng số mới gọi là <span class="term">bản đồ đặc trưng</span> <span class="en">(feature map)</span>. Phép trượt-nhân-cộng này gọi là <span class="term">tích chập</span> <span class="en">(convolution)</span>.</p>
+      <p>Con số ra lớn khi vùng hình bên dưới <b>giống với khuôn</b>. Khuôn “cạnh dọc” (trái âm, phải dương) cho số lớn ở chỗ hình chuyển từ tối qua sáng theo chiều ngang, tức là chỗ có cạnh dọc. Nên mỗi bộ lọc giống như một con mắt chuyên đi tìm một kiểu hoa văn.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ z_{r,c} = \sum_{i=0}^{2}\sum_{j=0}^{2} K_{i,j}\; x_{r+i,\;c+j} \; + \; b \]</div>
+      <p class="where"><b>x</b>: tấm hình (bảng điểm ảnh); <b>K</b>: bộ lọc 3×3, <b>K<sub>i,j</sub></b> là trọng số ở hàng i, cột j; <b>z<sub>r,c</sub></b>: ô ở hàng r, cột c của bản đồ đặc trưng; <b>Σ</b> (sigma): “cộng hết lại”, ở đây cộng 9 tích; <b>b</b>: độ lệch. Hình 16×16 với bộ lọc 3×3 cho ra bản đồ 14×14, vì khuôn phải nằm gọn trong hình.</p>
+    </div>
+
+    <div class="demo" id="demoConv" data-demo="conv2d">
+      <div class="demo-title"><h4>Tích chập tận tay</h4><span>Vẽ lên ảnh, chọn bộ lọc, rê chuột lên bản đồ đặc trưng</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="prose">
+      <p>Mấy chuyện nên thử trên minh họa:</p>
+      <ul>
+        <li>Chọn “Số 7” với bộ lọc “Cạnh ngang”: gạch ngang trên đầu số 7 sáng rực, còn nét xéo thì mờ hơn. Đổi qua “Đường chéo” thì ngược lại.</li>
+        <li>Tắt ReLU để thấy luôn mấy số âm (màu đỏ). ReLU xóa sạch chúng, chỉ giữ chỗ nào bộ lọc “thấy” thứ nó tìm.</li>
+        <li>Dời con mèo qua một bên (xóa rồi vẽ lại lệch đi): bản đồ đặc trưng dời theo y chang. Cùng một bộ lọc dùng cho mọi vị trí, nên con mèo ở góc nào cũng được nhận ra như nhau.</li>
+      </ul>
+    </div>
+    <h3>Hai cái lợi lớn</h3>
+    <div class="prose">
+      <p><b>Xài chung trọng số</b> <span class="en">(weight sharing)</span>: một bộ lọc 3×3 chỉ có 9 trọng số (cộng 1 độ lệch), dù tấm hình bự cỡ nào. So với 3 tỷ trọng số ở trên thì nhẹ hều.</p>
+      <p><b>Nhìn cục bộ</b> <span class="en">(local connectivity)</span>: mỗi ô của bản đồ đặc trưng chỉ nhìn một vùng nhỏ kế nhau, đúng với bản chất của hình ảnh.</p>
+    </div>
+    <div class="callout"><b>Điểm mấu chốt:</b> mấy bộ lọc trong minh họa là do người đặt sẵn cho dễ coi. Trong CNN thật, <b>9 con số của mỗi bộ lọc là trọng số học được</b>. Không ai dạy mạng “hãy tìm cạnh dọc”, nó tự phát hiện ra rằng tìm cạnh dọc là có ích. Coi tận mắt ở <a href="#backprop-cnn">minh họa bộ lọc tự học</a> gần cuối trang.</div>
+  </div>
+</section>
+
+<!-- ================= 1.5 RÁP THÀNH CNN ================= -->
+<section class="part" id="cnn">
+  <div class="wrap">
+    <h2>Ráp lại thành một CNN</h2>
+    <div class="prose">
+      <p>Một CNN thật ráp mấy khối sau theo thứ tự, lặp lại vài lần:</p>
+      <ul>
+        <li><b>Lớp tích chập</b> với <i>nhiều</i> bộ lọc cùng lúc (vài chục tới vài trăm), mỗi bộ lọc cho ra một bản đồ đặc trưng. Ở lớp sau, mỗi bộ lọc nhìn xuyên qua <i>tất cả</i> bản đồ của lớp trước, như hình màu có 3 kênh.</li>
+        <li><b>ReLU</b> sau mỗi lớp tích chập, xóa số âm.</li>
+        <li><span class="term">Pooling</span>: gom mỗi ô 2×2 thành một ô, thường lấy số lớn nhất <span class="en">(max pooling)</span>. Bản đồ nhỏ đi một nửa mỗi chiều, đỡ tính toán, và mạng bớt nhạy với chuyện hình bị xê dịch chút xíu.</li>
+        <li>Cuối cùng, “duỗi thẳng” các bản đồ thành một hàng số dài, đưa qua vài <b>lớp kết nối đủ</b> <span class="en">(fully connected)</span> như ở phần neuron, rồi qua <span class="term">softmax</span> để ra xác suất cho mỗi nhãn, cộng lại bằng 1.</li>
+      </ul>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/cnn-pipeline.svg" alt="Sơ đồ: ảnh con mèo 10×10 qua tích chập và ReLU thành 4 bản đồ đặc trưng (nét, cạnh), qua pooling nhỏ lại một nửa, qua tích chập nữa thành 7 bản đồ (góc, đường cong), qua pooling thành các bản đồ nhỏ (bộ phận: tai, mắt, râu), duỗi thẳng thành vector, qua lớp kết nối đủ và softmax ra mèo 0,91, chó 0,07, xe 0,02." loading="lazy">
+      <figcaption><b>Đường đi của một tấm hình qua CNN.</b> Lớp đầu tìm nét và cạnh; lớp sau ráp nét thành góc, đường cong; lớp sâu hơn nữa ráp thành bộ phận như tai, mắt; cuối cùng phần phân loại cân đo hết và ra câu trả lời. Hình tự vẽ, giản lược theo kiểu LeNet và AlexNet.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Chỗ hay nhất là <b>tầm nhìn lớn dần theo độ sâu</b>. Một ô ở lớp 1 chỉ thấy 3×3 điểm ảnh. Nhưng một ô ở lớp 2 nhìn 3×3 ô của lớp 1, mỗi ô đó lại thấy 3×3 điểm ảnh, nên tổng cộng thấy cỡ 5×5; có thêm pooling thì vùng nhìn còn nở nhanh hơn nữa. Lớp càng sâu, đặc trưng càng to và càng “trừu tượng”. Khi người ta mở các CNN đã huấn luyện ra coi (Zeiler và Fergus, 2014), đúng là lớp đầu học được bộ lọc cạnh và màu, lớp giữa học hoa văn, lớp sâu phản ứng với mặt người, bánh xe, mõm chó.</p>
+    </div>
+    <figure class="fig" style="max-width:460px">
+      <img src="https://raw.githubusercontent.com/poloclub/cnn-explainer/master/public/assets/figures/convlayer_overview_demo.gif" alt="Ảnh động từ CNN Explainer: tấm hình tách thành ba kênh đỏ, xanh lá, xanh dương ở bên trái; mỗi kênh nối tới 10 bản đồ đặc trưng của lớp conv_1_1, qua relu_1_1 rồi tới conv_1_2; con trỏ rê qua từng bản đồ." loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'note-s',textContent:'Không tải được hình từ nguồn ngoài (GitHub). Mở link bên dưới để coi bản gốc.'}))">
+      <figcaption><b>Một CNN nhỏ phân loại 10 loại vật, chạy thiệt trong trình duyệt.</b> Ba kênh màu của tấm hình cái tách đi qua lớp tích chập đầu tiên (10 bộ lọc), ReLU, rồi lớp tích chập thứ hai. Màu xanh là số dương, đỏ là số âm. Ảnh động từ <a href="https://poloclub.github.io/cnn-explainer/" rel="noopener">CNN Explainer</a> (Wang và cộng sự, Polo Club of Data Science, Georgia Tech, 2020; giấy phép MIT), hình lấy trực tiếp từ kho GitHub của dự án. Vô trang gốc để bấm vô từng lớp mà coi.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 1.6 HUẤN LUYỆN ================= -->
+<section class="part tint" id="huan-luyen">
+  <div class="wrap">
+    <h2>Dạy mạng: hàm mất mát và gradient descent</h2>
+    <div class="prose">
+      <p>Lúc mới tạo, mọi trọng số trong mạng là số ngẫu nhiên, nên mạng đoán bậy bạ. Huấn luyện là một vòng lặp bốn bước, lặp đi lặp lại với hàng ngàn tới hàng triệu tấm hình:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/vong-huan-luyen.svg" alt="Bốn ô nối nhau: 1. Đoán (lan truyền tới), 2. Chấm điểm (hàm mất mát), 3. Truy lỗi ngược (backprop), 4. Chỉnh nhẹ (gradient descent), rồi mũi tên đứt quay lại bước 1: lặp lại với ảnh khác hàng ngàn tới hàng triệu lần." loading="lazy">
+      <figcaption><b>Vòng huấn luyện.</b> Bước 3 là chỗ backpropagation ra tay. Hình tự vẽ.</figcaption>
+    </figure>
+    <h3>Chấm điểm bằng hàm mất mát</h3>
+    <div class="prose">
+      <p>Muốn sửa thì trước hết phải đo được sai bao nhiêu. <span class="term">Hàm mất mát</span> <span class="en">(loss function)</span> biến “đoán sai” thành một con số: càng sai, số càng lớn; đoán trúng hoàn toàn thì bằng 0. Với bài phân loại, hàm hay xài nhất là <span class="term">cross-entropy</span>: \(L = -\log p_{\text{đúng}}\), với \(p_{\text{đúng}}\) là xác suất mạng gán cho đáp án đúng. Mạng nói “mèo 91%” mà đúng là mèo thì \(L \approx 0{,}09\), nhẹ nhàng; nói “mèo 1%” thì \(L \approx 4{,}6\), bị phạt nặng.</p>
+    </div>
+    <h3>Lăn xuống dốc</h3>
+    <div class="prose">
+      <p>Tưởng tượng độ lỗi là độ cao của một vùng đồi núi, mỗi trọng số là một hướng đi. Mình đang đứng đâu đó, mắt bị bịt, muốn xuống thung lũng thấp nhất. Cách đơn giản nhất: rờ chân coi dốc nghiêng về phía nào, rồi bước một bước xuống phía đó. Lặp lại. Độ nghiêng đó gọi là <span class="term">gradient</span> (đạo hàm), và cách đi này gọi là <span class="term">gradient descent</span>.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ w \;\leftarrow\; w \;-\; \eta\,\frac{\partial L}{\partial w} \]</div>
+      <p class="where"><b>∂L/∂w</b>: đạo hàm riêng của độ lỗi L theo trọng số w, đọc là “L thay đổi nhanh cỡ nào khi nhích w một chút”; dương nghĩa là tăng w thì lỗi tăng, nên phải giảm w (vì vậy có dấu trừ). <b>η</b> (eta): <span class="term">tốc độ học</span> <span class="en">(learning rate)</span>, quyết định bước dài hay ngắn. <b>←</b>: gán giá trị mới.</p>
+    </div>
+    <div class="demo" id="demoGd" data-demo="grad-descent">
+      <div class="demo-title"><h4>Lăn xuống dốc</h4><span>Kéo trái banh, chỉnh tốc độ học, rồi cho nó lăn</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Minh họa chỉ có một trọng số cho dễ vẽ. Mạng thật có hàng triệu tới hàng tỷ trọng số, tức là một “vùng đồi” có hàng triệu chiều, nhưng cách đi y chang: mỗi trọng số nhích một chút theo độ dốc của riêng nó. Trong thực tế, mỗi bước người ta chỉ chấm điểm trên một nhúm nhỏ hình chọn ngẫu nhiên (gọi là <span class="term">mini-batch</span>, cỡ 32 tới vài ngàn hình) thay vì cả kho, nên đường đi hơi lắc lư, gọi là <span class="term">SGD</span> <span class="en">(stochastic gradient descent)</span>. Các biến thể như <b>Adam</b> tự chỉnh bước cho từng trọng số, giờ là lựa chọn mặc định.</p>
+    </div>
+    <div class="callout"><b>Còn một câu hỏi bự:</b> làm sao biết độ dốc ∂L/∂w của <i>từng</i> trọng số trong mạng có cả triệu trọng số? Cách ngây thơ là nhích từng trọng số một chút rồi chạy lại cả mạng coi lỗi đổi bao nhiêu. Một triệu trọng số là một triệu lần chạy, cho <i>một</i> bước học. Hổng ai chờ nổi. Backpropagation tính hết một lượt với chi phí chỉ cỡ hai, ba lần chạy mạng.</div>
+  </div>
+</section>
+
+<!-- ================= 1.7 BACKPROP ================= -->
+<section class="part" id="backprop">
+  <div class="wrap">
+    <h2>Backpropagation: truy lỗi ngược theo dây chuyền</h2>
+    <div class="prose">
+      <p>Bắt đầu bằng một ví dụ ngoài chợ. Giả sử xăng lên 1 ngàn thì tiền chở hàng lên 2 ngàn; mà tiền chở hàng lên 1 ngàn thì tô hủ tiếu lên 0,5 ngàn. Hỏi: xăng lên 1 ngàn thì tô hủ tiếu lên bao nhiêu? Dễ ợt: 2 × 0,5 = 1 ngàn. Mình chỉ việc <b>nhân các tỉ lệ dọc theo dây chuyền</b>. Trong toán, đó là <span class="term">quy tắc dây chuyền</span> <span class="en">(chain rule)</span> của đạo hàm.</p>
+      <p>Mạng nơ-ron là một dây chuyền dài: đầu vào đi qua lớp này tới lớp kia, cuối cùng thành độ lỗi L. Muốn biết L đổi bao nhiêu khi nhích một trọng số nằm sâu bên trong, mình nhân các tỉ lệ dọc đường đi từ trọng số đó tới L. Mẹo của backprop là <b>đi ngược từ cuối về đầu</b>: tính độ dốc ở lớp cuối trước, rồi xài lại kết quả đó cho lớp kế trước, cứ vậy lùi dần. Mỗi lớp chỉ cần biết “lỗi đổ về tới mình là bao nhiêu” và phép tính cục bộ của chính nó. Nhờ xài lại, cả triệu gradient được tính trong <b>một lượt đi ngược</b>.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \frac{\partial L}{\partial w_1} \;=\; \frac{\partial L}{\partial \hat y}\cdot\frac{\partial \hat y}{\partial h}\cdot\frac{\partial h}{\partial z}\cdot\frac{\partial z}{\partial w_1} \]</div>
+      <p class="where">Cho mạng tí hon trong minh họa dưới: \(z = w_1x + b_1\), \(h = \mathrm{ReLU}(z)\), \(\hat y = w_2h + b_2\), \(L = (\hat y - t)^2\). <b>ŷ</b> (y mũ): giá trị mạng đoán; <b>t</b>: đáp án đúng. Mỗi phân số là một “tỉ lệ” cục bộ, dễ tính: \(\partial L/\partial \hat y = 2(\hat y - t)\), \(\partial \hat y/\partial h = w_2\), \(\partial h/\partial z\) bằng 1 nếu z dương và 0 nếu z âm, \(\partial z/\partial w_1 = x\).</p>
+    </div>
+    <div class="demo" id="demoBp" data-demo="backprop">
+      <div class="demo-title"><h4>Lan truyền ngược từng bước</h4><span>Chạy tới, lan ngược, cập nhật, lặp lại</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Gradient của một trọng số luôn bằng “lỗi đổ về tới chỗ nó” nhân với “cái mà trọng số đó đã nhân vô”. Ví dụ ∂L/∂w2 = ∂L/∂ŷ · h. Nên đầu vào bằng 0 thì trọng số đi kèm hổng bị sửa: nó đâu có góp phần gì vô lỗi.</li>
+        <li>Kéo x về số âm để z âm: ReLU chặn, gradient về w1, b1 bằng 0. Neuron nào lúc nào cũng ra 0 thì hổng học được nữa, gọi là <b>neuron chết</b>.</li>
+        <li>Bấm “Huấn luyện 20 vòng” vài lần: độ lỗi giảm dần về gần 0. Tăng tốc độ học lên 0,3 để thấy nó nhảy loạn, y như trái banh ở trên.</li>
+      </ul>
+    </div>
+    <div class="callout"><b>Ai làm phép tính này trong thực tế?</b> Hổng ai ngồi viết tay đạo hàm cho mạng thật. Các thư viện như PyTorch, JAX, TensorFlow ghi lại mọi phép tính khi chạy tới, rồi tự động đi ngược để tính gradient, gọi là <span class="term">vi phân tự động</span> <span class="en">(automatic differentiation)</span>. Trong PyTorch, cả bước 3 gói gọn trong một dòng <span class="kbd">loss.backward()</span>.</div>
+  </div>
+</section>
+
+<!-- ================= 1.8 BACKPROP TRONG CNN ================= -->
+<section class="part tint" id="backprop-cnn">
+  <div class="wrap">
+    <h2>Backprop trong CNN</h2>
+    <div class="prose">
+      <p>CNN cũng chỉ là một dây chuyền phép tính, nên backprop chạy y chang. Chỉ có vài khúc đặc biệt:</p>
+      <ul>
+        <li><b>Lớp tích chập.</b> Một trọng số của bộ lọc được xài ở <i>mọi</i> vị trí trên hình, nên nó “gánh” lỗi ở mọi vị trí. Gradient của nó là <b>tổng</b> đóng góp ở tất cả các vị trí (công thức dưới). Vì vậy một bộ lọc học được từ cả tấm hình, chứ hổng phải từ một góc.</li>
+        <li><b>ReLU.</b> Chỗ nào đầu vào dương thì cho lỗi đi qua nguyên vẹn, chỗ nào âm thì chặn lại (nhân 0).</li>
+        <li><b>Max pooling.</b> Trong mỗi ô 2×2, chỉ ô thắng (số lớn nhất) được nhận lỗi; ba ô kia nhận 0, vì nhích chúng chút xíu cũng hổng làm đầu ra đổi.</li>
+      </ul>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \frac{\partial L}{\partial K_{i,j}} \;=\; \sum_{r,\,c}\; \frac{\partial L}{\partial z_{r,c}}\;\, x_{r+i,\;c+j} \]</div>
+      <p class="where">Đọc là: muốn biết trọng số K<sub>i,j</sub> nên chỉnh cỡ nào, đi qua mọi vị trí (r, c) mà bộ lọc từng đứng, lấy “lỗi ở ô kết quả đó” nhân với “điểm ảnh mà K<sub>i,j</sub> đã nhân vô ở vị trí đó”, rồi cộng hết lại. Đúng y quy luật “lỗi đổ về × cái đã nhân vô” ở trên.</p>
+    </div>
+    <div class="prose">
+      <p>Minh họa dưới đây cho thấy trọn vẹn chuyện “bộ lọc là trọng số học được”. Có một bộ lọc đáp án giấu kín. Mạng chỉ được coi tấm hình và bản đồ đặc trưng mà bộ lọc đáp án tạo ra. Bộ lọc của mạng bắt đầu bằng 9 số ngẫu nhiên, và chỉ nhờ công thức trên cộng với gradient descent, nó tự mò về đúng bộ lọc đáp án.</p>
+    </div>
+    <div class="demo" id="demoKl" data-demo="kernel-learn">
+      <div class="demo-title"><h4>Bộ lọc tự học</h4><span>Backprop tìm lại 9 trọng số của bộ lọc đáp án</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Trong một CNN thật, chẳng có bộ lọc đáp án nào cả: “mục tiêu” chỉ là nhãn mèo hay chó ở cuối mạng, và lỗi được lan ngược qua hàng chục lớp để chỉnh hàng triệu trọng số cùng lúc. Bộ lọc tìm cạnh tự xuất hiện ở lớp đầu vì nó có ích cho việc đoán đúng nhãn.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 1.9 CHUYỆN HAY GẶP ================= -->
+<section class="part" id="kho-khan">
+  <div class="wrap">
+    <h2>Mấy cái khó và cách gỡ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Chuyện gì</th><th>Nói đơn giản</th><th>Cách gỡ phổ biến</th></tr></thead>
+        <tbody>
+          <tr><td>Gradient biến mất<span class="en">vanishing gradient</span></td><td>Lan ngược qua nhiều lớp là nhân nhiều tỉ lệ. Tỉ lệ nhỏ hơn 1 nhân hoài thì gần bằng 0, lớp đầu gần như hổng học được.</td><td>ReLU thay cho hàm chữ S; khởi tạo trọng số khéo; chuẩn hóa theo lô <span class="en">(batch norm)</span>; kết nối tắt kiểu ResNet.</td></tr>
+          <tr><td>Kết nối tắt<span class="en">skip connection</span></td><td>Cho đầu vào của một khối “đi tắt” cộng thẳng vô đầu ra. Lỗi có đường cao tốc chạy ngược về lớp đầu.</td><td>ResNet (2015) nhờ vậy mà huấn luyện được mạng 152 lớp. Transformer ở <a href="2-transformer.html#khoi">Phần 2</a> cũng xài y chang.</td></tr>
+          <tr><td>Học vẹt<span class="en">overfitting</span></td><td>Mạng thuộc lòng hình huấn luyện, gặp hình mới thì đoán sai. Giống học sinh thuộc đáp án đề cũ.</td><td>Thêm dữ liệu; tăng cường dữ liệu <span class="en">(data augmentation)</span>: lật, xoay, cắt, đổi màu hình; dropout; dừng sớm.</td></tr>
+          <tr><td>Tốc độ học khó chọn</td><td>Nhỏ quá thì học hoài hổng xong; lớn quá thì nhảy loạn, nổ tung.</td><td>Adam; khởi động nhẹ rồi giảm dần tốc độ học theo lịch <span class="en">(warmup, cosine schedule)</span>.</td></tr>
+          <tr><td>Hộp đen</td><td>Mạng đoán đúng nhưng khó giải thích vì sao.</td><td>Vẽ bản đồ nhiệt coi mạng nhìn chỗ nào (Grad-CAM, cũng dựa trên gradient); trực quan hóa bộ lọc.</td></tr>
+        </tbody>
+        <caption>CNN cũng có giới hạn: nó chỉ nhìn cục bộ, nên muốn nối hai vùng xa nhau trên hình phải chồng nhiều lớp. Đây là lý do cơ chế attention của Transformer (Phần 2) ra đời.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Trọng số, tham số</td><td>weight, parameter</td><td>Mấy con số mà mạng tự vặn trong lúc học.</td></tr>
+          <tr><td>Hàm kích hoạt</td><td>activation function</td><td>Biến đổi phi tuyến sau mỗi phép cộng có trọng số; phổ biến nhất là ReLU.</td></tr>
+          <tr><td>Bộ lọc, kernel</td><td>filter, kernel</td><td>Cái khuôn nhỏ trượt qua hình để tìm một kiểu hoa văn.</td></tr>
+          <tr><td>Bản đồ đặc trưng</td><td>feature map</td><td>Kết quả của một bộ lọc: chỗ nào có hoa văn đó thì số lớn.</td></tr>
+          <tr><td>Pooling</td><td>pooling</td><td>Gom ô 2×2 thành 1 ô để thu nhỏ bản đồ.</td></tr>
+          <tr><td>Hàm mất mát</td><td>loss function</td><td>Con số đo mạng đoán sai cỡ nào.</td></tr>
+          <tr><td>Gradient</td><td>gradient</td><td>Độ dốc của độ lỗi theo từng trọng số: chỉnh hướng nào, mạnh cỡ nào.</td></tr>
+          <tr><td>Tốc độ học</td><td>learning rate</td><td>Bước dài hay ngắn mỗi lần chỉnh trọng số.</td></tr>
+          <tr><td>Lan truyền tới / ngược</td><td>forward / backward pass</td><td>Chạy hình xuyên qua mạng để đoán / chạy lỗi ngược về để tính gradient.</td></tr>
+          <tr><td>Epoch</td><td>epoch</td><td>Một lượt mạng đi qua hết kho dữ liệu huấn luyện.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(\sum\)</td><td>sum</td><td>Cộng hết các số hạng lại.</td></tr>
+          <tr><td class="sym">\(\sigma\)</td><td>sigma</td><td>Ở trang này: hàm kích hoạt nói chung.</td></tr>
+          <tr><td class="sym">\(\max(0, z)\)</td><td>max of zero and z</td><td>Lấy số lớn hơn giữa 0 và z; chính là ReLU.</td></tr>
+          <tr><td class="sym">\(\hat y\)</td><td>y hat</td><td>Giá trị mạng đoán (dấu mũ = “ước lượng”).</td></tr>
+          <tr><td class="sym">\(\frac{\partial L}{\partial w}\)</td><td>partial L partial w</td><td>Đạo hàm riêng: L đổi bao nhiêu khi nhích w một chút, các thứ khác giữ nguyên.</td></tr>
+          <tr><td class="sym">\(\eta\)</td><td>eta</td><td>Tốc độ học.</td></tr>
+          <tr><td class="sym">\(\leftarrow\)</td><td>is assigned, gets</td><td>Gán giá trị mới (cập nhật biến).</td></tr>
+          <tr><td class="sym">\(K_{i,j}\)</td><td>K sub i j</td><td>Phần tử hàng i, cột j của bộ lọc K.</td></tr>
+          <tr><td class="sym">\(\log\)</td><td>log</td><td>Logarit tự nhiên; −log p lớn khi p nhỏ.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1958</span><div><h4>Perceptron</h4><p>Frank Rosenblatt chế ra perceptron, một neuron nhân tạo học được bằng cách tự chỉnh trọng số. Báo chí hồi đó đồn rằng máy sắp biết đi, biết nói.</p></div></li>
+      <li class="bio"><span class="yr">1959–62</span><div><h4>Hubel và Wiesel</h4><p>Thí nghiệm trên vỏ não thị giác của mèo cho thấy có tế bào chỉ phản ứng với cạnh theo một hướng nhất định, trong một vùng nhỏ. Ý tưởng “nhìn cục bộ, tìm cạnh trước” của CNN bắt nguồn từ đây. Hai ông nhận giải Nobel Y học năm 1981.</p></div></li>
+      <li><span class="yr">1970</span><div><h4>Vi phân tự động chế độ ngược</h4><p>Seppo Linnainmaa mô tả cách tính đạo hàm bằng cách đi ngược qua chuỗi phép tính, chính là phần toán cốt lõi của backpropagation.</p></div></li>
+      <li><span class="yr">1980</span><div><h4>Neocognitron</h4><p>Kunihiko Fukushima xây mạng nhiều lớp xen kẽ lớp tìm đặc trưng và lớp gom, tổ tiên trực tiếp của CNN, nhưng chưa huấn luyện bằng gradient.</p></div></li>
+      <li><span class="yr">1986</span><div><h4>Backpropagation nổi tiếng</h4><p>Rumelhart, Hinton và Williams đăng bài trên Nature cho thấy backprop giúp mạng nhiều lớp tự học được cách biểu diễn hữu ích bên trong.</p></div></li>
+      <li><span class="yr">1989–98</span><div><h4>LeNet</h4><p>Yann LeCun huấn luyện CNN bằng backprop để đọc mã bưu điện viết tay, rồi LeNet-5 (1998) được xài để đọc séc ngân hàng ở Mỹ. Bộ dữ liệu chữ số viết tay MNIST ra đời cùng lúc.</p></div></li>
+      <li><span class="yr">2012</span><div><h4>AlexNet</h4><p>Krizhevsky, Sutskever và Hinton thắng cuộc thi ImageNet (1,2 triệu hình, 1000 loại) với tỉ lệ lỗi top-5 là 15,3%, trong khi hạng nhì 26,2%. Huấn luyện trên hai card đồ họa GPU. Cột mốc mở màn thời đại học sâu.</p></div></li>
+      <li><span class="yr">2014–15</span><div><h4>VGG, GoogLeNet, ResNet</h4><p>Mạng sâu dần: 19 lớp, 22 lớp, rồi ResNet 152 lớp nhờ kết nối tắt, lỗi top-5 còn 3,57% trên ImageNet.</p></div></li>
+      <li><span class="yr">2018</span><div><h4>Giải Turing</h4><p>Hinton, LeCun và Bengio nhận giải Turing, “Nobel của ngành máy tính”, cho các đóng góp nền tảng về học sâu.</p></div></li>
+      <li><span class="yr">2022</span><div><h4>ConvNeXt</h4><p>Sau khi Vision Transformer nổi lên, Liu và cộng sự hiện đại hóa CNN và cho thấy CNN được thiết kế kỹ vẫn ngang ngửa. Tới nay CNN vẫn rất phổ biến trên điện thoại, camera và thiết bị y tế vì nhẹ và lẹ.</p></div></li>
+      <li><span class="yr">2024</span><div><h4>Nobel Vật lý</h4><p>John Hopfield và Geoffrey Hinton nhận giải Nobel Vật lý cho các phát minh nền tảng giúp mạng nơ-ron nhân tạo học được.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>D. E. Rumelhart, G. E. Hinton, R. J. Williams, “Learning representations by back-propagating errors”, <i>Nature</i> 323, 533–536, 1986.</li>
+      <li>Y. LeCun, L. Bottou, Y. Bengio, P. Haffner, “Gradient-Based Learning Applied to Document Recognition”, <i>Proceedings of the IEEE</i>, 1998.</li>
+      <li>A. Krizhevsky, I. Sutskever, G. E. Hinton, “ImageNet Classification with Deep Convolutional Neural Networks”, NeurIPS 2012.</li>
+      <li>M. D. Zeiler, R. Fergus, “Visualizing and Understanding Convolutional Networks”, ECCV 2014. <a href="https://arxiv.org/abs/1311.2901" rel="noopener">arXiv:1311.2901</a>.</li>
+      <li>K. He, X. Zhang, S. Ren, J. Sun, “Deep Residual Learning for Image Recognition”, CVPR 2016. <a href="https://arxiv.org/abs/1512.03385" rel="noopener">arXiv:1512.03385</a>.</li>
+      <li>Z. J. Wang et al., “CNN Explainer: Learning Convolutional Neural Networks with Interactive Visualization”, IEEE TVCG 2020. <a href="https://poloclub.github.io/cnn-explainer/" rel="noopener">Bản chạy trực tuyến</a>, <a href="https://arxiv.org/abs/2004.15004" rel="noopener">arXiv:2004.15004</a>.</li>
+      <li>Stanford CS231n, <a href="https://cs231n.github.io/convolutional-networks/" rel="noopener">ghi chú bài giảng về CNN</a> và <a href="https://cs231n.github.io/optimization-2/" rel="noopener">về backpropagation</a>.</li>
+      <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/neural-networks" rel="noopener">loạt video về mạng nơ-ron</a> (giải thích backprop bằng hình rất dễ hiểu).</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="index.html"><small>Quay lại</small><b>AI</b></a>
+      <a class="next" href="2-transformer.html"><small>Phần 2</small><b>Transformer</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

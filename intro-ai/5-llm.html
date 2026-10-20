@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VLM, RAG &amp; AI khác | AI | My N. Nguyen</title>
+<meta name="description" content="LLM, scaling laws, KV cache, VLM, RAG, LoRA, lượng tử hóa, agent, mô hình suy luận và MoE, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-ai/5-llm.html, Phần 5: VLM, RAG & AI KHÁC)
+  - Demo trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      scaling  : định luật Chinchilla
+      kv-cache : bộ nhớ trọng số + KV cache (bảng PRESETS)
+      rag      : truy hồi TF-IDF + ghép prompt (bảng DOCS)
+      rag-wiki : ⚠ RAG trên Wikipedia thật, gọi MediaWiki API (tự ẩn nếu API lỗi)
+      lora     : xấp xỉ hạng thấp bằng SVD
+      quant    : lượng tử hóa absmax per-tensor / per-group
+  - Hình: lib/figures/llm-pipeline.svg, vlm.svg, rag.svg, agent-loop.svg
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">AI</a> / Phần 5</p>
+  <h1><span class="dot"></span>VLM, RAG &amp; AI khác</h1>
+  <p class="lead">Ghép mọi mảnh của các phần trước: một Transformer decoder thật lớn, huấn luyện để đoán token tiếp theo trên gần như toàn bộ văn bản của Internet, rồi được dạy cách trò chuyện, nhìn ảnh, tra cứu tài liệu và dùng công cụ. Phần này giải thích những thuật ngữ bạn gặp hằng ngày khi dùng hoặc xây hệ thống AI.</p>
+</header>
+
+<!-- ================= 4.1 LLM ================= -->
+<section class="part" id="llm">
+  <div class="wrap">
+    <h2>LLM được tạo ra bằng cách nào</h2>
+    <div class="prose">
+      <p><span class="term">Mô hình ngôn ngữ lớn</span> <span class="en">(large language model, LLM)</span> về kiến trúc chỉ là <a href="2-transformer.html#khoi">Transformer decoder-only ở Phần 2</a>, với hàng tỉ đến hàng trăm tỉ tham số. Điều làm nên khác biệt nằm ở dữ liệu và quy trình huấn luyện gồm ba giai đoạn:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/llm-pipeline.svg" alt="Ba giai đoạn: tiền huấn luyện dự đoán token tiếp theo trên khoảng 10 nghìn tỉ token ra base model; SFT trên cặp câu hỏi và câu trả lời mẫu; học từ phản hồi bằng RLHF hoặc DPO." loading="lazy">
+      <figcaption><b>Ba giai đoạn huấn luyện một LLM trò chuyện.</b> Hình tự vẽ, giản lược theo Ouyang et al. (2022).</figcaption>
+    </figure>
+    <div class="prose">
+      <p><b>Tiền huấn luyện</b> dùng đúng hàm mất mát cross-entropy cho token tiếp theo ở <a href="3-generative.html#tu-hoi-quy">Phần 3</a>. Để đoán tốt token tiếp theo của mọi loại văn bản, mô hình buộc phải học ngữ pháp, kiến thức thế giới, và cả một phần khả năng suy luận. Kết quả là <span class="term">base model</span>: hỏi nó "Thủ đô của Pháp là gì?", nó có thể viết tiếp thêm năm câu hỏi địa lý thay vì trả lời.</p>
+      <p><b>SFT</b> <span class="en">(supervised fine-tuning)</span> dạy định dạng hội thoại bằng ví dụ mẫu. <b>Học từ phản hồi</b> tinh chỉnh tiếp bằng sự so sánh: với hai câu trả lời, câu nào tốt hơn? <span class="term">RLHF</span> huấn luyện một mô hình phần thưởng \(r\) từ các so sánh này rồi tối ưu LLM bằng học tăng cường; <span class="term">DPO</span> đạt mục tiêu tương tự mà không cần mô hình phần thưởng riêng.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \max_{\pi_\theta}\; \mathbb E_{x,\; y \sim \pi_\theta(\cdot\mid x)}\big[r(x, y)\big] \;-\; \beta\, D_{\mathrm{KL}}\big(\pi_\theta(\cdot\mid x)\,\|\,\pi_{\text{ref}}(\cdot\mid x)\big) \]</div>
+      <p class="where"><b>x</b>: câu hỏi (prompt); <b>y</b>: câu trả lời; <b>π<sub>θ</sub>(· | x)</b> (pi theta): LLM đang tối ưu, xem như phân phối xác suất trên mọi câu trả lời có thể cho prompt x (dấu chấm "·" thay cho "câu trả lời bất kỳ"); <b>r(x, y)</b>: điểm thưởng mà mô hình chấm điểm (reward model) cho câu trả lời; <b>𝔼</b>: giá trị trung bình; <b>max<sub>π<sub>θ</sub></sub></b>: chỉnh mô hình để biểu thức lớn nhất; <b>D<sub>KL</sub></b>: độ khác nhau giữa hai phân phối (<a href="3-generative.html#vae">Phần 3</a>); <b>β</b>: hệ số cân bằng giữa "được điểm cao" và "đừng đi quá xa"; <b>π<sub>ref</sub></b>: mô hình sau SFT; số hạng KL giữ cho mô hình không "lách luật" phần thưởng bằng cách đi quá xa khỏi ngôn ngữ tự nhiên.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.2 SCALING ================= -->
+<section class="part tint" id="scaling">
+  <div class="wrap">
+    <h2>Scaling laws</h2>
+    <div class="prose">
+      <p>Một phát hiện định hình cả ngành: loss của LLM giảm theo <b>luật lũy thừa</b> rất đều đặn khi tăng số tham số \(N\), số token huấn luyện \(D\) và lượng tính toán \(C\). Nhờ vậy có thể thử nghiệm ở quy mô nhỏ rồi dự đoán khá chính xác kết quả ở quy mô lớn hơn hàng nghìn lần, trước khi chi hàng chục triệu đô la cho một lần huấn luyện.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ L(N, D) = E + \frac{A}{N^{\alpha}} + \frac{B}{D^{\beta}}, \qquad C \approx 6\,N D \ \text{FLOPs} \]</div>
+      <p class="where"><b>L</b>: loss dự đoán; <b>N</b>: số tham số của mô hình; <b>D</b>: số token dữ liệu huấn luyện; <b>N<sup>α</sup></b>: N lũy thừa α, nên A/N<sup>α</sup> giảm dần khi mô hình lớn lên; <b>C</b>: tổng lượng tính toán (FLOPs: số phép tính dấu phẩy động); <b>E</b>: loss không thể giảm (độ ngẫu nhiên vốn có của văn bản); hai số hạng sau: phần thiếu do mô hình nhỏ và do ít dữ liệu. Hệ số theo Hoffmann et al. (2022): E = 1,69; A = 406,4; B = 410,7; α = 0,34; β = 0,28. Hệ số 6 = 2 FLOPs cho mỗi tham số mỗi token khi chạy xuôi, nhân 3 khi tính cả lan truyền ngược.</p>
+    </div>
+
+    <div class="demo" id="demoScaling" data-demo="scaling">
+      <div class="demo-title"><h4>Scaling law kiểu Chinchilla</h4><span>Chỉnh ngân sách tính toán C</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="callout"><b>Quy tắc "20 token cho mỗi tham số".</b> Bài báo Chinchilla ước lượng tỉ lệ tối ưu bằng ba cách; hai cách đầu cho khoảng 20 token/tham số và đây là con số được nhắc nhiều nhất. Công thức tham số hóa dùng trong demo (cách thứ ba) cho tỉ lệ cao hơn, vài chục đến hơn một trăm tùy ngân sách. Dù theo cách nào, thông điệp vẫn như nhau: GPT-3 (1,7 token/tham số) bị huấn luyện thiếu dữ liệu nghiêm trọng. Ngày nay người ta còn cố ý huấn luyện vượt xa mức "tối ưu" (Llama 3 8B: gần 1 900 token/tham số) vì mô hình nhỏ rẻ hơn nhiều khi phục vụ hàng triệu người dùng.</div>
+  </div>
+</section>
+
+<!-- ================= 4.3 SUY LUẬN ================= -->
+<section class="part" id="suy-luan">
+  <div class="wrap">
+    <h2>Chạy một LLM: KV cache &amp; bộ nhớ</h2>
+    <div class="prose">
+      <p>Sinh văn bản có hai pha. <span class="term">Prefill</span>: xử lý cả prompt cùng lúc, song song như khi huấn luyện. <span class="term">Decode</span>: sinh từng token một; mỗi token mới cần attention tới mọi token trước nó. Để không tính lại key và value của các token cũ ở mỗi bước, ta lưu chúng vào <span class="term">KV cache</span>. Bộ nhớ này tăng tuyến tính theo độ dài ngữ cảnh:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \text{KV cache (byte)} = 2 \times L \times n_{kv} \times d_{\text{head}} \times T \times \text{batch} \times \text{byte/số} \]</div>
+      <p class="where">Hệ số 2: một cho K, một cho V; <b>L</b>: số lớp; <b>n<sub>kv</sub></b>: số head key/value; <b>T</b>: số token trong ngữ cảnh. Llama 3 8B ở 16 bit: \(2\cdot 32\cdot 8\cdot 128\cdot 2 = 131\,072\) byte (128 KiB) mỗi token, tức khoảng 1 GB cho 8 000 token.</p>
+    </div>
+
+    <div class="demo" id="demoKv" data-demo="kv-cache">
+      <div class="demo-title"><h4>Bộ nhớ khi chạy LLM</h4><span>Chọn mô hình, độ dài ngữ cảnh, độ chính xác</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="prose">
+      <p>Pha decode thường bị giới hạn bởi <b>băng thông bộ nhớ</b> chứ không phải sức tính: mỗi token mới phải đọc toàn bộ trọng số và KV cache từ bộ nhớ GPU. Vì vậy các kỹ thuật như <span class="term">GQA</span>, lượng tử hóa (mục sau) và <span class="term">FlashAttention</span> (tính attention theo khối, không ghi ma trận \(n\times n\) ra bộ nhớ) quan trọng không kém việc tăng số phép tính.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.4 VLM ================= -->
+<section class="part tint" id="vlm">
+  <div class="wrap">
+    <h2>VLM: LLM nhìn được ảnh</h2>
+    <div class="prose">
+      <p><span class="term">Mô hình thị giác–ngôn ngữ</span> <span class="en">(vision-language model, VLM)</span> phổ biến nhất có cấu trúc đơn giản đến bất ngờ: lấy vision encoder của CLIP hoặc SigLIP (<a href="4-multimodal.html#clip">Phần 4</a>), thêm một <span class="term">projector</span> nhỏ để đổi vector ảnh sang không gian embedding của LLM, rồi nối các "token ảnh" này trước token chữ. Với LLM, ảnh chỉ là một đoạn "từ ngoại ngữ" mà nó học cách đọc.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/vlm.svg" alt="Ảnh đi qua vision encoder ViT, rồi projector MLP thành token ảnh; câu hỏi qua tokenizer thành token chữ; hai chuỗi token được nối và đưa vào LLM decoder-only để sinh câu trả lời." loading="lazy">
+      <figcaption><b>Kiến trúc VLM kiểu LLaVA.</b> Hình tự vẽ, giản lược theo Liu et al. (2023).</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Huấn luyện thường có hai giai đoạn: (1) đóng băng encoder và LLM, chỉ huấn luyện projector trên cặp ảnh–chú thích để "căn chỉnh" hai không gian; (2) tinh chỉnh projector cùng LLM trên dữ liệu hội thoại có ảnh. Một ảnh 336×336 với patch 14 cho \(24^2 = 576\) token, ngang một trang văn bản; ảnh tài liệu độ phân giải cao được cắt thành nhiều ô nên có thể tốn vài nghìn token (thử máy tính trong <a href="4-multimodal.html#vit">demo ViT ở Phần 4</a>). Một số mô hình khác (Flamingo, Llama 3.2 Vision) dùng cross-attention thay cho việc nối token.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.5 RAG ================= -->
+<section class="part" id="rag">
+  <div class="wrap">
+    <h2>RAG: tra cứu trước khi trả lời</h2>
+    <div class="prose">
+      <p>Kiến thức của LLM bị đóng băng ở thời điểm huấn luyện, không chứa tài liệu nội bộ của bạn, và khi không biết, mô hình có thể bịa một câu trả lời nghe rất thuyết phục (<span class="term">ảo giác</span>, <span class="en">hallucination</span>). <span class="term">RAG</span> <span class="en">(retrieval-augmented generation)</span> giải quyết bằng cách tìm các đoạn tài liệu liên quan rồi đưa chúng vào prompt, như cho mô hình làm bài thi "được mở sách".</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/rag.svg" alt="Lập chỉ mục: tài liệu được cắt đoạn, qua embedding model thành vector, lưu vào vector database. Mỗi câu hỏi: câu hỏi qua embedding model, tìm top-k đoạn gần nhất, ghép với câu hỏi thành prompt cho LLM, ra câu trả lời có trích dẫn." loading="lazy">
+      <figcaption><b>Quy trình RAG.</b> Hình tự vẽ, giản lược theo Lewis et al. (2020).</figcaption>
+    </figure>
+    <div class="formula">
+      <div class="eq">\[ \text{score}(q, d) = \cos\big(f(q), f(d)\big) = \frac{f(q)\cdot f(d)}{\|f(q)\|\,\|f(d)\|} \]</div>
+      <p class="where"><b>q</b>: câu hỏi; <b>d</b>: một đoạn văn trong kho tài liệu; <b>f(·)</b>: biến văn bản thành vector; <b>‖·‖</b>: độ dài vector; <b>cos</b>: cosine của góc giữa hai vector, bằng 1 khi cùng hướng (cùng nghĩa), bằng 0 khi vuông góc (không liên quan); <b>f</b>: embedding model (thường là Transformer encoder huấn luyện tương phản, giống CLIP nhưng cho cặp câu hỏi–đoạn văn). Demo dưới thay \(f\) bằng vector TF-IDF để chạy được ngay trên trình duyệt.</p>
+    </div>
+
+    <div class="demo" id="demoRag" data-demo="rag">
+      <div class="demo-title"><h4>RAG thu nhỏ</h4><span>Gõ câu hỏi; xem đoạn nào được truy hồi</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="prose">
+      <p>Minh họa dưới đây làm cùng quy trình với dữ liệu thật: tìm bài trên Wikipedia qua API công khai, cắt phần mở đầu của các bài thành đoạn, xếp hạng đoạn và ghép prompt.</p>
+    </div>
+    <div class="demo" id="demoRagWiki" data-demo="rag-wiki">
+      <div class="demo-title"><h4>RAG trên Wikipedia</h4><span>Truy hồi thật, xếp hạng đoạn, ghép prompt</span><b class="ext-badge" title="Minh họa này gọi dịch vụ bên ngoài: Wikipedia API (wikipedia.org). Nếu dịch vụ ngừng hoạt động, minh họa sẽ tự ẩn."><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 1.5 15 14H1z" fill="#f2c230" stroke="#1B1920" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6v4" stroke="#1B1920" stroke-width="1.6"/><circle cx="8" cy="12" r=".9" fill="#1B1920"/></svg>Dịch vụ ngoài: Wikipedia API (wikipedia.org)</b></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây (gọi API của Wikipedia).</div>
+    </div>
+
+    <div class="prose">
+      <p>Chất lượng RAG phụ thuộc chủ yếu vào khâu truy hồi: cắt đoạn hợp lý (không cắt đôi một ý), kết hợp tìm theo từ khóa (BM25) với tìm theo nghĩa (dense), và dùng một <span class="term">reranker</span> chấm lại top-k. Khi ngữ cảnh của LLM ngày càng dài (hàng trăm nghìn token), có trường hợp nhét thẳng cả tài liệu vào prompt đơn giản hơn RAG, nhưng tốn kém hơn cho mỗi câu hỏi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.6 TINH CHỈNH ================= -->
+<section class="part tint" id="hieu-qua">
+  <div class="wrap">
+    <h2>Tinh chỉnh &amp; nén mô hình</h2>
+    <h3>LoRA</h3>
+    <div class="prose">
+      <p>Tinh chỉnh toàn bộ một mô hình 8 tỉ tham số cần lưu gradient và trạng thái optimizer cho cả 8 tỉ tham số: hàng trăm GB bộ nhớ. <span class="term">LoRA</span> <span class="en">(low-rank adaptation)</span> đóng băng trọng số gốc \(W_0\) và chỉ học một phần cập nhật có <b>hạng thấp</b>:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ W = W_0 + \Delta W = W_0 + \frac{\alpha}{r}\,BA, \qquad B \in \mathbb R^{d\times r},\ A \in \mathbb R^{r\times k},\ r \ll \min(d, k) \]</div>
+      <p class="where"><b>W<sub>0</sub></b>: ma trận trọng số gốc (d × k), giữ nguyên; <b>ΔW</b> ("delta W"): phần thay đổi cần học; <b>B, A</b>: hai ma trận "hẹp", nhân với nhau cho ra một ma trận d × k; <b>r</b>: hạng (rank), độ "hẹp" của B và A; <b>≪</b>: nhỏ hơn rất nhiều; <b>min(d, k)</b>: số nhỏ hơn trong d và k; <b>α</b>: hệ số co giãn. Số tham số cần học: \(r(d+k)\) thay vì \(dk\). <b>B</b> khởi tạo bằng 0 nên lúc đầu mô hình y hệt bản gốc. Sau khi học xong có thể cộng \(BA\) vào \(W_0\), nên không làm chậm suy luận. Có thể giữ nhiều "adapter" LoRA nhỏ (vài chục MB) cho nhiều tác vụ trên cùng một mô hình gốc.</p>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Ô trái là ma trận cập nhật ΔW mà ta muốn mô hình học (mỗi ô vuông là một số, màu thể hiện dấu và độ lớn). Ô giữa là xấp xỉ B·A với hạng r; ô phải là phần còn sai. Kéo <b>Hạng r</b> lên: xấp xỉ khớp dần, nhưng số tham số phải học cũng tăng. Đồ thị dưới là các "giá trị kỳ dị" σ của ΔW, xếp từ lớn đến nhỏ: chúng giảm rất nhanh, nghĩa là phần lớn "thông tin" của ΔW nằm trong vài hướng đầu, nên r nhỏ đã đủ tốt. Đó là lý do LoRA hiệu quả.</div>
+    <div class="demo" id="demoLora" data-demo="lora">
+      <div class="demo-title"><h4>LoRA: cập nhật hạng thấp</h4><span>Chỉnh hạng r</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <h3>Lượng tử hóa</h3>
+    <div class="prose">
+      <p><span class="term">Lượng tử hóa</span> <span class="en">(quantization)</span> lưu trọng số bằng số nguyên ít bit kèm một hệ số tỉ lệ (scale). Mô hình 70B ở 16 bit cần khoảng 141 GB chỉ riêng trọng số; ở 4 bit còn khoảng 35–38 GB (tùy phần lưu scale), vừa với một hoặc hai GPU, và chất lượng thường giảm không đáng kể. Kết hợp lượng tử hóa 4 bit với LoRA (<span class="term">QLoRA</span>) cho phép tinh chỉnh mô hình lớn trên một GPU duy nhất.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ s = \frac{\max_i |w_i|}{2^{b-1}-1}, \qquad q_i = \mathrm{round}\!\left(\frac{w_i}{s}\right), \qquad \hat w_i = s\,q_i \]</div>
+      <p class="where"><b>w<sub>i</sub></b>: trọng số gốc (số thực); <b>max<sub>i</sub> |w<sub>i</sub>|</b>: trọng số có độ lớn lớn nhất; <b>b</b>: số bit; <b>2<sup>b−1</sup> − 1</b>: số nguyên dương lớn nhất biểu diễn được (b = 4 thì là 7, tức các mức −7 … 7); <b>s</b>: scale, "khoảng cách" giữa hai mức liền nhau; <b>round</b>: làm tròn tới số nguyên gần nhất; <b>q<sub>i</sub></b>: số nguyên được lưu; <b>ŵ<sub>i</sub></b> ("w mũ"): trọng số khôi phục khi dùng, gần bằng w<sub>i</sub> nhưng sai một chút. Giống như đo chiều cao bằng thước chỉ có vạch centimet: nhanh, gọn, mất phần lẻ milimet.</p>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Biểu đồ trên là histogram (đếm số trọng số theo giá trị); các vạch xanh là các mức mà số nguyên b bit biểu diễn được. Mỗi trọng số bị "kéo" về vạch gần nhất. Biểu đồ dưới là sai số do việc kéo đó. Giảm số bit: vạch thưa ra, sai số lớn lên. Vài trọng số ngoại lai rất lớn làm scale s phình ra, vạch thưa đi cho tất cả: chia scale theo nhóm (<b>Per-group</b>) giúp hạn chế chuyện này.</div>
+    <div class="demo" id="demoQuant" data-demo="quant">
+      <div class="demo-title"><h4>Lượng tử hóa trọng số</h4><span>Chỉnh số bit, cách chia scale</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <h3>Khi nào dùng cách nào?</h3>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Cách</th><th>Thay đổi gì</th><th>Chi phí</th><th>Dùng khi</th></tr></thead>
+        <tbody>
+          <tr><td>Prompt engineering, few-shot</td><td>Chỉ dẫn và ví dụ trong prompt</td><td>Gần như 0</td><td>Luôn thử đầu tiên</td></tr>
+          <tr><td>RAG</td><td>Thêm tài liệu liên quan vào prompt</td><td>Hạ tầng tìm kiếm, prompt dài hơn</td><td>Kiến thức thay đổi thường xuyên, cần trích dẫn nguồn</td></tr>
+          <tr><td>LoRA / QLoRA</td><td>Một phần nhỏ trọng số</td><td>Vài giờ GPU, cần dữ liệu mẫu</td><td>Cần phong cách, định dạng hay kỹ năng hẹp mà prompt không đủ</td></tr>
+          <tr><td>Tinh chỉnh toàn phần</td><td>Mọi trọng số</td><td>Tốn kém, dễ làm mô hình "quên" kỹ năng cũ</td><td>Lĩnh vực rất khác, dữ liệu rất nhiều</td></tr>
+          <tr><td>Lượng tử hóa</td><td>Cách lưu trọng số</td><td>Giảm nhẹ chất lượng</td><td>Chạy trên phần cứng nhỏ, phục vụ rẻ hơn</td></tr>
+        </tbody>
+        <caption>Kinh nghiệm chung: muốn mô hình <b>biết</b> thêm thông tin thì dùng RAG; muốn mô hình <b>làm</b> việc theo một cách khác thì tinh chỉnh.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4.7 AI HIỆN ĐẠI ================= -->
+<section class="part" id="ai-hien-dai">
+  <div class="wrap">
+    <h2>Agent, mô hình suy luận &amp; MoE</h2>
+    <h3>Agent và dùng công cụ</h3>
+    <div class="prose">
+      <p>Một <span class="term">agent</span> là LLM chạy trong vòng lặp: đọc mục tiêu, quyết định hành động, gọi một công cụ (tìm kiếm web, chạy code, đọc file, gọi API), đọc kết quả, rồi quyết định bước tiếp theo cho đến khi xong. LLM được huấn luyện để xuất lời gọi công cụ dưới dạng có cấu trúc (thường là JSON); các giao thức như <span class="term">MCP</span> <span class="en">(Model Context Protocol)</span> chuẩn hóa cách kết nối công cụ với mô hình.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/agent-loop.svg" alt="Vòng lặp agent: mục tiêu vào LLM; LLM suy nghĩ và chọn hành động, gọi công cụ; kết quả quan sát được đưa lại vào ngữ cảnh của LLM; khi xong thì trả lời." loading="lazy">
+      <figcaption><b>Vòng lặp của một agent.</b> Hình tự vẽ, giản lược theo mẫu ReAct (Yao et al., 2022).</figcaption>
+    </figure>
+
+    <h3>Mô hình suy luận</h3>
+    <div class="prose">
+      <p>Từ cuối 2024, nhiều mô hình được huấn luyện để <b>suy nghĩ trước khi trả lời</b>: sinh một chuỗi suy luận dài (<span class="term">chain of thought</span>), thử, kiểm tra, sửa sai, rồi mới đưa đáp án. Chúng được huấn luyện bằng học tăng cường trên các bài toán có đáp án kiểm chứng được (toán, lập trình). Đây là một trục scaling mới: ngoài tăng tính toán khi huấn luyện, có thể tăng <span class="term">tính toán lúc suy luận</span> <span class="en">(test-time compute)</span> bằng cách cho mô hình "nghĩ" lâu hơn.</p>
+    </div>
+
+    <h3>Mixture of Experts</h3>
+    <div class="prose">
+      <p>Trong <span class="term">MoE</span>, lớp FFN của mỗi khối được thay bằng nhiều FFN "chuyên gia", và một <span class="term">router</span> nhỏ chọn top-k chuyên gia (thường k = 1–8) cho mỗi token. Mô hình có tổng số tham số rất lớn nhưng mỗi token chỉ dùng một phần nhỏ. Ví dụ Mixtral 8×7B có khoảng 47 tỉ tham số nhưng mỗi token chỉ kích hoạt khoảng 13 tỉ. Nhiều LLM lớn nhất hiện nay được cho là dùng MoE.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \mathrm{MoE}(x) = \sum_{i \in \mathcal T} p_i(x)\,\mathrm{FFN}_i(x), \qquad \mathcal T = \mathrm{TopK}\big(g(x)\big),\quad p(x) = \mathrm{softmax}\big(g(x)_{\mathcal T}\big),\quad g(x) = xW_g \]</div>
+      <p class="where"><b>x</b>: vector của một token; <b>W<sub>g</sub></b>: ma trận của router; <b>g(x)</b>: điểm số router chấm cho từng chuyên gia; <b>TopK</b>: lấy k chuyên gia điểm cao nhất; <b>𝒯</b> (chữ T hoa viết hoa mỹ): tập các chuyên gia được chọn; <b>p<sub>i</sub>(x)</b>: trọng số của chuyên gia i, tính bằng softmax chỉ trên các chuyên gia được chọn; <b>FFN<sub>i</sub></b>: chuyên gia thứ i; <b>Σ<sub>i∈𝒯</sub></b>: cộng chỉ qua các chuyên gia thuộc 𝒯 (∈: "thuộc"). Đầu ra là trung bình có trọng số của vài chuyên gia, các chuyên gia khác không cần chạy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Bảng thuật ngữ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Ý nghĩa ngắn gọn</th></tr></thead>
+        <tbody>
+          <tr><td>Base model / instruct model</td><td>Mô hình sau tiền huấn luyện (chỉ viết tiếp) / sau SFT và học từ phản hồi (biết trò chuyện, làm theo chỉ dẫn).</td></tr>
+          <tr><td>Context window</td><td>Số token tối đa mô hình đọc được cùng lúc, gồm cả prompt lẫn câu trả lời.</td></tr>
+          <tr><td>System prompt</td><td>Chỉ dẫn đặt ở đầu ngữ cảnh, quy định vai trò và quy tắc cho cả cuộc hội thoại.</td></tr>
+          <tr><td>In-context learning</td><td>Học một tác vụ chỉ từ vài ví dụ trong prompt, không cập nhật trọng số.</td></tr>
+          <tr><td>Hallucination</td><td>Mô hình đưa ra thông tin sai nhưng trình bày rất tự tin.</td></tr>
+          <tr><td>Embedding model</td><td>Mô hình biến văn bản (hoặc ảnh) thành vector để so sánh độ giống nhau; nền tảng của RAG.</td></tr>
+          <tr><td>KV cache</td><td>Bộ nhớ lưu key, value của các token đã xử lý để sinh token mới nhanh hơn.</td></tr>
+          <tr><td>GQA</td><td>Grouped-query attention: nhiều head query dùng chung một cặp K, V; giảm KV cache.</td></tr>
+          <tr><td>LoRA, QLoRA</td><td>Tinh chỉnh bằng ma trận hạng thấp; QLoRA thêm lượng tử hóa 4 bit cho mô hình gốc.</td></tr>
+          <tr><td>RLHF, DPO</td><td>Tinh chỉnh theo sở thích con người, có hoặc không có mô hình phần thưởng riêng.</td></tr>
+          <tr><td>MoE</td><td>Mixture of Experts: mỗi token chỉ đi qua vài "chuyên gia" FFN do router chọn.</td></tr>
+          <tr><td>Agent, tool use</td><td>LLM chạy trong vòng lặp, gọi công cụ bên ngoài để hoàn thành mục tiêu nhiều bước.</td></tr>
+          <tr><td>Test-time compute</td><td>Dùng thêm tính toán lúc trả lời (suy nghĩ lâu hơn, thử nhiều lần) để có kết quả tốt hơn.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHỤ LỤC KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Các ký hiệu ít gặp trên trang này, kèm cách đọc tiếng Anh. Ký hiệu của attention và xác suất xem thêm ở phụ lục <a href="2-transformer.html#ky-hieu">Phần 2</a> và <a href="3-generative.html#ky-hieu">Phần 3</a>.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(\pi_\theta(\cdot\mid x)\)</td><td>pi theta of dot given x</td><td>Chính sách (policy): phân phối câu trả lời của LLM cho prompt x.</td></tr>
+          <tr><td class="sym">\(\mathbb E[\ldots]\)</td><td>expectation</td><td>Giá trị trung bình.</td></tr>
+          <tr><td class="sym">\(D_{\mathrm{KL}}\)</td><td>K L divergence</td><td>Độ khác nhau giữa hai phân phối.</td></tr>
+          <tr><td class="sym">\(N^{\alpha}\)</td><td>N to the alpha</td><td>Lũy thừa: N mũ α.</td></tr>
+          <tr><td class="sym">FLOPs</td><td>floating-point operations</td><td>Số phép tính trên số thực; đơn vị đo lượng tính toán.</td></tr>
+          <tr><td class="sym">\(\Delta W\)</td><td>delta W</td><td>Phần thay đổi của ma trận trọng số.</td></tr>
+          <tr><td class="sym">\(r \ll \min(d,k)\)</td><td>r much less than min of d and k</td><td>r nhỏ hơn rất nhiều so với kích thước nhỏ hơn của ma trận.</td></tr>
+          <tr><td class="sym">\(|w|\)</td><td>absolute value of w</td><td>Giá trị tuyệt đối (bỏ dấu).</td></tr>
+          <tr><td class="sym">\(\mathrm{round}\)</td><td>round</td><td>Làm tròn tới số nguyên gần nhất.</td></tr>
+          <tr><td class="sym">\(\hat w\)</td><td>w hat</td><td>Giá trị xấp xỉ (sau lượng tử hóa).</td></tr>
+          <tr><td class="sym">\(\|v\|\)</td><td>norm of v</td><td>Độ dài của vector v.</td></tr>
+          <tr><td class="sym">\(\cos\)</td><td>cosine</td><td>Cosine của góc giữa hai vector: 1 là cùng hướng, 0 là vuông góc.</td></tr>
+          <tr><td class="sym">\(i\in\mathcal T\)</td><td>i in script T</td><td>i thuộc tập 𝒯.</td></tr>
+          <tr><td class="sym">\(\mathrm{TopK}\)</td><td>top k</td><td>Giữ k phần tử điểm cao nhất.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">2017</span><div><h4>RLHF và MoE thưa</h4><p>Christiano và cộng sự học phần thưởng từ so sánh của con người. Shazeer và cộng sự giới thiệu lớp MoE với router chọn chuyên gia.</p></div></li>
+      <li><span class="yr">2019</span><div><h4>GPT-2</h4><p>Mô hình 1,5 tỉ tham số viết được đoạn văn mạch lạc; OpenAI ban đầu chỉ công bố từng phần vì lo ngại lạm dụng.</p></div></li>
+      <li><span class="yr">2020</span><div><h4>Scaling laws, GPT-3, RAG</h4><p>Kaplan và cộng sự công bố luật lũy thừa của loss. GPT-3 (175B) cho thấy khả năng học từ vài ví dụ trong prompt. Lewis và cộng sự đặt tên RAG.</p></div></li>
+      <li><span class="yr">2021</span><div><h4>LoRA</h4><p>Hu và cộng sự (Microsoft) đề xuất tinh chỉnh bằng ma trận hạng thấp.</p></div></li>
+      <li><span class="yr">2022</span><div><h4>Chinchilla, InstructGPT, ChatGPT</h4><p>Hoffmann và cộng sự sửa lại scaling law: cần nhiều dữ liệu hơn nhiều. InstructGPT trình bày quy trình SFT + RLHF. ChatGPT ra mắt tháng 11 và có 100 triệu người dùng trong khoảng hai tháng.</p></div></li>
+      <li><span class="yr">2023</span><div><h4>Mô hình mở, VLM, DPO, QLoRA</h4><p>Meta công bố Llama (giấy phép nghiên cứu) rồi Llama 2 (dùng thương mại được), mở đầu làn sóng mô hình mở trọng số; GPT-4 nhận cả ảnh; LLaVA mở đường cho VLM mở. DPO và QLoRA làm tinh chỉnh rẻ và đơn giản hơn. Mixtral phổ biến MoE mở.</p></div></li>
+      <li><span class="yr">2024–25</span><div><h4>Agent và mô hình suy luận</h4><p>Ngữ cảnh dài tới hàng triệu token; MCP được công bố (11/2024) để chuẩn hóa kết nối công cụ. OpenAI o1 (9/2024) và DeepSeek-R1 (1/2025) mở ra làn sóng mô hình suy luận huấn luyện bằng học tăng cường. Agent lập trình và agent dùng máy tính trở thành ứng dụng chính.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>J. Hoffmann et al., "Training Compute-Optimal Large Language Models" (Chinchilla), 2022. <a href="https://arxiv.org/abs/2203.15556" rel="noopener">arXiv:2203.15556</a>.</li>
+      <li>L. Ouyang et al., "Training language models to follow instructions with human feedback" (InstructGPT), 2022. <a href="https://arxiv.org/abs/2203.02155" rel="noopener">arXiv:2203.02155</a>.</li>
+      <li>R. Rafailov et al., "Direct Preference Optimization", NeurIPS 2023. <a href="https://arxiv.org/abs/2305.18290" rel="noopener">arXiv:2305.18290</a>.</li>
+      <li>H. Liu et al., "Visual Instruction Tuning" (LLaVA), NeurIPS 2023. <a href="https://arxiv.org/abs/2304.08485" rel="noopener">arXiv:2304.08485</a>.</li>
+      <li>P. Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks", NeurIPS 2020. <a href="https://arxiv.org/abs/2005.11401" rel="noopener">arXiv:2005.11401</a>.</li>
+      <li>E. J. Hu et al., "LoRA: Low-Rank Adaptation of Large Language Models", 2021. <a href="https://arxiv.org/abs/2106.09685" rel="noopener">arXiv:2106.09685</a>.</li>
+      <li>T. Dettmers et al., "QLoRA: Efficient Finetuning of Quantized LLMs", 2023. <a href="https://arxiv.org/abs/2305.14314" rel="noopener">arXiv:2305.14314</a>.</li>
+      <li>J. Ainslie et al., "GQA: Training Generalized Multi-Query Transformer Models", 2023. <a href="https://arxiv.org/abs/2305.13245" rel="noopener">arXiv:2305.13245</a>.</li>
+      <li>S. Yao et al., "ReAct: Synergizing Reasoning and Acting in Language Models", 2022. <a href="https://arxiv.org/abs/2210.03629" rel="noopener">arXiv:2210.03629</a>.</li>
+      <li>A. Q. Jiang et al., "Mixtral of Experts", 2024. <a href="https://arxiv.org/abs/2401.04088" rel="noopener">arXiv:2401.04088</a>.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="4-multimodal.html"><small>Phần 4</small><b>AI đa phương thức</b></a>
+      <a class="next" href="6-mamba.html"><small>Phần 6</small><b>Mamba</b></a>
+    </nav>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

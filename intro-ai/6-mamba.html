@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mamba | AI | My N. Nguyen</title>
+<meta name="description" content="Mamba cho người mới: vì sao chuỗi dài làm khó Transformer, mô hình không gian trạng thái (SSM), cơ chế chọn lọc, quét song song, Mamba-2, Mamba-3 và mô hình lai, kèm minh họa tương tác.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tfg.css">
+<!--
+  =====================================================================
+  HOW TO EDIT  (intro-ai/6-mamba.html, Phần 6: MAMBA)
+  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết machine learning.
+  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
+    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
+  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
+      seq-cost   : bộ nhớ KV cache của Transformer so với trạng thái của Mamba theo độ dài ngữ cảnh
+      ssm-memory : trạng thái một chiều, chỉnh độ nhớ ā
+      selective  : SSM cố định so với SSM chọn lọc trên một câu
+  - Hình tự vẽ: lib/figures/cuon-so.svg, ssm-trai-ra.svg, quet-song-song.svg, khoi-mamba.svg
+  - Hình nguồn ngoài (hotlink, có dự phòng khi lỗi): sơ đồ SSM chọn lọc trong kho state-spaces/mamba (Apache 2.0),
+      https://raw.githubusercontent.com/state-spaces/mamba/main/assets/selection.png
+  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
+  =====================================================================
+-->
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">AI</a> / Phần 6</p>
+  <h1><span class="dot"></span>Mamba</h1>
+  <p class="lead">Transformer giỏi thiệt, nhưng đọc càng dài thì càng mắc: tốn bộ nhớ, tốn thời gian. Mamba (2023) là một kiến trúc khác hẳn, đọc chuỗi theo kiểu ghi sổ tay: chỉ giữ một cuốn sổ cỡ cố định, và <b>tự quyết định</b> chữ nào đáng ghi, chữ nào bỏ qua. Trang này kể chuyện Mamba từ đầu, hổng cần biết trước gì nhiều ngoài <a href="1-cnn.html">Phần 1</a> và ý chính của <a href="2-transformer.html">Phần 2</a>.</p>
+</header>
+
+<!-- ================= 6.1 VẤN ĐỀ ================= -->
+<section class="part" id="van-de">
+  <div class="wrap">
+    <h2>Chuyện đọc một cuốn truyện dài</h2>
+    <div class="prose">
+      <p>Tưởng tượng bạn đọc một cuốn tiểu thuyết 500 trang và phải trả lời câu hỏi về nó. Có mấy cách nhớ:</p>
+      <ul>
+        <li><b>Kiểu Transformer:</b> chụp lại mọi trang đã đọc. Gặp chữ mới thì lật lại so với từng chữ cũ (cơ chế attention ở <a href="2-transformer.html#attention">Phần 2</a>). Nhớ đủ hết, tra chính xác. Nhưng chồng giấy càng lúc càng bự, và chữ thứ n phải so với n chữ trước, nên tổng công so sánh tăng theo \(n^2\).</li>
+        <li><b>Kiểu RNN</b> (mạng hồi quy, thời trước Transformer): chỉ giữ một tờ giấy nhỏ, đọc chữ nào ghi đè lên tờ đó. Gọn nhẹ, bộ nhớ cố định. Nhưng ghi đè hoài thì đoạn đầu mờ hết, và vì phải đọc từng chữ một theo thứ tự nên huấn luyện chậm rì trên GPU.</li>
+        <li><b>Kiểu Mamba:</b> cũng giữ một cuốn sổ cỡ cố định như RNN, nhưng khôn hơn: thấy chữ quan trọng thì ghi đậm, gặp chữ đệm như “ờ”, “thì”, “nha” thì lướt qua. Và nhờ một mẹo toán, vẫn huấn luyện song song được như Transformer.</li>
+      </ul>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/cuon-so.svg" alt="Ba khung. Transformer: một chồng 14 trang giấy và còn nữa. RNN: một tờ giấy bị viết chồng lên nhiều lần, chữ cũ mờ dần. Mamba: các chữ ờ, thì, ừm, ở, nha bị bỏ qua; chữ Lan và Huế được ghi vô cuốn sổ có số trang cố định." loading="lazy">
+      <figcaption><b>Ba cách nhớ.</b> Cái giá của Transformer nằm ở chỗ nó hổng bao giờ quên gì cả. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Cụ thể hơn: khi sinh chữ, Transformer phải giữ <span class="term">KV cache</span> (key và value của mọi token cũ, coi lại ở <a href="5-llm.html#suy-luan">Phần 5</a>). Cái cache này lớn dần theo độ dài ngữ cảnh. Kéo thanh trượt dưới đây để coi nó bự cỡ nào.</p>
+    </div>
+    <div class="demo" id="demoSeqCost" data-demo="seq-cost">
+      <div class="demo-title"><h4>Ngữ cảnh càng dài, tốn càng nhiều?</h4><span>Kéo độ dài ngữ cảnh, so bộ nhớ của Transformer với Mamba</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="callout"><b>Đọc biểu đồ sao cho đúng:</b> hai trục đều là thang log, mỗi vạch lớn gấp 10 (trục dọc) hoặc gấp 4–8 lần (trục ngang). Đường đỏ là đường thẳng xéo lên, nghĩa là bộ nhớ tăng đều theo độ dài; đường xanh nằm ngang, nghĩa là bao dài cũng vậy. Thực tế các LLM lớn còn xài nhiều mẹo để bớt KV cache, nên con số chỉ để thấy xu hướng.</div>
+  </div>
+</section>
+
+<!-- ================= 6.2 SSM ================= -->
+<section class="part tint" id="ssm">
+  <div class="wrap">
+    <h2>Mô hình không gian trạng thái</h2>
+    <div class="prose">
+      <p>Mamba thuộc họ <span class="term">mô hình không gian trạng thái</span> <span class="en">(state space model, SSM)</span>. Cái tên nghe ghê nhưng ý tưởng rất đời thường, và đã được dân điều khiển tự động xài từ những năm 1960 (bộ lọc Kalman trong tàu Apollo là một ví dụ). Có một <span class="term">trạng thái</span> \(h\), là một vector, đóng vai cuốn sổ. Mỗi bước thời gian, nhận một đầu vào \(x_t\) (một token), rồi:</p>
+      <ul>
+        <li><b>Cập nhật sổ:</b> giữ lại một phần sổ cũ, cộng thêm một phần thông tin mới.</li>
+        <li><b>Đọc sổ ra:</b> từ sổ, tính đầu ra \(y_t\).</li>
+      </ul>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ h_t = \bar A\, h_{t-1} + \bar B\, x_t, \qquad y_t = C\, h_t \]</div>
+      <p class="where"><b>h<sub>t</sub></b>: trạng thái (cuốn sổ) sau khi đọc token thứ t; <b>Ā</b> (A gạch): giữ lại bao nhiêu sổ cũ, như hệ số “nhớ dai”; <b>B̄</b>: ghi thông tin mới vô sổ mạnh cỡ nào; <b>C</b>: cách đọc sổ ra thành đầu ra; <b>x<sub>t</sub></b>, <b>y<sub>t</sub></b>: đầu vào và đầu ra ở bước t. Trong Mamba, Ā là ma trận đường chéo, nên mỗi ô của cuốn sổ có “độ nhớ dai” riêng.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/ssm-trai-ra.svg" alt="Bốn ô trạng thái h1 đến h4 nối nhau bằng mũi tên màu cam nhân Ā. Mỗi ô nhận đầu vào x từ dưới (nhân B̄) và cho đầu ra y phía trên (nhân C). Bắt đầu với h0 bằng 0." loading="lazy">
+      <figcaption><b>SSM trải theo thời gian.</b> Đường cam là cuốn sổ được chuyền tay từ bước này qua bước kế. Kích thước của nó cố định, hổng lớn dần như KV cache. Hình tự vẽ.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Minh họa dưới rút gọn tới mức đơn giản nhất: trạng thái chỉ có một con số, và ghi vô đúng phần đã rỉ mất \((\bar B = 1 - \bar A)\). Bạn sẽ thấy ngay cái khó: một độ nhớ cố định thì hổng vừa nhớ dai vừa phản ứng lẹ được.</p>
+    </div>
+    <div class="demo" id="demoSsm" data-demo="ssm-memory">
+      <div class="demo-title"><h4>Trạng thái nhớ rồi quên</h4><span>Chỉnh độ nhớ ā, bấm để thêm sự kiện</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <h3>Bước thời gian Δ</h3>
+    <div class="prose">
+      <p>Thiệt ra SSM gốc được viết cho thời gian <i>liên tục</i> (như tín hiệu âm thanh): \(h'(t) = A\,h(t) + B\,x(t)\). Muốn xài cho chuỗi token rời rạc, người ta “chia nhỏ thời gian” với một <span class="term">bước</span> \(\Delta\) (delta), gọi là <span class="term">rời rạc hóa</span> <span class="en">(discretization)</span>:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \bar A = e^{\Delta A}, \qquad \bar B \approx \Delta B \]</div>
+      <p class="where"><b>A</b>: số âm (hoặc ma trận đường chéo toàn số âm), nên \(e^{\Delta A}\) nằm giữa 0 và 1; <b>e</b>: hằng số Euler ≈ 2,718; <b>Δ</b>: bước thời gian, luôn dương. <b>Δ nhỏ xíu</b>: Ā gần 1, B̄ gần 0, nghĩa là giữ nguyên sổ và gần như hổng ghi gì, coi như lướt qua token này. <b>Δ lớn</b>: Ā gần 0, B̄ lớn, nghĩa là xóa bớt sổ cũ và ghi đậm token này.</p>
+    </div>
+    <div class="prose">
+      <p>Hãy nhớ kỹ ý nghĩa của Δ, vì nó là chìa khóa của Mamba ở phần sau: <b>Δ chính là “mức độ để tâm” tới token hiện tại.</b></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6.3 S4 ================= -->
+<section class="part" id="s4">
+  <div class="wrap">
+    <h2>Hai cách tính cùng một kết quả</h2>
+    <div class="prose">
+      <p>Công thức ở trên là kiểu <b>chạy từng bước</b>, giống RNN: muốn có \(h_{100}\) phải có \(h_{99}\) trước. Rất hợp lúc sinh chữ (mỗi lần chỉ thêm một token, chi phí cố định), nhưng chậm lúc huấn luyện.</p>
+      <p>Có một mẹo: nếu Ā, B̄, C <b>giống nhau ở mọi bước</b>, cứ trải công thức ra thì thấy đầu ra là tổng có trọng số của mọi đầu vào cũ:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ y_t = C\bar B\,x_t \;+\; C\bar A\bar B\,x_{t-1} \;+\; C\bar A^2\bar B\,x_{t-2} \;+\; \dots \]</div>
+      <p class="where">Dãy hệ số \((C\bar B,\; C\bar A\bar B,\; C\bar A^2\bar B,\; \dots)\) là một bộ lọc dài cố định. Đầu ra chính là <b>tích chập</b> của chuỗi đầu vào với bộ lọc này, y chang phép trượt-nhân-cộng ở <a href="1-cnn.html#tich-chap">Phần 1</a>, chỉ là một chiều và dài hơn nhiều.</p>
+    </div>
+    <div class="prose">
+      <p>Tích chập thì tính song song được hết trên GPU. Đây là ý tưởng của <span class="term">S4</span> (Gu, Goel và Ré, 2021): huấn luyện bằng tích chập cho lẹ, chạy bằng kiểu từng bước cho gọn. S4 là mô hình đầu tiên giải được bài Path-X trong bộ kiểm tra Long Range Arena (chuỗi dài 16 ngàn phần tử), nơi Transformer chỉ đoán hên xui.</p>
+      <p>Nhưng S4 có một cái tật: Ā, B̄, C cố định, nên nó xử mọi token y như nhau, dù là “ờ” hay “Lan”. Mấy mô hình như vậy gọi là <span class="term">bất biến theo thời gian</span> <span class="en">(linear time-invariant, LTI)</span>. Với âm thanh hay tín hiệu đều đặn thì ổn; với ngôn ngữ, nơi mỗi chữ quan trọng một kiểu, thì S4 thua Transformer xa.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6.4 CHỌN LỌC ================= -->
+<section class="part tint" id="chon-loc">
+  <div class="wrap">
+    <h2>Mamba: SSM biết chọn lọc</h2>
+    <div class="prose">
+      <p>Ý tưởng của Albert Gu và Tri Dao (2023) nghe đơn giản tới bất ngờ: <b>cho Δ, B và C phụ thuộc vào chính token đang đọc</b>. Mỗi token đi qua vài lớp tuyến tính nhỏ để tự sinh ra Δ, B, C của riêng nó. Token quan trọng tự cho mình Δ lớn để được ghi đậm; token vô nghĩa tự cho Δ gần 0 để bị lướt qua. Đó là <span class="term">cơ chế chọn lọc</span> <span class="en">(selection mechanism)</span>, chữ “S” trong tên gọi <span class="term">selective SSM</span>.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \Delta_t = \mathrm{softplus}(W_\Delta\, x_t), \qquad B_t = W_B\, x_t, \qquad C_t = W_C\, x_t \]</div>
+      <p class="where"><b>W<sub>Δ</sub>, W<sub>B</sub>, W<sub>C</sub></b>: ma trận trọng số học được (học bằng backprop như mọi trọng số khác, coi <a href="1-cnn.html#backprop">Phần 1</a>); <b>softplus</b>: hàm trơn biến mọi số thành số dương, \(\log(1 + e^z)\), vì bước thời gian phải dương; chỉ số <b>t</b> nhắc rằng mấy giá trị này giờ đổi theo từng token.</p>
+    </div>
+    <div class="guide"><b>Cách đọc minh họa.</b> Mỗi chữ trong câu là một token; thanh bên dưới cho biết token đó còn chiếm bao nhiêu phần trong cuốn sổ sau khi đọc tới token đang chọn. Ở chế độ “chọn lọc”, mình <b>tự đặt luật</b> cho dễ coi: từ đệm có Δ ≈ 0,01, tên riêng và con số có Δ = 0,9, các chữ khác Δ = 0,1. Mamba thật hổng có luật nào cả; nó tự học cách gán Δ từ dữ liệu.</div>
+    <div class="demo" id="demoSel" data-demo="selective">
+      <div class="demo-title"><h4>Nhớ có chọn lọc</h4><span>So SSM cố định với SSM chọn lọc trên cùng một câu</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Những điều có thể kiểm tra trên minh họa:</p>
+      <ul>
+        <li>Ở chế độ cố định, cuốn sổ toàn nhớ mấy chữ cuối câu, mà chữ cuối lại là “đó ha”. Chỉnh Δ nhỏ thì sổ nhớ dài hơn nhưng nhòe đều, chữ nào cũng mờ như nhau.</li>
+        <li>Ở chế độ chọn lọc, “Huế”, “7”, “Lan” chiếm phần lớn cuốn sổ, còn “ờ”, “ừm”, “nha” gần như hổng để lại dấu vết.</li>
+        <li>Kéo thanh “Đọc tới token thứ” lùi lại từng bước: mỗi lần gặp tên riêng, phần của các chữ trước bị giảm hẳn (vì Δ lớn cũng làm Ā nhỏ, tức là dọn chỗ). Mamba thật có hàng ngàn kênh, mỗi kênh tự học kiểu dọn chỗ riêng, nên hổng phải chữ quan trọng nào cũng đè chữ quan trọng khác.</li>
+      </ul>
+    </div>
+    <figure class="fig">
+      <img src="https://raw.githubusercontent.com/state-spaces/mamba/main/assets/selection.png" alt="Sơ đồ gốc của Mamba: trạng thái h t-1 gồm nhiều kênh đi qua ma trận A tới h t; đầu vào x t qua khối Project sinh ra B t, Δ t và C t (cơ chế chọn lọc, màu xanh); Δ t dùng để rời rạc hóa; C t đọc trạng thái ra y t. Góc phải có tam giác bộ nhớ GPU: SRAM ở trên, HBM ở dưới." loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'note-s',textContent:'Không tải được hình từ nguồn ngoài (GitHub). Mở link bên dưới để coi bản gốc.'}))">
+      <figcaption><b>Sơ đồ SSM chọn lọc trong bài báo gốc.</b> Đường màu xanh dương là cơ chế chọn lọc: từ đầu vào \(x_t\), khối “Project” sinh ra \(B_t\), \(\Delta_t\), \(C_t\). Đường màu cam là trạng thái được chuyền qua từng bước. Tam giác góc phải nhắc rằng trạng thái được giữ trong bộ nhớ nhanh SRAM của GPU (coi phần kế). Hình gốc từ kho mã <a href="https://github.com/state-spaces/mamba" rel="noopener">state-spaces/mamba</a> (A. Gu, T. Dao; giấy phép Apache 2.0), lấy trực tiếp từ GitHub.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= 6.5 QUÉT SONG SONG ================= -->
+<section class="part" id="quet">
+  <div class="wrap">
+    <h2>Quét song song và mẹo phần cứng</h2>
+    <div class="prose">
+      <p>Cho Δ, B, C đổi theo token thì có cái giá: mẹo tích chập của S4 hết xài được, vì bộ lọc giờ đổi ở mỗi bước. Chẳng lẽ quay về chạy từng bước chậm rì như RNN?</p>
+      <p>Hổng cần. Phép cập nhật \(h_t = \bar A_t h_{t-1} + \bar B_t x_t\) có một tính chất đẹp: ghép hai bước liền nhau lại vẫn ra một phép cùng dạng “nhân rồi cộng”. Mà phép nào ghép được kiểu đó (gọi là có tính <span class="term">kết hợp</span> <span class="en">(associative)</span>) thì tính được bằng <span class="term">quét song song</span> <span class="en">(parallel scan)</span>, giống như tính tổng dồn của một dãy số:</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/quet-song-song.svg" alt="Tám ô số 3, 1, 4, 1, 5, 9, 2, 6. Vòng 1: mỗi ô cộng với ô cách 1 bên trái. Vòng 2: cộng với ô cách 2. Vòng 3: cộng với ô cách 4. Kết quả là tổng dồn 3, 4, 8, 9, 14, 23, 25, 31." loading="lazy">
+      <figcaption><b>Quét song song tính tổng dồn.</b> Cách thường cần 7 bước nối tiếp, cách này cần 3 vòng, mỗi vòng mọi ô tính cùng lúc. Mamba làm y vậy, chỉ thay phép “cộng” bằng phép ghép hai bước cập nhật trạng thái. Hình tự vẽ, theo thuật toán của Hillis và Steele (1986).</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Mẹo thứ hai mới là chỗ Tri Dao (tác giả FlashAttention) ra tay. GPU có hai loại bộ nhớ: <b>HBM</b> bự nhưng chậm, và <b>SRAM</b> nhỏ xíu nhưng nhanh hơn cả chục lần. Trạng thái của Mamba, khi nở ra cho mọi token, rất bự. Thay vì ghi nó ra HBM, Mamba gom hết các bước (rời rạc hóa, quét, đọc ra) vô một lần chạy duy nhất ngay trong SRAM, chỉ ghi kết quả cuối ra ngoài. Khi lan ngược để học, nó tính lại trạng thái thay vì lưu sẵn. Nhờ vậy, Mamba vừa chọn lọc được vừa chạy lẹ.</p>
+    </div>
+    <div class="callout"><b>Kết quả trong bài báo gốc:</b> lúc sinh chữ, Mamba đạt lưu lượng cao gấp khoảng 5 lần Transformer cùng cỡ, chi phí tăng tuyến tính theo độ dài chuỗi, và vẫn tiến bộ trên dữ liệu thật dài tới cả triệu phần tử. Về chất lượng mô hình ngôn ngữ, Mamba 3 tỷ tham số vượt Transformer cùng cỡ và ngang Transformer lớn gấp đôi. Ngoài chữ, Mamba còn được thử trên âm thanh và chuỗi DNA.</div>
+  </div>
+</section>
+
+<!-- ================= 6.6 KHỐI MAMBA ================= -->
+<section class="part tint" id="khoi">
+  <div class="wrap">
+    <h2>Khối Mamba</h2>
+    <div class="prose">
+      <p>Một mô hình Mamba là nhiều <b>khối Mamba</b> chồng lên nhau, mỗi khối có chuẩn hóa và kết nối tắt (giống ResNet và Transformer). Khác với Transformer có hai phần (attention rồi MLP), khối Mamba gộp hết làm một:</p>
+    </div>
+    <figure class="fig" style="max-width:820px">
+      <img src="lib/figures/khoi-mamba.svg" alt="Sơ đồ khối Mamba từ dưới lên: chuỗi vector vô qua Linear nở rộng gấp 2, tách hai nhánh. Nhánh trái: Conv1d nhân quả, SiLU, SSM chọn lọc. Nhánh phải (nhánh cổng): SiLU. Hai nhánh nhân từng phần tử với nhau, qua Linear thu nhỏ lại, ra ngoài." loading="lazy">
+      <figcaption><b>Một khối Mamba.</b> Nhánh trái làm việc chính: trộn vài token kề nhau bằng tích chập một chiều, rồi chạy SSM chọn lọc dọc chuỗi. Nhánh phải là cái cổng, quyết định cho bao nhiêu kết quả đi qua. Hình tự vẽ, giản lược theo Gu và Dao (2023), Hình 3.</figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Tiêu chí</th><th>Transformer</th><th>RNN / LSTM</th><th>Mamba</th></tr></thead>
+        <tbody>
+          <tr><td>Bộ nhớ khi sinh chữ</td><td>Tăng theo độ dài (KV cache)</td><td>Cố định</td><td>Cố định</td></tr>
+          <tr><td>Công sinh mỗi token mới</td><td>Tăng theo độ dài</td><td>Cố định</td><td>Cố định</td></tr>
+          <tr><td>Tổng công huấn luyện theo độ dài n</td><td>\(O(n^2)\)</td><td>\(O(n)\), nhưng phải chạy tuần tự</td><td>\(O(n)\), chạy song song được</td></tr>
+          <tr><td>Chọn lọc theo nội dung</td><td>Có (attention)</td><td>Có, qua cổng (LSTM)</td><td>Có (Δ, B, C theo token)</td></tr>
+          <tr><td>Tra lại chính xác một chi tiết xa</td><td>Rất giỏi</td><td>Yếu</td><td>Khá, nhưng thua Transformer</td></tr>
+          <tr><td>Hợp nhất với</td><td>Ngữ cảnh vừa phải, cần tra cứu chính xác</td><td>Thiết bị nhỏ, chuỗi ngắn</td><td>Chuỗi rất dài: tài liệu, âm thanh, DNA</td></tr>
+        </tbody>
+        <caption>Ký hiệu O(·) đọc là “cỡ”: O(n²) nghĩa là gấp đôi độ dài thì công tăng gấp bốn; O(n) thì công tăng gấp đôi.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6.7 HIỆN NAY ================= -->
+<section class="part" id="hien-nay">
+  <div class="wrap">
+    <h2>Mamba-2, Mamba-3 và mô hình lai</h2>
+    <h3>Mamba-2: Transformer và SSM là bà con</h3>
+    <div class="prose">
+      <p>Năm 2024, Dao và Gu chứng minh rằng SSM chọn lọc (với Ā là một số nhân với ma trận đơn vị) và một dạng attention có mặt nạ thật ra là <b>hai cách viết của cùng một phép tính</b>, gọi là <span class="term">đối ngẫu không gian trạng thái</span> <span class="en">(structured state space duality, SSD)</span>. Hệ quả thực tế: Mamba-2 tính được bằng phép nhân ma trận, thứ mà GPU làm nhanh nhất, nên lõi của nó nhanh hơn Mamba gốc 2 tới 8 lần và cho phép cuốn sổ lớn hơn nhiều.</p>
+    </div>
+    <h3>Mamba-3 (2026)</h3>
+    <div class="prose">
+      <p>Đầu năm 2026, nhóm tác giả công bố Mamba-3, tiếp tục cải tiến dựa trên các nguyên lý của SSM, với mục tiêu đặt khâu chạy mô hình <span class="en">(inference)</span> lên hàng đầu: làm sao sinh chữ lẹ và tận dụng phần cứng tốt hơn, chứ hổng chỉ huấn luyện lẹ.</p>
+    </div>
+    <h3>Điểm yếu: cuốn sổ có giới hạn</h3>
+    <div class="prose">
+      <p>Sổ cỡ cố định thì hổng thể chép lại nguyên văn một đoạn văn dài, hay tra đúng số điện thoại của một người trong cuốn danh bạ ngàn trang. Nghiên cứu “Repeat After Me” (Jelassi và cộng sự, 2024) cho thấy ở những bài kiểu sao chép và tra cứu chính xác, Transformer học nhanh hơn và làm tốt hơn hẳn SSM. Cái này gọi chung là khả năng <span class="term">truy hồi</span> <span class="en">(recall)</span>.</p>
+    </div>
+    <h3>Mô hình lai: lấy cái hay của cả hai</h3>
+    <div class="prose">
+      <p>Giải pháp đang thắng thế là trộn: phần lớn các lớp là Mamba (rẻ, xử lý chuỗi dài), xen vô vài lớp attention (để tra cứu chính xác). Một số ví dụ:</p>
+      <ul>
+        <li><b>Jamba</b> (AI21 Labs, 2024): cứ 8 lớp thì 1 lớp attention, 7 lớp Mamba, kèm mixture-of-experts, ngữ cảnh 256 ngàn token.</li>
+        <li><b>Nemotron-H</b> (NVIDIA, 2025): thay hầu hết lớp attention bằng lớp Mamba-2.</li>
+        <li><b>Granite 4.0</b> (IBM, 2025): kiến trúc lai Mamba-2 và Transformer, nhắm tới chạy rẻ trong doanh nghiệp.</li>
+        <li>Mô hình “thuần” Mamba cũng có: <b>Codestral Mamba</b> (Mistral, 2024, cho lập trình) và <b>Falcon Mamba 7B</b> (TII, 2024).</li>
+      </ul>
+      <p>Mamba còn được đem qua thị giác máy tính (Vision Mamba, VMamba, 2024) và có nhiều “bà con” cùng ý tưởng hồi quy tuyến tính như RWKV, RetNet, Griffin hay DeltaNet. Chuyện Transformer hay Mamba sẽ thắng chưa ngã ngũ; xu hướng tới 2026 là kết hợp cả hai.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BẢNG THUẬT NGỮ ================= -->
+<section class="part tint" id="bang">
+  <div class="wrap">
+    <h2>Từ điển nhỏ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Tiếng Anh</th><th>Nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td>Mô hình không gian trạng thái</td><td>state space model (SSM)</td><td>Mô hình giữ một trạng thái (cuốn sổ), cập nhật qua từng bước.</td></tr>
+          <tr><td>Trạng thái</td><td>state, hidden state</td><td>Vector cỡ cố định tóm tắt mọi thứ đã đọc.</td></tr>
+          <tr><td>Rời rạc hóa</td><td>discretization</td><td>Biến công thức thời gian liên tục thành công thức từng bước, dựa vào bước Δ.</td></tr>
+          <tr><td>Cơ chế chọn lọc</td><td>selection mechanism</td><td>Cho Δ, B, C tùy theo token, để mô hình tự chọn ghi gì, bỏ gì.</td></tr>
+          <tr><td>Bất biến theo thời gian</td><td>linear time-invariant (LTI)</td><td>Tham số giống nhau ở mọi bước, như S4.</td></tr>
+          <tr><td>Quét song song</td><td>parallel scan</td><td>Tính chuỗi phép cộng dồn (hay ghép bước) trong cỡ log n vòng song song.</td></tr>
+          <tr><td>KV cache</td><td>key-value cache</td><td>Bộ nhớ của Transformer chứa key, value của mọi token cũ; lớn dần theo độ dài.</td></tr>
+          <tr><td>Truy hồi</td><td>recall</td><td>Khả năng tra lại chính xác một chi tiết đã đọc từ xa.</td></tr>
+          <tr><td>Mô hình lai</td><td>hybrid model</td><td>Trộn lớp Mamba với lớp attention trong cùng một mô hình.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu toán học</h2>
+    <p class="prose">Ký hiệu toán học trên trang này. Cột giữa là cách đọc trong tài liệu tiếng Anh.</p>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">\(h_t\)</td><td>h sub t</td><td>Trạng thái sau khi đọc token thứ t.</td></tr>
+          <tr><td class="sym">\(\bar A,\ \bar B\)</td><td>A bar, B bar</td><td>Phiên bản từng bước (đã rời rạc hóa) của A và B.</td></tr>
+          <tr><td class="sym">\(\Delta\)</td><td>delta</td><td>Bước thời gian; trong Mamba là “mức để tâm” tới token hiện tại.</td></tr>
+          <tr><td class="sym">\(h'(t)\)</td><td>h prime of t</td><td>Đạo hàm theo thời gian: h đang thay đổi nhanh cỡ nào.</td></tr>
+          <tr><td class="sym">\(e^{z}\)</td><td>e to the z</td><td>Hàm mũ; với z âm, kết quả nằm giữa 0 và 1.</td></tr>
+          <tr><td class="sym">\(\mathrm{softplus}\)</td><td>softplus</td><td>\(\log(1+e^z)\): luôn dương, gần giống ReLU nhưng trơn.</td></tr>
+          <tr><td class="sym">\(O(n^2)\)</td><td>big O of n squared</td><td>Chi phí tăng cỡ bình phương độ dài n.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LỊCH SỬ ================= -->
+<section class="part tint" id="lich-su">
+  <div class="wrap">
+    <h2>Lịch sử</h2>
+    <ol class="timeline">
+      <li><span class="yr">1960</span><div><h4>Bộ lọc Kalman</h4><p>Rudolf Kálmán đưa ra cách ước lượng trạng thái ẩn của một hệ từ các đo đạc nhiễu, dựa trên mô hình không gian trạng thái. Được xài trong dẫn đường tàu Apollo, GPS, robot.</p></div></li>
+      <li><span class="yr">1997</span><div><h4>LSTM</h4><p>Hochreiter và Schmidhuber thêm “cổng” vào RNN để mạng tự quyết nhớ gì, quên gì, cha đẻ tinh thần của cơ chế chọn lọc.</p></div></li>
+      <li><span class="yr">2020</span><div><h4>HiPPO và linear attention</h4><p>Gu và cộng sự tìm ra cách chọn ma trận A để trạng thái nén lịch sử tốt nhất. Cùng năm, Katharopoulos và cộng sự cho thấy một dạng attention tuyến tính viết lại được như RNN.</p></div></li>
+      <li><span class="yr">2021</span><div><h4>S4</h4><p>Gu, Goel và Ré làm SSM chạy được hiệu quả trên GPU nhờ mẹo tích chập, giải được bài Path-X với chuỗi 16 ngàn phần tử.</p></div></li>
+      <li><span class="yr">12/2023</span><div><h4>Mamba</h4><p>Albert Gu (Carnegie Mellon) và Tri Dao (Princeton) thêm cơ chế chọn lọc và thuật toán quét tối ưu cho phần cứng. Lần đầu một mô hình hổng có attention theo kịp Transformer ở mô hình ngôn ngữ.</p></div></li>
+      <li><span class="yr">2024</span><div><h4>Mamba-2 và mô hình lai</h4><p>Dao và Gu công bố SSD và Mamba-2. AI21 ra Jamba; Mistral ra Codestral Mamba; TII ra Falcon Mamba 7B; Mamba được đem qua xử lý ảnh (Vision Mamba).</p></div></li>
+      <li><span class="yr">2025</span><div><h4>Lai vào sản phẩm</h4><p>NVIDIA (Nemotron-H) và IBM (Granite 4.0) đưa kiến trúc lai Mamba-2 và Transformer vào các dòng mô hình chính.</p></div></li>
+      <li><span class="yr">2026</span><div><h4>Mamba-3</h4><p>Nhóm tác giả công bố Mamba-3, tập trung vào hiệu quả khi chạy mô hình.</p></div></li>
+    </ol>
+
+    <h3>Tài liệu tham khảo</h3>
+    <ol class="refs">
+      <li>A. Gu, T. Dao, “Mamba: Linear-Time Sequence Modeling with Selective State Spaces”, COLM 2024. <a href="https://arxiv.org/abs/2312.00752" rel="noopener">arXiv:2312.00752</a>. Mã nguồn: <a href="https://github.com/state-spaces/mamba" rel="noopener">github.com/state-spaces/mamba</a>.</li>
+      <li>T. Dao, A. Gu, “Transformers are SSMs: Generalized Models and Efficient Algorithms Through Structured State Space Duality”, ICML 2024. <a href="https://arxiv.org/abs/2405.21060" rel="noopener">arXiv:2405.21060</a>.</li>
+      <li>A. Lahoti et al., “Mamba-3: Improved Sequence Modeling using State Space Principles”, 2026. <a href="https://arxiv.org/abs/2603.15569" rel="noopener">arXiv:2603.15569</a>.</li>
+      <li>A. Gu, K. Goel, C. Ré, “Efficiently Modeling Long Sequences with Structured State Spaces”, ICLR 2022. <a href="https://arxiv.org/abs/2111.00396" rel="noopener">arXiv:2111.00396</a>.</li>
+      <li>O. Lieber et al., “Jamba: A Hybrid Transformer-Mamba Language Model”, 2024. <a href="https://arxiv.org/abs/2403.19887" rel="noopener">arXiv:2403.19887</a>.</li>
+      <li>S. Jelassi, D. Brandfonbrener, S. M. Kakade, E. Malach, “Repeat After Me: Transformers are Better than State Space Models at Copying”, ICML 2024. <a href="https://arxiv.org/abs/2402.01032" rel="noopener">arXiv:2402.01032</a>.</li>
+      <li>L. Zhu et al., “Vision Mamba: Efficient Visual Representation Learning with Bidirectional State Space Model”, ICML 2024. <a href="https://arxiv.org/abs/2401.09417" rel="noopener">arXiv:2401.09417</a>.</li>
+      <li>W. D. Hillis, G. L. Steele Jr., “Data Parallel Algorithms”, <i>Communications of the ACM</i> 29(12), 1986.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="5-llm.html"><small>Phần 5</small><b>VLM, RAG &amp; AI khác</b></a>
+      <a class="next" href="index.html"><small>Quay lại</small><b>AI</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tfg.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
