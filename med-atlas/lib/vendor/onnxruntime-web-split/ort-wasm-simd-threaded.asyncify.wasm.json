@@ -1,0 +1,15 @@
+{
+ "name": "ort-wasm-simd-threaded.asyncify.wasm",
+ "size": 26781914,
+ "sha256": "39f9f0894d478800487ed9f7dbe92618498db320cf55c8e3d89adff8dce658da",
+ "parts": [
+  {
+   "file": "ort-wasm-simd-threaded.asyncify.wasm.part000",
+   "size": 20000000
+  },
+  {
+   "file": "ort-wasm-simd-threaded.asyncify.wasm.part001",
+   "size": 6781914
+  }
+ ]
+}
