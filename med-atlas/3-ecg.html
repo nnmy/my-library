@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Điện tâm đồ | Atlas hình ảnh y khoa | My N. Nguyen</title>
+<meta name="description" content="Điện tâm đồ 12 chuyển đạo thật: ECG bình thường, nhồi máu cơ tim thành dưới và thành trước, rung nhĩ, block nhánh trái, phì đại thất trái, đặt cạnh người thường cùng giới và tuổi.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/atlas.css?v=20261018">
+<link rel="stylesheet" href="lib/ecg.css?v=20261023">
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap wide page-head">
+  <p class="crumb"><a href="index.html">Atlas hình ảnh y khoa</a> / Điện tâm đồ</p>
+  <h1><span class="dot"></span>Điện tâm đồ</h1>
+  <p class="lead">Mỗi lần tim đập, một làn sóng điện lan qua tâm nhĩ rồi tâm thất. Mười điện cực trên da ghi lại làn sóng ấy từ 12 góc nhìn khác nhau. Mỗi bệnh dưới đây được đặt cạnh điện tâm đồ của một người thường cùng giới, tuổi gần nhau.</p>
+</header>
+
+<section class="wrap wide" aria-label="Trình xem điện tâm đồ">
+  <div class="vw-tabs ecg-tabs" id="ecgTabs" role="group" aria-label="Chọn ca"></div>
+  <div class="viewer" id="ecgViewer">
+    <div class="left">
+      <div class="stage ecg-stage">
+        <div class="ecg-wrap" id="ecgWrap">
+          <canvas id="ecgCanvas" tabindex="0" aria-label="Điện tâm đồ 12 chuyển đạo. Rê chuột để đọc thời gian và biên độ, kéo để đo khoảng cách, Esc để xóa thước đo."></canvas>
+          <div class="loader" id="ecgLoader"><div>Đang chuẩn bị…</div></div>
+        </div>
+        <div class="ecg-legend" id="ecgLegend"></div>
+        <div class="readout-strip" id="ecgReadout" aria-live="polite"></div>
+      </div>
+      <div class="controls" id="ecgControls">
+        <div class="ctl-head"><span>Điều khiển</span><span class="vscroll vs-head" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span><button class="iconbtn" type="button" id="ecgCtlMin" aria-controls="ecgCtlBody"></button></div>
+        <div class="ctl-body" id="ecgCtlBody">
+          <div class="ctl">
+            <span class="lab">Cách xem</span>
+            <div class="seg-btns" id="ecgMode" role="group" aria-label="Cách xem">
+              <button class="btn" type="button" data-mode="12">12 chuyển đạo</button>
+              <button class="btn" type="button" data-mode="1">1 chuyển đạo</button>
+              <button class="btn" type="button" data-mode="med">Nhịp trung bình</button>
+            </div>
+          </div>
+          <div class="ctl" id="ecgWhoRow">
+            <span class="lab">Hiển thị</span>
+            <div class="seg-btns" id="ecgWho" role="group" aria-label="Người hiển thị">
+              <button class="btn" type="button" data-who="case">Người bệnh</button>
+              <button class="btn" type="button" data-who="ctl">Người thường</button>
+              <button class="btn" type="button" data-who="both">Đối chiếu</button>
+            </div>
+          </div>
+          <div class="ctl" id="ecgLeadRow" hidden>
+            <label class="lab" for="ecgLead">Chuyển đạo</label>
+            <div class="ecg-row2">
+              <select id="ecgLead" class="inp sm"></select>
+              <label class="sublab" for="ecgWin">Khung</label>
+              <select id="ecgWin" class="inp sm"><option value="2.5">2,5 giây</option><option value="5">5 giây</option><option value="10">10 giây</option></select>
+            </div>
+          </div>
+          <div class="ctl" id="ecgPosRow" hidden>
+            <label class="lab" for="ecgPos">Vị trí</label>
+            <div class="inline"><input type="range" id="ecgPos" min="0" max="7.5" step="0.1" value="0"><output id="ecgPosOut" for="ecgPos" style="min-width:6em"></output></div>
+          </div>
+          <div class="ctl">
+            <span class="lab">Đánh dấu</span>
+            <div class="inline"><label class="checkrow"><input type="checkbox" id="ecgMarks" checked> Đỉnh R, khoảng RR, dải P, QRS, T</label><span class="vscroll" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="infocol" aria-label="Thông tin">
+      <div class="info-inner">
+        <div class="info-bar"><span class="info-title" id="ecgInfoName"></span><button class="iconbtn" type="button" id="ecgInfoMin"></button></div>
+        <div class="info" id="ecgInfo" aria-live="polite"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="part" id="chu-ky" style="margin-top:44px">
+  <div class="wrap wide">
+    <h2>Một nhịp tim: điện đi trước, cơ co theo sau</h2>
+    <div class="prose">
+      <p>Các sóng trên ECG là hoạt động điện. Cơ tim co bóp ngay sau đó: sóng P báo hiệu tâm nhĩ sắp co, phức bộ QRS báo hiệu tâm thất sắp co, sóng T là lúc thất tái cực trong khi vẫn đang tống máu. Minh họa dưới đây chạy chậm một nhịp tim của người lớn khỏe mạnh (75 lần/phút, mỗi nhịp 800 ms) và đặt cạnh nhau ba thứ: sơ đồ tim, đường ECG và áp suất, thể tích trong buồng tim.</p>
+      <p>Bấm <b>Mở minh họa</b>, rồi bấm <b>Phát</b> hoặc kéo trên đồ thị để tua tới một thời điểm. Nút <b>Mốc sau</b> đi qua từng sự kiện kèm lời giải thích.</p>
+    </div>
+    <div class="demo-shell" data-demo="cc">
+      <div class="demo-head">
+        <div class="demo-title"><b>Minh họa: một nhịp tim</b><span>Sơ đồ tim, ECG, áp suất và thể tích thất trái chạy đồng bộ, có lời giải thích từng mốc.</span></div>
+        <button type="button" class="btn primary demo-toggle" aria-expanded="false" aria-controls="ccDemo">Mở minh họa</button>
+      </div>
+      <div class="demo" id="ccDemo" hidden></div>
+    </div>
+    <p class="hint-s" style="font-size:14px;color:var(--muted)">Đường ECG, áp suất và thể tích là đường vẽ minh họa theo số liệu sinh lý điển hình (kiểu sơ đồ Wiggers), không phải số đo của một người cụ thể. Nhịp ECG thật của người khỏe nằm ở tab <a href="#normal">Bình thường</a> phía trên.</p>
+    <div class="prose">
+      <h3>Hình vẽ tham khảo ở nguồn khác</h3>
+      <ul class="ext-figs">
+        <li>OpenStax, <a href="https://openstax.org/books/anatomy-and-physiology/pages/19-2-cardiac-muscle-and-electrical-activity" rel="noopener">Anatomy and Physiology, mục 19.2</a>: Hình 19.18 (hệ thống dẫn truyền) và Hình 19.19 (xung lan qua tim theo từng bước, kèm sóng ECG tương ứng). Giấy phép CC BY 4.0.</li>
+        <li>OpenStax, <a href="https://openstax.org/books/anatomy-and-physiology-2e/pages/19-3-cardiac-cycle" rel="noopener">Anatomy and Physiology 2e, mục 19.3</a>: Hình 19.28 (liên hệ giữa chu kỳ tim và ECG) và Hình 19.29 (tiếng tim). Giấy phép CC BY 4.0.</li>
+        <li>Wikimedia Commons, <a href="https://commons.wikimedia.org/wiki/File:Wiggers_Diagram.svg" rel="noopener">Wiggers Diagram.svg</a>: sơ đồ Wiggers đầy đủ của thất trái (áp suất, thể tích, ECG, tiếng tim). Giấy phép CC BY-SA 2.5.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="cach-doc">
+  <div class="wrap">
+    <h2>Đọc điện tâm đồ theo thứ tự</h2>
+    <div class="prose">
+      <p>Trên giấy chuẩn, mỗi ô nhỏ rộng 1 mm, tương ứng 40 ms theo chiều ngang và 0,1 mV theo chiều dọc; năm ô nhỏ gộp thành một ô lớn 200 ms. Xung vuông ở đầu mỗi hàng là xung chuẩn 1 mV, cao đúng 10 mm, cho biết máy đang ghi đúng tỉ lệ. Đọc theo trình tự giúp không bỏ sót:</p>
+      <table class="simple">
+        <thead><tr><th>Bước</th><th>Nhìn vào đâu</th><th>Bình thường ở người lớn</th></tr></thead>
+        <tbody>
+          <tr><td>Nhịp</td><td>Sóng P trước mỗi QRS, khoảng RR có đều không (dải DII dưới cùng)</td><td>Nhịp xoang, RR đều</td></tr>
+          <tr><td>Tần số</td><td>300 chia số ô lớn giữa hai đỉnh R, hoặc dùng thước đo</td><td>60–100 lần/phút</td></tr>
+          <tr><td>Trục</td><td>Chiều QRS ở I và aVF</td><td>Cả hai dương: trục bình thường (khoảng −30° đến +90°)</td></tr>
+          <tr><td>Khoảng PR</td><td>Từ đầu sóng P tới đầu QRS</td><td>120–200 ms (3–5 ô nhỏ)</td></tr>
+          <tr><td>QRS</td><td>Độ rộng, sóng Q, tiến triển sóng R từ V1 tới V6</td><td>Dưới 120 ms; R cao dần qua các chuyển đạo trước tim</td></tr>
+          <tr><td>ST và T</td><td>ST so với đường đẳng điện, chiều của sóng T</td><td>ST nằm ngang trên đường đẳng điện; T cùng chiều QRS</td></tr>
+          <tr><td>QT</td><td>Từ đầu QRS tới cuối T, hiệu chỉnh theo nhịp tim (QTc)</td><td>QTc dưới khoảng 450 ms (nam), 460 ms (nữ)</td></tr>
+        </tbody>
+      </table>
+      <p>Cách xem <b>Nhịp trung bình</b> gộp mọi nhịp trong 10 giây thành một nhịp đại diện cho mỗi chuyển đạo, nên nhiễu giảm và thay đổi nhỏ ở đoạn ST dễ thấy hơn. Chọn <b>Đối chiếu</b> để chồng nhịp của người bệnh lên nhịp của người thường.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="chuyen-dao">
+  <div class="wrap">
+    <h2>Mười hai chuyển đạo nhìn tim từ đâu</h2>
+    <div class="prose">
+      <p>Sáu <b>chuyển đạo chi</b> (I, II, III, aVR, aVL, aVF) nhìn tim trên mặt phẳng trán, như nhìn từ phía trước ngực. Sáu <b>chuyển đạo trước tim</b> (V1 tới V6) nhìn trên mặt phẳng ngang, đi vòng từ bên phải xương ức sang nách trái. Khi làn sóng khử cực đi về phía một chuyển đạo, chuyển đạo đó ghi được sóng dương; đi ra xa thì ghi sóng âm.</p>
+      <p>Vectơ điện tim là tổng của mọi dòng điện trong tim tại một thời điểm. Trong một nhịp, đầu mũi tên vẽ thành một vòng nhỏ cho sóng P, một vòng lớn cho QRS và một vòng cho sóng T. Mỗi chuyển đạo chỉ thấy bóng chiếu của vectơ này lên trục của nó, nên cùng một nhịp tim mà mỗi chuyển đạo vẽ một hình dạng khác nhau.</p>
+      <p>Bấm <b>Mở minh họa</b>, rồi bấm <b>Phát một nhịp</b> để xem 12 chuyển đạo vẽ dần cùng lúc. Kéo đầu mũi tên đỏ để tự đặt hướng vectơ. Bấm vào tên một chuyển đạo để tô trục của nó và vùng tim nó nhìn.</p>
+    </div>
+  </div>
+  <div class="wrap wide">
+    <div class="demo-shell" data-demo="ld">
+      <div class="demo-head">
+        <div class="demo-title"><b>Minh họa: vectơ điện tim và 12 chuyển đạo</b><span>Hai mặt phẳng nhìn tim, vòng vectơ P, QRS, T và hình dạng sóng ở từng chuyển đạo.</span></div>
+        <button type="button" class="btn primary demo-toggle" aria-expanded="false" aria-controls="ldDemo">Mở minh họa</button>
+      </div>
+      <div class="demo" id="ldDemo" hidden></div>
+    </div>
+    <p class="hint-s" style="font-size:14px;color:var(--muted)">Vòng vectơ và các sóng là mô hình đơn giản hóa của một tim bình thường; biên độ ở các chuyển đạo chi tăng cường (aVR, aVL, aVF) không được hiệu chỉnh.</p>
+  </div>
+  <div class="wrap">
+    <div class="prose">
+      <p>Vì mỗi nhóm chuyển đạo nhìn một vùng cơ tim, vị trí của dấu hiệu bất thường cho biết vùng nào bị tổn thương:</p>
+      <table class="simple">
+        <thead><tr><th>Vùng cơ tim</th><th>Chuyển đạo</th><th>Động mạch vành thường nuôi vùng này</th></tr></thead>
+        <tbody>
+          <tr><td>Thành dưới</td><td>II, III, aVF</td><td>Động mạch vành phải (đa số người)</td></tr>
+          <tr><td>Vách liên thất</td><td>V1, V2</td><td>Động mạch liên thất trước</td></tr>
+          <tr><td>Thành trước</td><td>V3, V4</td><td>Động mạch liên thất trước</td></tr>
+          <tr><td>Thành bên</td><td>I, aVL, V5, V6</td><td>Động mạch mũ, nhánh chéo</td></tr>
+        </tbody>
+      </table>
+      <p>Hình vẽ vị trí điện cực và các trục chuyển đạo ở nguồn khác: mục <a href="https://en.wikipedia.org/wiki/Electrocardiography#Leads" rel="noopener">Leads</a> trong bài Electrocardiography trên Wikipedia (các hình trên Wikimedia Commons, phần lớn dùng giấy phép tự do).</p>
+      <p>Cơ sở vật lý của các sóng này (điện thế, dòng điện qua mô, lưỡng cực điện) được giải thích trong phần <a href="../intro-bem/1-dien.html">Điện</a> của module Điện từ sinh học.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="du-lieu">
+  <div class="wrap">
+    <h2>Về dữ liệu</h2>
+    <div class="prose">
+      <p>Mọi điện tâm đồ trên trang lấy từ bộ <span class="term">PTB-XL</span> trên PhysioNet: 21.799 bản ghi 12 chuyển đạo dài 10 giây của 18.869 bệnh nhân, ghi từ năm 1989 đến 1996, mỗi bản ghi được tới hai bác sĩ tim mạch gán nhãn theo chuẩn SCP-ECG. Tín hiệu gốc lấy mẫu 500 lần mỗi giây.</p>
+      <p>Mỗi ca được chọn tự động theo các tiêu chí: thuộc nhóm bản ghi có nhãn được người duyệt kỹ nhất (fold 9 và 10), không ghi nhận nhiễu, trôi đường nền, lỗi điện cực, ngoại tâm thu hay máy tạo nhịp, và mang nhãn bệnh rõ ràng với ít nhãn đi kèm nhất. Người thường đối chiếu là một bản ghi chỉ có nhãn "ECG bình thường" và nhịp xoang, cùng giới, tuổi gần nhất.</p>
+      <p>Trước khi hiển thị, đường nền trôi được loại bằng hai lớp lọc trung vị (200 ms rồi 600 ms) và nhiễu cao tần được lọc ở 100 Hz. Cách lọc này giữ hình dạng đoạn ST tốt hơn so với lọc thông cao thông thường.</p>
+    </div>
+    <div class="callout"><b>Tính tự động, chưa được bác sĩ duyệt:</b> vị trí đỉnh R, các dải P, QRS, T trên nhịp trung bình, và mọi số đo trong bảng Số đo (PR, QRS, QT, QTc, trục, Sokolow–Lyon, Cornell). Chúng chỉ để minh họa và có thể lệch vài chục mili giây. Phần chữ mô tả từng bệnh do AI soạn, chưa được bác sĩ duyệt. Nhãn chẩn đoán là nhãn gốc của bộ dữ liệu.</div>
+    <div class="callout">Tài liệu học tập, không dùng để chẩn đoán hay điều trị.</div>
+    <h3>Nguồn</h3>
+    <ol class="refs">
+      <li>Wagner P và cs. <a href="https://doi.org/10.1038/s41597-020-0495-6" rel="noopener">PTB-XL, a large publicly available electrocardiography dataset</a>. Scientific Data 2020;7:154.</li>
+      <li>Wagner P, Strodthoff N, Bousseljot R, Samek W, Schaeffter T. <a href="https://doi.org/10.13026/kfzx-aw45" rel="noopener">PTB-XL, a large publicly available electrocardiography dataset (version 1.0.3)</a>. PhysioNet 2022. Giấy phép CC BY 4.0.</li>
+      <li>Pollard T và cs. <a href="https://doi.org/10.1038/s44360-026-00096-z" rel="noopener">PhysioNet as a global platform for biomedical research</a>. Nature Health 2026.</li>
+      <li>Sokolow M, Lyon TP. The ventricular complex in left ventricular hypertrophy as obtained by unipolar precordial and limb leads. American Heart Journal 1949;37(2):161-186.</li>
+      <li>Casale PN và cs. Improved sex-specific criteria of left ventricular hypertrophy for clinical and computer interpretation of electrocardiograms: validation with autopsy findings. Circulation 1987;75(3):565-572.</li>
+      <li>OpenStax. <a href="https://openstax.org/books/anatomy-and-physiology-2e/pages/19-3-cardiac-cycle" rel="noopener">Anatomy and Physiology 2e, 19.3 Cardiac Cycle</a>. Rice University. Giấy phép CC BY 4.0.</li>
+      <li>Bazett HC. An analysis of the time-relations of electrocardiograms. Heart 1920;7:353-370.</li>
+    </ol>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/ecg.js?v=20261022"></script>
+<script src="lib/ecg-demo-ui.js?v=20261023" data-demo-src="lib/ecg-demo.js?v=20261023"></script>
+<script>
+  ECG.start({ data: 'lib/data/ecg/' });
+</script>
+<script src="lib/scroll-btns.js?v=20261018"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
