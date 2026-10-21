@@ -6,26 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Đo liều | Bioelectromagnetics | My N. Nguyen</title>
-<meta name="description" content="Điện trường cảm ứng, mật độ dòng, SAR, SA; mô phỏng FDTD và FEM trong trình duyệt; giới hạn ICNIRP.">
+<meta name="description" content="Điện trường cảm ứng, mật độ dòng, SAR, SA; mô phỏng FDTD và FEM; giới hạn ICNIRP.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/bem.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-bem/5-do-lieu.html, giai đoạn 5: ĐO LIỀU)
-  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
-  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới:
-      induced.js  : điện trường cảm ứng trong đĩa mô, so với giới hạn ICNIRP 2010
-      sar-heat.js : SAR, SA và tăng nhiệt độ (có / không có tưới máu)
-      fdtd.js     : mô phỏng FDTD 2D (lưới Yee) sóng phẳng chiếu vào mô
-      fem.js      : mô phỏng FEM 2D (phần tử tam giác) dòng điện tDCS trong đầu
-  - Bảng ICNIRP: section #icnirp.
-  - Hình vẽ: lib/figures/luoi-yee.svg
-  =====================================================================
--->
 </head>
 <body>
 <noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
@@ -100,7 +87,7 @@
     </figure>
     <div class="guide"><b>Cách đọc demo này.</b> Sóng phẳng đi vào từ mép trái. Màu cho biết điện trường E tại mỗi ô tại thời điểm đó (hoặc SAR trung bình nếu bấm "SAR"): hai màu tương phản là hai chiều ngược nhau của E, màu càng đậm thì E càng mạnh. Đây là phép tính thật đang chạy: mỗi khung hình, máy cập nhật toàn bộ lưới vài lần theo công thức ở trên. Chờ vài giây cho sóng lan hết rồi hãy đọc. Đổi bề dày lớp mỡ hoặc tần số và để ý các dải sáng tối phía trước mô (sóng đứng do phản xạ) thay đổi.</div>
     <div class="demo" id="demoFdtd" data-demo="fdtd">
-      <div class="demo-title"><h4>Mô phỏng FDTD: sóng phẳng chiếu vào mô</h4><span>Lưới 1 mm, chạy ngay trong trình duyệt</span></div>
+      <div class="demo-title"><h4>Mô phỏng FDTD: sóng phẳng chiếu vào mô</h4><span>Lưới 1 mm</span></div>
       <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
     </div>
     <div class="prose">

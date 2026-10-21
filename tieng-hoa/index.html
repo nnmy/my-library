@@ -13,14 +13,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/th.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (tieng-hoa/index.html, trang chủ nhóm Tiếng Hoa; thẻ chỉ hiện số và tiêu đề)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - num: số thứ tự (để trống '' nếu không đánh số, như các trang độc lập ở đây).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -74,22 +66,22 @@ const PAGES = [
   {
     num: '1', name: 'Bộ thủ cơ bản', href: '1-bo-thu.html', done: true,
     desc: 'Các bộ thủ hay gặp nhất, kèm biến thể, tên Hán Việt, chữ ví dụ và mẹo nhớ.',
-    tags: ['Bộ thủ', 'Chữ phồn thể'],
+    tags: ['Radicals', 'Traditional script'],
   },
   {
     num: '2', name: 'Chữ dễ nhầm', href: '2-chu-de-nham.html', done: true,
     desc: 'Chữ phổ biến nhưng dễ nhầm: giống mặt chữ, đồng âm khác nghĩa, và chữ phồn thể khác kanji tiếng Nhật.',
-    tags: ['Chữ dễ nhầm', 'Đồng âm'],
+    tags: ['Homophones', 'Look-alike characters'],
   },
   {
     num: '3', name: 'Âm tương đồng', href: '3-am-tuong-dong.html', done: true,
     desc: 'Từ có âm gần nhau trong tiếng Hoa, Hán Việt, Nhật và Hàn, cùng quy luật âm cuối để đoán cách đọc.',
-    tags: ['Hán Việt', 'Nhật', 'Hàn'],
+    tags: ['Sino-Vietnamese', 'Cognates'],
   },
   {
     num: '4', name: 'Giao tiếp tình huống', href: '4-giao-tiep.html', done: true,
     desc: 'Quán ăn, mua nước, mua vé xe, khách sạn, sân bay, bệnh viện ở Đài Loan.',
-    tags: ['Hội thoại', 'Đài Loan'],
+    tags: ['Conversation', 'Taiwan'],
   }
 ];
 

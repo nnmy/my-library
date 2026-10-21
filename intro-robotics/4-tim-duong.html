@@ -6,30 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Tìm đường | Robotics | My N. Nguyen</title>
-<meta name="description" content="Tìm đường cho robot, cho người mới: bản đồ lưới, phình vật cản, loang đều, tham lam, A*, không gian cấu hình, RRT, các tầng điều hướng, kèm minh họa tương tác.">
+<meta name="description" content="Tìm đường cho robot: bản đồ lưới, phình vật cản, loang đều, tham lam, A*, không gian cấu hình, RRT, các tầng điều hướng.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/tfg.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-robotics/4-tim-duong.html, Phần 4: TÌM ĐƯỜNG)
-  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết gì về robot.
-  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
-    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
-  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
-      astar-grid : lưới 32 × 20, loang đều / tham lam / A*, vẽ tường, kéo điểm đầu và đích
-      cspace-arm : cánh tay 2 khâu + 2 vật cản tròn, bản đồ không gian cấu hình (θ1, θ2)
-      rrt        : cây ngẫu nhiên RRT trong phòng 10 × 7 m, làm mượt đường
-  - Số liệu trên trang (đo bằng chính mã của minh họa): bức tường chữ U, đi 4 hướng:
-      loang đều xét 590 ô, A* 224 ô, tham lam 143 ô, cả ba ra đường 37 bước;
-      bản đồ ngẫu nhiên 28% tường: tham lam ra đường dài hơn ngắn nhất ở 103/189 bản đồ có lời giải.
-  - Hình tự vẽ: lib/figures/ban-do-luoi.svg, a-sao.svg, tang-hoach-dinh.svg
-  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
-  =====================================================================
--->
 </head>
 <body>
 <noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>

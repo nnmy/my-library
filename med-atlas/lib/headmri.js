@@ -10,7 +10,7 @@
      meta: dims, origin_mm, window {t1, t2}, tissues {nhãn: {voxels}}; T: nội dung tissues.json; vol: Uint8Array mỗi ảnh.
      Không có ảnh 'cond' thì mọi chỗ ghi độ dẫn điện (σ) được ẩn.
 
-   Thao tác (giống trình xem isocond của APP_BRAINE):
+   Thao tác:
      rê chuột    chữ thập cùng vị trí trên cả bốn ảnh, mỗi ảnh ghi giá trị của nó tại điểm đó
      nhấp        khóa vị trí (nhãn có ổ khóa); nhấp lần nữa, bấm vào nhãn ổ khóa hoặc Esc để mở khóa
      bấm tên mô  (bảng Các mô, hoặc ô Tìm mô) nhảy tới lát chứa nhiều mô đó nhất, viền mô màu hồng
@@ -35,7 +35,7 @@ const sgn = v => (v < 0 ? '−' + Math.abs(v) : String(v));          // dấu tr
 const num = (v, d) => v.toFixed(d).replace('.', ',');                 // số thập phân kiểu Việt
 const AXN = ['x', 'y', 'z'];
 let MODS = ['t1', 't2', 'seg', 'cond'];             // các ảnh đang hiện (cfg.mods)
-const HL = [236, 72, 153];          // màu viền mô được chọn (hồng), như trình xem isocond
+const HL = [236, 72, 153];          // màu viền mô được chọn (hồng)
 const SCALES = { full: 2.0, low: 0.5 };                               // thang màu σ (S/m)
 
 async function fetchBytes(url, onBytes) {
@@ -92,7 +92,7 @@ const OR = {
 
 /* ---------------- 3. dựng ảnh lát cắt ---------------- */
 const canvasOf = (W, H) => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
-/* bảng màu jet (như CONDUCTIVITY_CMAP của isocond): t trong [0, 1] -> [r, g, b] */
+/* bảng màu jet: t trong [0, 1] -> [r, g, b] */
 const jet = t => [4 * t - 3, 4 * t - 2, 4 * t - 1].map(c => Math.round(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(c)))));
 const JET = Array.from({ length: 256 }, (_, i) => jet(i / 255));
 const jetCss = t => 'rgb(' + jet(t).join(',') + ')';
@@ -292,7 +292,7 @@ function bindFilm(f) {
   cv.addEventListener('click', e => {
     if (onLockTag(f, e.clientX, e.clientY)) { S.lockHover = null; cv.style.cursor = ''; setLock(null); tip().hidden = true; return; }
     const p = voxelAt(f, e.clientX, e.clientY); if (!p) return;
-    // đang khóa trên lát này: nhấp lần nữa để mở khóa (như trình xem isocond)
+    // đang khóa trên lát này: nhấp lần nữa để mở khóa
     if (S.lock && e.pointerType !== 'touch' && S.lock[OR[S.orient].axis] === S.slice[S.orient]) { S.cur = p; setLock(null); return; }
     S.cur = p.slice(); setLock(p);
     showTip(S.vol.seg[idx(...p)], e.clientX, e.clientY);
@@ -659,7 +659,7 @@ function init() {
   }
   Object.entries(S.T.tissues).forEach(([l, t]) => { const h = t.color.replace('#', ''); S.colors[+l] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); });
   countTissues();
-  // vị trí ban đầu: lát ngang qua giữa chất trắng (như trình xem isocond), lát giữa cho hai hướng còn lại
+  // vị trí ban đầu: lát ngang qua giữa chất trắng, lát giữa cho hai hướng còn lại
   const wm = 13, ax = countsOf(wm, 'ax');
   let a0 = -1, a1 = -1; ax.forEach((c, k) => { if (c) { if (a0 < 0) a0 = k; a1 = k; } });
   S.slice = { ax: a0 >= 0 ? (a0 + a1) >> 1 : S.Z >> 1, cor: S.Y >> 1, sag: S.X >> 1 };

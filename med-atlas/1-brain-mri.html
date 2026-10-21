@@ -6,34 +6,11 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MRI não | Atlas hình ảnh y khoa | My N. Nguyen</title>
-<meta name="description" content="Tra cứu tên và chức năng các cấu trúc não trên ảnh MRI T1 và T2 kèm phân vùng giải phẫu, chạy hoàn toàn trên trình duyệt.">
+<meta name="description" content="Tra cứu tên và chức năng các cấu trúc não trên ảnh MRI T1 và T2 kèm phân vùng giải phẫu.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="stylesheet" href="lib/fonts/fonts.css">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/atlas.css?v=20261018">
-<!--
-  =====================================================================
-  HOW TO EDIT  (med-atlas/1-brain-mri.html, MRI NÃO)
-  - Nội dung từng cấu trúc (tên, đặc điểm, chức năng, lâm sàng, màu):
-      lib/data/brain-mri/labels.json   (sửa trực tiếp, không cần chạy lại gì)
-  - Ảnh và nhãn: lib/data/brain-mri/*.u8.gz + meta.json, tạo bằng tools/prepare_brain_mri.py (chạy một lần).
-  - Trình xem: lib/atlas.js (dùng chung cho các cơ quan); giao diện: lib/atlas.css.
-  - Sau khi sửa atlas.css/atlas.js/compare.css/compare.js: đổi chuỗi ?v=... (ở link CSS, thẻ script và
-    trong đoạn nạp compare) để trình duyệt không dùng bản cũ đã lưu.
-  - Các id trong khung .viewer (cv-t1, cv-t2, slice, segMode, find, info, ...) được atlas.js dùng; giữ nguyên khi sửa.
-  - Bố cục: cột trái = ảnh + bảng điều khiển; cột phải = khung thông tin (thu gọn được).
-    Trên điện thoại, bảng điều khiển nổi ở đáy màn hình, thu gọn được; hiện tới khi gặp phần Ghim (lib/scroll-btns.js).
-    Bảng điều khiển có 2 nút ↑ ↓ (bấm: cuộn một đoạn; giữ: cuộn liên tục) (lib/scroll-btns.js + .vscroll trong atlas.css);
-    trang này: cuối dòng "Lát cắt"; trình xem bệnh và X-quang ngực: dòng "Phóng to".
-  - Trang đọc dữ liệu bằng fetch(): xem trên máy cần server tĩnh (python -m http.server, Live Server);
-    GitHub Pages chạy bình thường. Không dùng dịch vụ ngoài (font cục bộ trong lib/fonts/).
-  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
-  - Hàng nút trên trình xem (.vw-tabs, data-view): "MRI não người khoẻ" hiện trình xem atlas (#viewer);
-    mỗi nút bệnh (data-view = id ca trong lib/data/brain-disease/) hiện trình xem bệnh trong #dzHost,
-    nạp lib/compare.js + lib/compare.css ở lần bấm đầu. Ghim trong trình xem bệnh vào chung danh sách Ghim.
-    Thêm/bớt bệnh: sửa các nút data-view và lib/data/brain-disease/cases.json. Dữ liệu: README-brain-disease.md
-  =====================================================================
--->
 </head>
 <body>
 <noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>

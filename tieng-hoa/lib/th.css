@@ -414,6 +414,7 @@ ul.phr { list-style: none; margin: 0; padding: 0; }
 /* nút loa */
 .say { display: none; border: 1px solid var(--edge); border-radius: 50%; width: 26px; height: 26px; background: #fff; cursor: pointer; padding: 0; vertical-align: 2px; margin-left: 6px; color: var(--muted); }
 .say:hover { border-color: var(--sea); color: var(--sea); }
+.say.is-speaking { border-color: var(--sea); color: #fff; background: var(--sea); }
 .say svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 body.tn-tts .say { display: inline-flex; align-items: center; justify-content: center; }
 

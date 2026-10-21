@@ -6,21 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AI | My N. Nguyen</title>
-<meta name="description" content="Nhập môn AI hiện đại (đến 2026) bằng tiếng Việt: CNN và backpropagation, Transformer, AI tạo sinh, AI đa phương thức, LLM, VLM, RAG, Mamba, với các minh họa tương tác.">
+<meta name="description" content="Nhập môn AI hiện đại (đến 2026) bằng tiếng Việt: CNN và backpropagation, Transformer, AI tạo sinh, AI đa phương thức, LLM, VLM, RAG, Mamba.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/tfg.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-ai/index.html, trang chủ module AI)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - num: số thứ tự, hiện liền trước tiêu đề trên cùng dòng.
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -50,7 +42,7 @@
 <main class="wrap">
   <header class="page-head">
     <h1><span class="dot"></span>AI</h1>
-    <p class="lead">Nhập môn AI hiện đại (đến 2026): bắt đầu từ CNN và cách một mạng nơ-ron tự học bằng backpropagation, qua cơ chế attention của Transformer, các mô hình sinh, mô hình đa phương thức, LLM, VLM, RAG, rồi tới Mamba, kiến trúc mới cho chuỗi dài. Mỗi phần đi kèm minh họa tương tác chạy ngay trên trình duyệt.</p>
+    <p class="lead">Nhập môn AI hiện đại (đến 2026): bắt đầu từ CNN và cách một mạng nơ-ron tự học bằng backpropagation, qua cơ chế attention của Transformer, các mô hình sinh, mô hình đa phương thức, LLM, VLM, RAG, rồi tới Mamba, kiến trúc mới cho chuỗi dài.</p>
   </header>
 
   <ul class="grid" id="pages"></ul>
@@ -75,12 +67,12 @@ const PAGES = [
   {
     num: '1', name: 'CNN & backpropagation', href: '1-cnn.html', done: true,
     desc: 'Ảnh là bảng số, neuron, tích chập, ReLU, pooling, hàm mất mát, gradient descent và backpropagation.',
-    tags: ['Tích chập', 'Gradient', 'Backprop'],
+    tags: ['Convolution', 'Gradient descent', 'Backpropagation'],
   },
   {
     num: '2', name: 'Transformer', href: '2-transformer.html', done: true,
     desc: 'Token, embedding, self-attention, multi-head, mã hóa vị trí và khối Transformer.',
-    tags: ['Attention', 'Q·K·V', 'Encoder / Decoder'],
+    tags: ['Self-attention', 'Multi-head', 'Positional encoding'],
   },
   {
     num: '3', name: 'AI tạo sinh', href: '3-generative.html', done: true,
@@ -100,7 +92,7 @@ const PAGES = [
   {
     num: '6', name: 'Mamba', href: '6-mamba.html', done: true,
     desc: 'Mô hình không gian trạng thái (SSM), cơ chế chọn lọc, quét song song, Mamba-2/3 và mô hình lai.',
-    tags: ['SSM', 'Selective scan', 'Chuỗi dài'],
+    tags: ['SSM', 'Selective scan', 'Long context'],
   },
 ];
 
@@ -119,8 +111,9 @@ PAGES.forEach(p => {
   text.append(h, d);
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

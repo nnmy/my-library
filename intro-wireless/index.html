@@ -6,24 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Không dây | My N. Nguyen</title>
-<meta name="description" content="Nhập môn các công nghệ giao tiếp không dây: sóng vô tuyến, điều chế, NFC, sạc Qi, Bluetooth, AirDrop, Wi-Fi, 4G LTE, GNSS, Starlink, MICS/MedRadio, với các minh họa tương tác.">
+<meta name="description" content="Nhập môn các công nghệ giao tiếp không dây: sóng vô tuyến, điều chế, NFC, sạc Qi, Bluetooth, AirDrop, Wi-Fi, 4G LTE, GNSS, Starlink, MICS/MedRadio.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/wl.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-wireless/index.html, trang chủ module Không dây)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - icon: lưới pixel giống my-library/index.html ("." = trống,
-    ký tự khác tra trong iconColors).
-  - Bảng "So sánh nhanh" (#so-sanh) viết thẳng bằng HTML bên dưới lưới thẻ.
-  - Trang chung của module: lib/wl.css (giao diện), lib/wl.js (tiện ích, tải minh họa, mục lục nổi).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -58,7 +47,7 @@
 <main class="wrap">
   <header class="page-head">
     <h1><span class="dot"></span>Không dây</h1>
-    <p class="lead">Thẻ xe buýt, sạc không dây, tai nghe Bluetooth, Wi-Fi, 4G, GPS, Starlink, máy tạo nhịp tim: những thứ này nghe thì khác nhau, nhưng đều dựa trên vài nguyên lý chung về sóng điện từ. Loạt bài đi từ chuyện sóng là gì, cách chở dữ liệu lên sóng, rồi lần lượt mổ xẻ từng công nghệ, kèm các minh họa tương tác. Toán được giữ ở mức tối thiểu, ký hiệu nào cũng được giải thích ngay bên dưới.</p>
+    <p class="lead">Thẻ xe buýt, sạc không dây, tai nghe Bluetooth, Wi-Fi, 4G, GPS, Starlink, máy tạo nhịp tim: những thứ này nghe thì khác nhau, nhưng đều dựa trên vài nguyên lý chung về sóng điện từ. Loạt bài đi từ chuyện sóng là gì, cách chở dữ liệu lên sóng, rồi lần lượt mổ xẻ từng công nghệ. Toán được giữ ở mức tối thiểu, ký hiệu nào cũng được giải thích ngay bên dưới.</p>
   </header>
 
   <ul class="grid" id="pages"></ul>
@@ -109,11 +98,7 @@ const PAGES = [
     "href": "1-song-vo-tuyen.html",
     "done": true,
     "desc": "Tần số, bước sóng, phổ tần chia làn, ăng-ten, trường gần, vì sao ra xa là mất sóng.",
-    "tags": [
-      "Wave",
-      "Spectrum",
-      "Path loss"
-    ],
+    "tags": ["Radio wave", "Spectrum", "Path loss"],
     "iconColors": {
       "s": "#3787c4",
       "o": "#1B1920"
@@ -135,11 +120,7 @@ const PAGES = [
     "href": "2-dieu-che.html",
     "done": true,
     "desc": "Bit, điều biên, điều tần, điều pha, QAM, băng thông và giới hạn Shannon, chia kênh, sửa lỗi.",
-    "tags": [
-      "Modulation",
-      "QAM",
-      "Shannon"
-    ],
+    "tags": ["Modulation", "QAM", "Shannon limit"],
     "iconColors": {
       "o": "#1B1920",
       "r": "#d8312a"
@@ -160,11 +141,7 @@ const PAGES = [
     "href": "3-nfc-qi.html",
     "done": true,
     "desc": "Cảm ứng từ giữa hai cuộn dây, thẻ không pin, thanh toán chạm, căn cước gắn chip, sạc Qi và Qi2.",
-    "tags": [
-      "NFC",
-      "Qi",
-      "Induction"
-    ],
+    "tags": ["NFC", "Qi", "Induction"],
     "iconColors": {
       "o": "#1B1920",
       "r": "#d8312a",
@@ -188,11 +165,7 @@ const PAGES = [
     "href": "4-bluetooth-wifi.html",
     "done": true,
     "desc": "Dải 2,4 GHz chật chội, nhảy tần, BLE, AirDrop, kênh và băng tần Wi-Fi, MIMO, các thế hệ Wi-Fi.",
-    "tags": [
-      "Bluetooth",
-      "AirDrop",
-      "Wi-Fi"
-    ],
+    "tags": ["Bluetooth", "AirDrop", "Wi-Fi"],
     "iconColors": {
       "s": "#3787c4",
       "W": "#ffffff"
@@ -217,11 +190,7 @@ const PAGES = [
     "href": "5-di-dong.html",
     "done": true,
     "desc": "Ô mạng, tái sử dụng tần số, nhiễu, chuyển vùng, SIM, OFDMA và bộ lập lịch, từ 4G lên 5G.",
-    "tags": [
-      "Cellular",
-      "LTE",
-      "5G"
-    ],
+    "tags": ["Cellular", "LTE", "5G"],
     "iconColors": {
       "o": "#1B1920",
       "r": "#d8312a"
@@ -246,11 +215,7 @@ const PAGES = [
     "href": "6-ve-tinh.html",
     "done": true,
     "desc": "Quỹ đạo và độ trễ, định vị bằng đồng hồ, thuyết tương đối trong GPS, chảo mảng pha của Starlink.",
-    "tags": [
-      "GNSS",
-      "Starlink",
-      "Phased array"
-    ],
+    "tags": ["GNSS", "Starlink", "Phased array"],
     "iconColors": {
       "s": "#3787c4",
       "w": "#f4f2ea",
@@ -272,11 +237,7 @@ const PAGES = [
     "href": "7-y-te.html",
     "done": true,
     "desc": "Thiết bị cấy ghép, dải MICS/MedRadio quanh 400 MHz, sóng xuyên mô cơ thể, an toàn và bảo mật.",
-    "tags": [
-      "MedRadio",
-      "Implant",
-      "SAR"
-    ],
+    "tags": ["MedRadio", "Implant", "SAR"],
     "iconColors": {
       "r": "#d8312a"
     },
@@ -326,8 +287,9 @@ PAGES.forEach(p => {
   if (p.icon) body.append(iconSVG(p));   // thẻ không khai báo icon thì không có pixel art
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

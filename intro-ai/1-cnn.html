@@ -6,30 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CNN &amp; backpropagation | AI | My N. Nguyen</title>
-<meta name="description" content="CNN và backpropagation cho người mới: ảnh là bảng số, neuron, tích chập, ReLU, pooling, hàm mất mát, gradient descent, lan truyền ngược, kèm minh họa tương tác.">
+<meta name="description" content="CNN và backpropagation: ảnh là bảng số, neuron, tích chập, ReLU, pooling, hàm mất mát, gradient descent, lan truyền ngược.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/tfg.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-ai/1-cnn.html, Phần 1: CNN & BACKPROPAGATION)
-  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết machine learning.
-  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
-    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
-  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
-      conv2d       : vẽ ảnh, chọn bộ lọc, coi tích chập + ReLU + max pooling
-      grad-descent : trái banh lăn xuống dốc, chỉnh tốc độ học
-      backprop     : lan truyền ngược từng bước trên mạng tí hon
-      kernel-learn : backprop tự tìm lại 9 trọng số của một bộ lọc
-  - Hình tự vẽ: lib/figures/neuron.svg, cnn-pipeline.svg, vong-huan-luyen.svg
-  - Hình nguồn ngoài (hotlink, có dự phòng khi lỗi): CNN Explainer (Polo Club, giấy phép MIT),
-      https://raw.githubusercontent.com/poloclub/cnn-explainer/master/public/assets/figures/convlayer_overview_demo.gif
-  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
-  =====================================================================
--->
 </head>
 <body>
 <noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>

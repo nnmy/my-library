@@ -6,21 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ảnh y khoa | My N. Nguyen</title>
-<meta name="description" content="Ảnh y khoa: nguyên lý MRI, CT, chụp mạch (angiography), định dạng NIfTI và DICOM, các hệ tọa độ, kèm minh họa tương tác.">
+<meta name="description" content="Ảnh y khoa: nguyên lý MRI, CT, chụp mạch (angiography), định dạng NIfTI và DICOM, các hệ tọa độ.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/ay.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (anh-y-khoa/index.html, trang chủ nhóm Ảnh y khoa)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - num: số thứ tự (để trống '' nếu không đánh số, như các trang độc lập ở đây).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -50,7 +42,7 @@
 <main class="wrap">
   <header class="page-head">
     <h1><span class="dot"></span>Ảnh y khoa</h1>
-    <p class="lead">Máy chụp tạo ra ảnh như thế nào, ảnh được lưu ra sao, và làm sao biết mỗi điểm ảnh nằm ở đâu trong cơ thể. Mỗi trang có một minh họa tương tác để tự thử.</p>
+    <p class="lead">Máy chụp tạo ra ảnh như thế nào, ảnh được lưu ra sao, và làm sao biết mỗi điểm ảnh nằm ở đâu trong cơ thể.</p>
   </header>
 
   <ul class="grid" id="pages"></ul>
@@ -75,12 +67,12 @@ const PAGES = [
   {
     num: '1', name: 'Nguyên lý MRI', href: '1-mri.html', done: true,
     desc: 'Proton, từ trường và sóng radio: vì sao cùng một mô có thể sáng trên ảnh này, tối trên ảnh khác.',
-    tags: ['MRI', 'T1, T2', 'k-space'],
+    tags: ['MRI', 'Relaxation', 'k-space'],
   },
   {
     num: '2', name: 'Nguyên lý CT', href: '2-ct.html', done: true,
     desc: 'Chiếu tia X từ hàng trăm góc rồi để máy tính dựng lại: sinogram, chiếu ngược có lọc, đơn vị Hounsfield.',
-    tags: ['CT', 'Tái tạo ảnh', 'Hounsfield'],
+    tags: ['CT', 'Reconstruction', 'Hounsfield unit'],
   },
   {
     num: '3', name: 'Nguyên lý chụp mạch', href: '3-angiography.html', done: true,
@@ -90,12 +82,12 @@ const PAGES = [
   {
     num: '4', name: 'NIfTI và DICOM', href: '4-nifti-dicom.html', done: true,
     desc: 'Hai cách lưu ảnh y khoa: DICOM của bệnh viện (nhiều file, nhiều thẻ) và NIfTI của nghiên cứu (một khối, một ma trận).',
-    tags: ['DICOM', 'NIfTI', 'Định dạng'],
+    tags: ['DICOM', 'NIfTI', 'Metadata'],
   },
   {
     num: '5', name: 'Các hệ tọa độ', href: '5-he-toa-do.html', done: true,
     desc: 'Một điểm trong não có nhiều "địa chỉ": chỉ số voxel, tọa độ RAS, LPS, không gian chuẩn MNI. Nhầm là nhầm trái phải.',
-    tags: ['RAS', 'LPS', 'Affine'],
+    tags: ['RAS/LPS', 'Affine', 'MNI space'],
   },
 ];
 
@@ -115,8 +107,9 @@ PAGES.forEach(p => {
   text.append(h, d);
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

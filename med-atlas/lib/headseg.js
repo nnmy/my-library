@@ -1,10 +1,9 @@
 /* =====================================================================
-   Phân vùng mô đầu từ MRI T1 + T2, chạy hoàn toàn trên trình duyệt (head-seg.html, trang không liệt kê).
-   Mô hình: mạng phân vùng của CondNetTART (Model10, condnettart_seg.pth của APP_BRAINE), chuyển sang ONNX
-   bằng tools/export_condnettart_seg_onnx.py, chạy bằng onnxruntime-web (lib/vendor/onnxruntime-web/).
+   Phân vùng mô đầu từ MRI T1 + T2 (head-seg.html).
+   Mô hình: mạng phân vùng (Kubota, 2025) ở dạng ONNX, chạy bằng onnxruntime-web (lib/vendor/onnxruntime-web/).
    Ảnh không rời khỏi máy người dùng.
 
-   Các bước giống hệt APP_BRAINE/vendor/isocond/pipeline/input_format.py (prepare):
+   Các bước:
      1. đọc NIfTI (.nii, .nii.gz): affine "tốt nhất" như nibabel (sform, rồi qform, rồi affine gốc), có scl_slope
      2. conform: lấy mẫu lại từng ảnh lên lưới 1 mm thẳng trục RAS (nội suy tam tuyến, ngoài khối = 0)
      3. đăng ký T2 -> T1: chỉ dời nguyên voxel; tâm khối trùng nhau, tìm theo z ±40, rồi khối ±5 quanh đó,

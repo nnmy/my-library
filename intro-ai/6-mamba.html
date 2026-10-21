@@ -6,29 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mamba | AI | My N. Nguyen</title>
-<meta name="description" content="Mamba cho người mới: vì sao chuỗi dài làm khó Transformer, mô hình không gian trạng thái (SSM), cơ chế chọn lọc, quét song song, Mamba-2, Mamba-3 và mô hình lai, kèm minh họa tương tác.">
+<meta name="description" content="Mamba: vì sao chuỗi dài làm khó Transformer, mô hình không gian trạng thái (SSM), cơ chế chọn lọc, quét song song, Mamba-2, Mamba-3 và mô hình lai.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/tfg.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-ai/6-mamba.html, Phần 6: MAMBA)
-  - Giọng văn: tiếng Việt kiểu miền Nam, viết cho người gần như chưa biết machine learning.
-  - Chữ và công thức: sửa trực tiếp trong các <section class="part">.
-    Công thức viết bằng TeX: \( ... \) trong dòng, \[ ... \] riêng dòng.
-  - Mỗi demo là một file trong lib/demos/ (tên file = data-demo), tải khi cuộn tới
-      seq-cost   : bộ nhớ KV cache của Transformer so với trạng thái của Mamba theo độ dài ngữ cảnh
-      ssm-memory : trạng thái một chiều, chỉnh độ nhớ ā
-      selective  : SSM cố định so với SSM chọn lọc trên một câu
-  - Hình tự vẽ: lib/figures/cuon-so.svg, ssm-trai-ra.svg, quet-song-song.svg, khoi-mamba.svg
-  - Hình nguồn ngoài (hotlink, có dự phòng khi lỗi): sơ đồ SSM chọn lọc trong kho state-spaces/mamba (Apache 2.0),
-      https://raw.githubusercontent.com/state-spaces/mamba/main/assets/selection.png
-  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
-  =====================================================================
--->
 </head>
 <body>
 <noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>

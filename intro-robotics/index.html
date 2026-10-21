@@ -6,21 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Robotics | My N. Nguyen</title>
-<meta name="description" content="Nhập môn robotics bằng tiếng Việt cho người mới: động học, điều khiển, cảm biến và định vị, tìm đường, robot tự học, mô hình nền tảng cho robot, với các minh họa tương tác.">
+<meta name="description" content="Nhập môn robotics bằng tiếng Việt: động học, điều khiển, cảm biến và định vị, tìm đường, robot tự học, mô hình nền tảng cho robot.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/tfg.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-robotics/index.html, trang chủ module Robotics)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - num: số thứ tự, hiện liền trước tiêu đề trên cùng dòng.
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -50,7 +42,7 @@
 <main class="wrap">
   <header class="page-head">
     <h1><span class="dot"></span>Robotics</h1>
-    <p class="lead">Nhập môn robotics cho người mới, viết theo giọng miền Nam: robot cử động ra sao, giữ thăng bằng nhờ vòng phản hồi, biết mình đang ở đâu, tự tìm đường, tự học từ thử và sai, tới các mô hình nền tảng điều khiển robot hiện nay (2026). Mỗi phần đi kèm minh họa tương tác chạy ngay trên trình duyệt, và nối qua module <a href="../intro-ai/index.html">AI</a> ở những chỗ hai bên gặp nhau.</p>
+    <p class="lead">Nhập môn robotics: robot cử động ra sao, giữ thăng bằng nhờ vòng phản hồi, biết mình đang ở đâu, tự tìm đường, tự học từ thử và sai, tới các mô hình nền tảng điều khiển robot hiện nay (2026). Nhiều phần nối qua module <a href="../intro-ai/index.html">AI</a> ở những chỗ hai bên gặp nhau.</p>
   </header>
 
   <ul class="grid" id="pages"></ul>
@@ -75,27 +67,27 @@ const PAGES = [
   {
     num: '1', name: 'Robot cử động ra sao', href: '1-dong-hoc.html', done: true,
     desc: 'Khớp, khâu, bậc tự do, hệ tọa độ, động học thuận và động học ngược.',
-    tags: ['Bậc tự do', 'Động học thuận', 'Động học ngược'],
+    tags: ['Degrees of freedom', 'Forward kinematics', 'Inverse kinematics'],
   },
   {
     num: '2', name: 'Điều khiển và phản hồi', href: '2-dieu-khien.html', done: true,
     desc: 'Vòng phản hồi, bộ điều khiển PID, vọt lố, dao động và ổn định.',
-    tags: ['Phản hồi', 'PID', 'Ổn định'],
+    tags: ['Feedback', 'PID', 'Stability'],
   },
   {
     num: '3', name: 'Cảm biến và định vị', href: '3-dinh-vi.html', done: true,
     desc: 'Encoder, IMU, lidar, camera, nhiễu, bộ lọc Kalman, bộ lọc hạt và SLAM.',
-    tags: ['Kalman', 'Bộ lọc hạt', 'SLAM'],
+    tags: ['Kalman filter', 'Particle filter', 'SLAM'],
   },
   {
     num: '4', name: 'Tìm đường', href: '4-tim-duong.html', done: true,
     desc: 'Không gian cấu hình, A*, RRT, tránh vật cản.',
-    tags: ['A*', 'RRT', 'Vật cản'],
+    tags: ['A*', 'RRT', 'Configuration space'],
   },
   {
     num: '5', name: 'Robot tự học', href: '5-tu-hoc.html', done: true,
     desc: 'Học bắt chước, học tăng cường, mô phỏng rồi chuyển qua đời thật.',
-    tags: ['Bắt chước', 'Học tăng cường', 'Sim-to-real'],
+    tags: ['Imitation learning', 'Reinforcement learning', 'Sim-to-real'],
   },
   {
     num: '6', name: 'Mô hình nền tảng cho robot', href: '6-mo-hinh-nen-tang.html', done: true,
@@ -119,8 +111,9 @@ PAGES.forEach(p => {
   text.append(h, d);
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

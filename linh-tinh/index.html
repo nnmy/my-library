@@ -6,21 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Linh tinh | My N. Nguyen</title>
-<meta name="description" content="Các minh họa tương tác độc lập về đời sống hằng ngày, viết cho người đọc phổ thông.">
+<meta name="description" content="Các bài ngắn, độc lập về đời sống hằng ngày.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/lt.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (linh-tinh/index.html, trang chủ nhóm Linh tinh)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - num: số thứ tự (để trống '' nếu không đánh số, như các trang độc lập ở đây).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -50,7 +42,7 @@
 <main class="wrap">
   <header class="page-head">
     <h1><span class="dot"></span>Linh tinh</h1>
-    <p class="lead">Những minh họa tương tác độc lập về đời sống hằng ngày, viết cho người đọc phổ thông. Mỗi trang là một thử nghiệm nhỏ, cuối trang có phần cơ sở khoa học và tài liệu tham khảo.</p>
+    <p class="lead">Những bài ngắn, độc lập về đời sống hằng ngày. Cuối mỗi trang có phần cơ sở khoa học và tài liệu tham khảo.</p>
   </header>
 
   <ul class="grid" id="pages"></ul>
@@ -85,7 +77,7 @@ const PAGES = [
   {
     num: '', name: 'Kỷ yếu', href: 'ky-yeu.html', done: true,
     desc: 'Tạo kỷ yếu các thành viên trong lab hoặc lớp học; xuất PDF, PNG hoặc DOCX. Dữ liệu chỉ nằm trên máy bạn.',
-    tags: ['Tool', 'Yearbook'],
+    tags: ['Yearbook'],
   },
 ];
 
@@ -105,8 +97,9 @@ PAGES.forEach(p => {
   text.append(h, d);
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

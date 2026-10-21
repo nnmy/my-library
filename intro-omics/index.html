@@ -6,22 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Biểu hiện gene và omics | My N. Nguyen</title>
-<meta name="description" content="Nhập môn biểu hiện gene và dữ liệu omics bằng tiếng Việt, từ tế bào tới AI cho gene, bệnh và thuốc, với các minh họa tương tác.">
+<meta name="description" content="Nhập môn biểu hiện gene và dữ liệu omics bằng tiếng Việt, từ tế bào tới AI cho gene, bệnh và thuốc.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/omics.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-omics/index.html, trang chủ module Omics)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - icon: lưới pixel giống my-library/index.html ("." = trống,
-    ký tự khác tra trong iconColors).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -53,7 +44,7 @@
 <main class="wrap">
   <header class="page-head">
     <h1><span class="dot"></span>Biểu hiện gene và omics</h1>
-    <p class="lead">Từ tế bào và chuỗi xoắn kép DNA tới bảng số hàng triệu ô và các mô hình AI: năm phần ngắn, mỗi phần có minh họa tương tác chạy ngay trong trình duyệt. Phần 4 và 5 có đoạn code Python ngắn cho người làm data science. Dữ liệu trong các minh họa đều là dữ liệu mô phỏng.</p>
+    <p class="lead">Từ tế bào và chuỗi xoắn kép DNA tới bảng số hàng triệu ô và các mô hình AI: năm phần ngắn. Phần 4 và 5 có đoạn code Python ngắn cho người làm data science. Dữ liệu trong các minh họa đều là dữ liệu mô phỏng.</p>
   </header>
 
   <ul class="grid" id="pages"></ul>
@@ -81,11 +72,7 @@ const PAGES = [
     "href": "1-te-bao.html",
     "done": true,
     "desc": "Bên trong tế bào, các loại tế bào ở người, và con người đã tìm ra gene, DNA bằng cách nào.",
-    "tags": [
-      "Cell",
-      "DNA",
-      "History"
-    ],
+    "tags": ["Cell", "DNA", "Microscopy"],
     "iconColors": {
       "o": "#1B1920",
       "p": "#e9e4f5",
@@ -112,11 +99,7 @@ const PAGES = [
     "href": "2-dna-protein.html",
     "done": true,
     "desc": "Phiên mã, dịch mã, mã di truyền, đột biến, và cách tế bào bật tắt gene.",
-    "tags": [
-      "Central dogma",
-      "Mutation",
-      "Regulation"
-    ],
+    "tags": ["Central dogma", "Mutation", "Gene regulation"],
     "iconColors": {
       "a": "#2e9d4f",
       "c": "#3787c4",
@@ -140,11 +123,7 @@ const PAGES = [
     "href": "3-omics.html",
     "done": true,
     "desc": "Giải trình tự, các tầng omics, từ đoạn đọc tới bảng đếm.",
-    "tags": [
-      "Sequencing",
-      "RNA-seq",
-      "Normalization"
-    ],
+    "tags": ["Sequencing", "RNA-seq", "Normalization"],
     "iconColors": {
       "s": "#3787c4",
       "k": "#7bcde8",
@@ -169,11 +148,7 @@ const PAGES = [
     "href": "4-phan-tich.html",
     "done": true,
     "desc": "Biểu hiện khác biệt, FDR, tế bào đơn, PCA và phân cụm.",
-    "tags": [
-      "Differential expression",
-      "FDR",
-      "Single-cell"
-    ],
+    "tags": ["Differential expression", "FDR", "Single-cell"],
     "iconColors": {
       "o": "#1B1920",
       "b": "#3787c4",
@@ -198,11 +173,7 @@ const PAGES = [
     "href": "5-ai.html",
     "done": true,
     "desc": "GWAS, phân loại bệnh, AlphaFold, mô hình nền tảng, phát triển thuốc và các cạm bẫy.",
-    "tags": [
-      "AI",
-      "Disease",
-      "Drug discovery"
-    ],
+    "tags": ["GWAS", "AlphaFold", "Drug discovery"],
     "iconColors": {
       "o": "#1B1920",
       "w": "#ffffff",
@@ -256,8 +227,9 @@ PAGES.forEach(p => {
   if (p.icon) body.append(iconSVG(p));   // thẻ không khai báo icon thì không có pixel art
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

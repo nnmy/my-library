@@ -6,8 +6,6 @@
    Robot học bắt chước: tra 3 mẫu gần nhất trong dữ liệu (k-nearest neighbors) rồi lấy trung bình góc lái.
    Dữ liệu ban đầu: người lái mẫu chạy 30 s trong ngày gió nhẹ (0,15).
    DAgger: robot tự lái 30 s; mỗi trạng thái nó đi qua được người lái mẫu "chấm" góc lái đúng, thêm vào dữ liệu.
-   Số liệu đo bằng chính mã này (gió 1, trung bình 3 lần chạy): mẫu ra khỏi làn 1% thời gian, 0 lần văng;
-   bắt chước 28%, 9 lần văng; sau 3 vòng DAgger 0%.
    Chạy độc lập: lib/demos/run.html?demo=dagger
    ===================================================================== */
 (() => {

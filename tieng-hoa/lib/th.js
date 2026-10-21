@@ -77,28 +77,76 @@ function floatingToc() {
   links.forEach(([d]) => io.observe(d));
 }
 
-/* ---------- đọc tiếng Hoa ---------- */
+/* ---------- đọc tiếng Hoa ----------
+   - Gom mọi giọng tiếng Hoa có trên máy, xếp ưu tiên: Đài Loan (zh-TW, zh-Hant, cmn-Hant-TW) → phổ thông khác
+     (zh-CN, cmn) → Hồng Kông / Quảng Đông (zh-HK, yue) sau cùng. Mã ngôn ngữ được chuẩn hóa ("zh_TW" → "zh-TW").
+   - Mỗi lần bấm: dừng câu đang đọc, đợi một nhịp rồi mới đọc câu mới (Chrome bỏ qua speak() gọi ngay sau cancel()),
+     gọi resume() phòng trường hợp bộ đọc bị kẹt ở trạng thái tạm dừng.
+   - Nếu giọng đang chọn báo lỗi hoặc không bắt đầu đọc sau 2,5 giây (giọng có tên nhưng chưa tải về máy, giọng mạng
+     không phản hồi), tự thử giọng kế tiếp, cuối cùng để trình duyệt tự chọn theo lang="zh-TW".
+   - Giữ tham chiếu tới utterance đang đọc để không bị thu gom bộ nhớ giữa chừng (lỗi đã biết của Chrome).
+   - Nút loa ẩn nếu trình duyệt không có Web Speech API, hoặc đã có danh sách giọng mà không có giọng tiếng Hoa nào. */
 function speech() {
-  if (!('speechSynthesis' in window)) return;
-  let voice = null;
-  const pick = () => {
-    const vs = speechSynthesis.getVoices();
-    voice = vs.find(v => /^zh[-_](TW|Hant)/i.test(v.lang)) || vs.find(v => /^zh(-|_|$)/i.test(v.lang)) || null;
-    document.body.classList.toggle('tn-tts', !!voice);
+  if (!('speechSynthesis' in window) || !('SpeechSynthesisUtterance' in window)) return;
+  const synth = window.speechSynthesis;
+  const norm = l => String(l || '').replace(/_/g, '-');
+  const rank = v => {
+    const l = norm(v.lang).toLowerCase();
+    if (/^(zh|cmn)-(tw|hant)/.test(l)) return 0;
+    if (/^(zh|cmn)(-|$)/.test(l) && !/^zh-(hk|mo)/.test(l)) return 1;
+    if (/^(zh|yue)(-|$)/.test(l)) return 2;
+    return -1;
   };
-  pick(); speechSynthesis.addEventListener?.('voiceschanged', pick);
+  let voices = [], listed = false;
+  const pick = () => {
+    const all = synth.getVoices() || [];
+    if (all.length) listed = true;
+    voices = all.filter(v => rank(v) >= 0)
+      .sort((a, b) => rank(a) - rank(b) || (b.localService === true) - (a.localService === true));
+    document.body.classList.toggle('tn-tts', voices.length > 0 || !listed);
+  };
+  pick();
+  if (synth.addEventListener) synth.addEventListener('voiceschanged', pick);
+  else synth.onvoiceschanged = pick;
+  setTimeout(pick, 1500);
+
+  let current = null, timer = 0, playing = null;
+  const stopUI = () => { if (playing) playing.classList.remove('is-speaking'); playing = null; };
+  function attempt(text, list, i, btn) {
+    clearTimeout(timer);
+    const v = list[i];                                   // undefined = để trình duyệt tự chọn giọng
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = v ? norm(v.lang) : 'zh-TW';
+    if (v) u.voice = v;
+    u.rate = 0.9;
+    let started = false;
+    const next = () => { if (current !== u) return; current = null; synth.cancel(); if (i < list.length) setTimeout(() => attempt(text, list, i + 1, btn), 80); else stopUI(); };
+    u.onstart = () => { started = true; clearTimeout(timer); };
+    u.onend = () => { if (current === u) { current = null; stopUI(); } };
+    u.onerror = e => { if (e && (e.error === 'interrupted' || e.error === 'canceled')) return; next(); };
+    current = u;
+    synth.resume();
+    synth.speak(u);
+    timer = setTimeout(() => { if (!started && current === u) next(); }, 2500);
+  }
   document.addEventListener('click', e => {
-    const b = e.target.closest('.say'); if (!b || !voice) return;
-    const box = b.closest('.ph, .vw, td'); if (!box) return;
+    const b = e.target.closest('.say'); if (!b) return;
+    e.preventDefault();
+    const box = b.closest('.ph, .vw, td, li'); if (!box) return;
     const el = box.querySelector('[lang|="zh"]'); if (!el) return;
-    const text = el.textContent.replace(/[＿_]+/g, '').trim();
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text); u.lang = voice.lang || 'zh-TW'; u.voice = voice; u.rate = 0.9;
-    speechSynthesis.speak(u);
+    const text = el.textContent.replace(/[＿_]+/g, '').trim(); if (!text) return;
+    if (!voices.length) pick();
+    clearTimeout(timer); current = null; stopUI();
+    playing = b; b.classList.add('is-speaking');
+    const busy = synth.speaking || synth.pending;
+    synth.cancel();
+    if (busy) setTimeout(() => attempt(text, voices.slice(), 0, b), 120);
+    else attempt(text, voices.slice(), 0, b);           // gọi ngay trong sự kiện bấm (Safari iOS cần vậy)
   });
 }
 
-const go = () => { floatingToc(); openFromHash(); speech(); };
+const safe = fn => { try { fn(); } catch (err) { console.error(err); } };   // lỗi ở một phần không chặn các phần khác
+const go = () => { safe(floatingToc); safe(openFromHash); safe(speech); };
 document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', go) : go();
 addEventListener('hashchange', openFromHash);
 })();

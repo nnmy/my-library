@@ -11,15 +11,6 @@
 <link rel="stylesheet" href="lib/fonts/fonts.css">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/atlas.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (med-atlas/index.html, trang chủ module Atlas hình ảnh y khoa)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - num: số thứ tự, hiện liền trước tiêu đề trên cùng dòng.
-  - Mục Khác (liên kết chữ dưới lưới thẻ): mảng OTHERS ở cuối file.
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -85,12 +76,12 @@ const PAGES = [
   {
     num: '1', name: 'MRI não', href: '1-brain-mri.html', done: true,
     desc: 'Ảnh T1 và T2 cùng phân vùng hơn 50 cấu trúc mỗi bán cầu não.',
-    tags: ['MRI', 'Brain', 'T1', 'T2'],
+    tags: ['MRI', 'Brain', 'Segmentation'],
   },
   {
     num: '2', name: 'X-quang ngực', href: '2-chest-xray.html', done: true,
     desc: 'Phim ngực thẳng: các mốc giải phẫu, và dấu hiệu của lao phổi, viêm phổi, tràn dịch, tràn khí màng phổi, tim to, u và nốt phổi.',
-    tags: ['CXR', 'X-ray', 'Tuberculosis'],
+    tags: ['Chest X-ray', 'Anatomy', 'Lung disease'],
   },
 ];
 /* EDIT: mục Khác (dưới lưới thẻ): liên kết chữ, không có thẻ */
@@ -114,8 +105,9 @@ PAGES.forEach(p => {
   text.append(h, d);
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Chưa mần'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

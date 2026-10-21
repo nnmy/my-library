@@ -6,22 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bioelectromagnetics | My N. Nguyen</title>
-<meta name="description" content="Nhập môn điện từ sinh học (bioelectromagnetics) bằng tiếng Việt, với các minh họa tương tác.">
+<meta name="description" content="Nhập môn điện từ sinh học (bioelectromagnetics) bằng tiếng Việt.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/bem.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-bem/index.html, trang chủ module Bioelectromagnetics)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - icon: lưới pixel giống my-library/index.html ("." = trống,
-    ký tự khác tra trong iconColors).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -78,7 +69,7 @@ const PAGES = [
   {
     num: '1', name: 'Điện', href: '1-dien.html', done: true,
     desc: 'Điện tích, điện trường, điện thế và dòng điện.',
-    tags: ['Charge', 'Potential', 'Current'],
+    tags: ['Charge', 'Electric potential', 'Current'],
     iconColors: { o: '#1B1920', y: '#f2c230', w: '#fff3c9' },
     icon: [
       '.....oooooo',
@@ -98,7 +89,7 @@ const PAGES = [
   {
     num: '2', name: 'Từ', href: '2-tu.html', done: true,
     desc: 'Từ trường của dòng điện, lực Lorentz và nam châm.',
-    tags: ['Biot–Savart', 'Lorentz', 'Magnet'],
+    tags: ['Biot–Savart', 'Lorentz force', 'Magnet'],
     iconColors: { o: '#1B1920', r: '#d8312a', b: '#3787c4', w: '#E2E6EA' },
     icon: [
       '...oooooo...',
@@ -135,12 +126,12 @@ const PAGES = [
   {
     num: '4', name: 'Điện môi của mô', href: '4-dien-moi.html', done: true,
     desc: 'σ và ε của mô, tán sắc và mô hình Cole–Cole.',
-    tags: ['Dielectricity', 'Permittivity', 'Cole–Cole'],
+    tags: ['Conductivity', 'Permittivity', 'Cole–Cole'],
   },
   {
     num: '5', name: 'Đo liều', href: '5-do-lieu.html', done: true,
     desc: 'Điện trường cảm ứng, SAR, mô phỏng FDTD và FEM.',
-    tags: ['Dosimetry', 'SAR', 'FDTD', 'FEM'],
+    tags: ['SAR', 'FDTD', 'FEM'],
   },
   {
     num: '6', name: 'FEM', href: '6-fem.html', done: true,
@@ -180,8 +171,9 @@ PAGES.forEach(p => {
   if (p.icon) body.append(iconSVG(p));   // thẻ không khai báo icon thì không có pixel art
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

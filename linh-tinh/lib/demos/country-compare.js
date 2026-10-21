@@ -1,6 +1,6 @@
 /* =====================================================================
    Linh tinh: minh họa "So sánh nơi sống" (id: country-compare, trang noi-song.html)
-   SỐ LIỆU (tra ngày 13/10/2026; xem mục Cơ sở trên trang):
+   SỐ LIỆU (xem mục Cơ sở trên trang):
    - net: lương ròng trung bình/tháng (mọi ngành), USD — Numbeo, cập nhật 12/10/2026.
    - col, rent: Cost of Living Index, Rent Index — Numbeo, giữa năm 2026 (New York = 100).
    - Chi phí 1 người (không tính nhà) và tiền mướn căn 1 phòng ngủ ngoài trung tâm: QUY ĐỔI theo chỉ số từ mốc Đức

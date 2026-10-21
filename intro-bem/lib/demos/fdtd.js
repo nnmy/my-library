@@ -22,7 +22,7 @@ BEM.demo('fdtd', {
   title: 'Mô phỏng FDTD: sóng phẳng chiếu vào mô',
   page: '5-do-lieu.html',
   deps: ['gabriel-data'],
-  html: `<div class="demo-title"><h4>Mô phỏng FDTD: sóng phẳng chiếu vào mô</h4><span>Lưới 1 mm, chạy ngay trong trình duyệt</span></div>
+  html: `<div class="demo-title"><h4>Mô phỏng FDTD: sóng phẳng chiếu vào mô</h4><span>Lưới 1 mm</span></div>
   <div class="demo-body">
     <div class="stagebox"><canvas id="cvFd" class="ar" role="img" aria-label="Mô phỏng FDTD hai chiều: bản đồ điện trường hoặc SAR khi sóng phẳng chiếu từ trái sang vào mô."></canvas></div>
     <div class="panel">

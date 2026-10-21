@@ -6,22 +6,13 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bán dẫn & Siêu dẫn | My N. Nguyen</title>
-<meta name="description" content="Nhập môn bán dẫn, từ cấu trúc vật chất tới quy trình sản xuất chip, với các minh họa tương tác. Phần siêu dẫn là phụ.">
+<meta name="description" content="Nhập môn bán dẫn, từ cấu trúc vật chất tới quy trình sản xuất chip, kèm một bài đọc thêm về siêu dẫn.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/semi.css">
-<!--
-  =====================================================================
-  HOW TO EDIT  (intro-semi/index.html, trang chủ module Bán dẫn)
-  - Danh sách trang con: mảng PAGES ở cuối file.
-      done: true  -> thẻ bấm được;  done: false -> thẻ mờ "Sắp có".
-  - icon: lưới pixel giống my-library/index.html ("." = trống,
-    ký tự khác tra trong iconColors).
-  =====================================================================
--->
 <style>
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; list-style: none; padding: 0; margin: 0 0 40px; }
   .card { display: flex; flex-direction: column; height: 100%; background: #fff; color: var(--ink); text-decoration: none;
@@ -81,11 +72,7 @@ const PAGES = [
     "href": "1-vat-chat.html",
     "done": true,
     "desc": "Nguyên tử, mức năng lượng, electron hóa trị; vì sao có chất dẫn điện, cách điện và bán dẫn.",
-    "tags": [
-      "Atom",
-      "Energy level",
-      "Band"
-    ],
+    "tags": ["Atom", "Energy level", "Energy band"],
     "iconColors": {
       "k": "#3787c4",
       "r": "#d8312a",
@@ -111,11 +98,7 @@ const PAGES = [
     "href": "2-ban-dan.html",
     "done": true,
     "desc": "Electron và lỗ trống, pha tạp loại n và p, dòng trôi và dòng khuếch tán.",
-    "tags": [
-      "Doping",
-      "Hole",
-      "Drift–diffusion"
-    ],
+    "tags": ["Doping", "Hole", "Drift–diffusion"],
     "iconColors": {
       "o": "#59606B",
       "r": "#d8312a",
@@ -139,11 +122,7 @@ const PAGES = [
     "href": "3-diode.html",
     "done": true,
     "desc": "Tiếp giáp p–n, LED, photodiode, pin mặt trời.",
-    "tags": [
-      "p–n junction",
-      "LED",
-      "Solar cell"
-    ],
+    "tags": ["p–n junction", "LED", "Solar cell"],
     "iconColors": {
       "o": "#1B1920",
       "y": "#f2c230"
@@ -166,11 +145,7 @@ const PAGES = [
     "href": "4-transistor.html",
     "done": true,
     "desc": "MOSFET, cổng logic CMOS, định luật Moore và giới hạn của việc thu nhỏ.",
-    "tags": [
-      "MOSFET",
-      "CMOS",
-      "Moore"
-    ],
+    "tags": ["MOSFET", "CMOS", "Moore's law"],
     "iconColors": {
       "o": "#1B1920",
       "k": "#7bcde8",
@@ -196,11 +171,7 @@ const PAGES = [
     "href": "5-san-xuat.html",
     "done": true,
     "desc": "Quy trình sản xuất chip và các công ty chủ chốt trong chuỗi cung ứng toàn cầu.",
-    "tags": [
-      "Fab",
-      "Lithography",
-      "Supply chain"
-    ],
+    "tags": ["Fab", "Lithography", "Supply chain"],
     "iconColors": {
       "o": "#1B1920",
       "k": "#9DA4AD",
@@ -229,10 +200,7 @@ const PAGES = [
     "href": "sieu-dan.html",
     "done": true,
     "desc": "Hiệu ứng Meissner, cặp Cooper, ứng dụng siêu dẫn.",
-    "tags": [
-      "Superconductivity",
-      "Meissner", "Cooper"
-    ],
+    "tags": ["Superconductivity", "Meissner effect", "Cooper pair"],
     "iconColors": {
       "o": "#1B1920",
       "r": "#d8312a",
@@ -284,8 +252,9 @@ PAGES.forEach(p => {
   if (p.icon) body.append(iconSVG(p));   // thẻ không khai báo icon thì không có pixel art
   body.append(text);
   const tags = document.createElement('ul'); tags.className = 'tags';
-  p.tags.slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
-  card.append(body, tags);
+  (p.tags || []).slice(0, 3).forEach(t => { const x = document.createElement('li'); x.textContent = t; tags.appendChild(x); });
+  card.append(body);
+  if (tags.children.length) card.append(tags);
   if (!p.done) { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'Sắp có'; card.appendChild(b); }
   li.appendChild(card); list.appendChild(li);
 });

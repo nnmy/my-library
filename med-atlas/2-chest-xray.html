@@ -12,20 +12,6 @@
 <link rel="stylesheet" href="../common/site.css">
 <link rel="stylesheet" href="lib/atlas.css?v=20261018">
 <link rel="stylesheet" href="lib/cxr.css?v=20261017">
-<!--
-  =====================================================================
-  HOW TO EDIT  (med-atlas/2-chest-xray.html, X-QUANG NGỰC)
-  - Ảnh: lib/data/chest-xray/<ca>/image.png (+ lung-r.png, lung-l.png, meta.json), tạo bằng tools/prepare_chest_xray.py.
-  - Nội dung chữ, vùng nhận diện, marker AI: lib/data/chest-xray/<ca>/case.json; tên và ý nghĩa cấu trúc: anatomy.json;
-    thứ tự nút: cases.json. Sửa trực tiếp, không cần chạy lại Python. Hướng dẫn: README-chest-xray.md
-  - Ghim + Xuất PDF giống trang MRI não (IndexedDB med-atlas, organ chest-xray; bản in #printSheet trong atlas.css).
-  - Trình xem: lib/cxr.js; giao diện: lib/atlas.css (dùng chung) + lib/cxr.css. Sau khi sửa, đổi chuỗi ?v=...
-  - Quy ước nguồn khoanh vùng: "expert" (có sẵn trong bộ dữ liệu, do bác sĩ hoặc dưới sự giám sát của bác sĩ vẽ)
-    và "ai" (do AI tự vẽ, CHƯA được bác sĩ duyệt). Mọi chỗ hiện vùng "ai" phải kèm chú thích này.
-  - Trang đọc dữ liệu bằng fetch(): xem trên máy cần server tĩnh (python -m http.server).
-  - Navbar: ../common/nav.js (dùng chung, sửa một chỗ); footer: ../common (site.css, site.js)
-  =====================================================================
--->
 </head>
 <body>
 <noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
