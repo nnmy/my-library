@@ -17,8 +17,8 @@
     mark: 'My N. Nguyen - Library',          // chữ cạnh logo (bấm vào về trang chủ my-library)
     items: [
       { text: 'Profile', href: 'https://nnmy.github.io/' },
-      { text: 'My Library', home: true },     // trang chủ my-library; được đánh dấu khi đang ở trang chủ
-      { text: 'My Collection', href: 'https://nnmy.github.io/my-collection' },
+      { text: 'Library', home: true },     // trang chủ my-library; được đánh dấu khi đang ở trang chủ
+      { text: 'Collection', href: 'https://nnmy.github.io/my-collection' },
     ],
   };
 
