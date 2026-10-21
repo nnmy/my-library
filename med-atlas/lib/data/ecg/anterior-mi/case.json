@@ -1,0 +1,38 @@
+{
+  "title": {
+    "vi": "Nhồi máu cơ tim thành trước",
+    "en": "Anterior myocardial infarction"
+  },
+  "summary": "Vùng cơ tim mặt trước và vách liên thất bị hoại tử, thường do tắc động mạch liên thất trước (LAD). Các chuyển đạo nhìn vào vùng này là V1–V4.",
+  "finds": [
+    {
+      "text": "Sóng Q hoặc dạng QS ở V1–V3 (có khi tới V4).",
+      "leads": [
+        "V1",
+        "V2",
+        "V3",
+        "V4"
+      ]
+    },
+    {
+      "text": "Mất tiến triển sóng R: R không cao dần từ V1 sang V4 như ở người thường.",
+      "leads": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5"
+      ]
+    },
+    {
+      "text": "Giai đoạn cấp: ST chênh lên ở V1–V4; giai đoạn sau: T âm ở các chuyển đạo này.",
+      "leads": [
+        "V1",
+        "V2",
+        "V3",
+        "V4"
+      ]
+    }
+  ],
+  "reviewed": false
+}

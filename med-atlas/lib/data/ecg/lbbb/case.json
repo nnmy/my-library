@@ -1,0 +1,36 @@
+{
+  "title": {
+    "vi": "Block nhánh trái",
+    "en": "Left bundle branch block"
+  },
+  "summary": "Nhánh trái của hệ dẫn truyền bị nghẽn nên thất trái được kích hoạt chậm, đi vòng qua thất phải. Phức bộ QRS vì vậy rộng ra.",
+  "finds": [
+    {
+      "text": "QRS rộng từ 120 ms trở lên.",
+      "leads": [
+        "V1",
+        "V6"
+      ]
+    },
+    {
+      "text": "V1: dạng QS hoặc rS sâu và rộng. I, aVL, V5, V6: sóng R rộng, đỉnh có khía hoặc bằng, không có sóng q nhỏ.",
+      "leads": [
+        "V1",
+        "I",
+        "aVL",
+        "V5",
+        "V6"
+      ]
+    },
+    {
+      "text": "Đoạn ST và sóng T ngược chiều với phần chính của QRS (biến đổi thứ phát). Vì vậy không dùng ST theo cách thông thường để chẩn đoán nhồi máu khi có block nhánh trái.",
+      "leads": [
+        "V1",
+        "V2",
+        "V5",
+        "V6"
+      ]
+    }
+  ],
+  "reviewed": false
+}

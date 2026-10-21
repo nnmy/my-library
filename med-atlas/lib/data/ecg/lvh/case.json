@@ -1,0 +1,34 @@
+{
+  "title": {
+    "vi": "Phì đại thất trái",
+    "en": "Left ventricular hypertrophy"
+  },
+  "summary": "Thành thất trái dày lên, thường do tăng huyết áp kéo dài hoặc hẹp van động mạch chủ. Khối cơ lớn hơn tạo ra điện thế QRS cao hơn.",
+  "finds": [
+    {
+      "text": "Tiêu chuẩn Sokolow–Lyon: biên độ S ở V1 cộng R ở V5 hoặc V6 từ 3,5 mV (35 mm) trở lên. Số đo của ca này nằm trong bảng Số đo.",
+      "leads": [
+        "V1",
+        "V5",
+        "V6"
+      ]
+    },
+    {
+      "text": "Tiêu chuẩn Cornell: R ở aVL cộng S ở V3 trên 2,8 mV ở nam, trên 2,0 mV ở nữ.",
+      "leads": [
+        "aVL",
+        "V3"
+      ]
+    },
+    {
+      "text": "Có thể kèm ST chênh xuống và T âm không đối xứng ở V5, V6, I, aVL (dạng tăng gánh).",
+      "leads": [
+        "V5",
+        "V6",
+        "I",
+        "aVL"
+      ]
+    }
+  ],
+  "reviewed": false
+}

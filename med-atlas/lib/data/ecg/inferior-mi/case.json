@@ -1,0 +1,34 @@
+{
+  "title": {
+    "vi": "Nhồi máu cơ tim thành dưới",
+    "en": "Inferior myocardial infarction"
+  },
+  "summary": "Vùng cơ tim ở mặt dưới của tim bị hoại tử, thường do tắc động mạch vành phải. Các chuyển đạo nhìn vào mặt dưới là II, III và aVF.",
+  "finds": [
+    {
+      "text": "Sóng Q bệnh lý (rộng từ 40 ms, hoặc sâu hơn 1/4 sóng R) ở II, III, aVF.",
+      "leads": [
+        "II",
+        "III",
+        "aVF"
+      ]
+    },
+    {
+      "text": "Giai đoạn cấp: ST chênh lên ở II, III, aVF, kèm ST chênh xuống \"soi gương\" ở I, aVL. Giai đoạn sau: ST về đường đẳng điện, T có thể âm.",
+      "leads": [
+        "II",
+        "III",
+        "aVF",
+        "I",
+        "aVL"
+      ]
+    },
+    {
+      "text": "So với người thường: ở người thường, III có thể có sóng Q nhỏ đơn độc; sóng Q có ý nghĩa khi xuất hiện ở cả nhóm II, III, aVF.",
+      "leads": [
+        "III"
+      ]
+    }
+  ],
+  "reviewed": false
+}

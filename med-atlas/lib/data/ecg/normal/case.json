@@ -1,0 +1,46 @@
+{
+  "title": {
+    "vi": "Bình thường",
+    "en": "Normal ECG"
+  },
+  "summary": "Điện tâm đồ của một người lớn khỏe mạnh, nhịp xoang. Dùng tab này để làm quen hình dạng sóng P, phức bộ QRS, sóng T và cách đọc 12 chuyển đạo.",
+  "finds": [
+    {
+      "text": "Nhịp xoang: mỗi QRS có một sóng P đi trước, P dương ở I, II, aVF và âm ở aVR; tần số 60–100 lần/phút.",
+      "leads": [
+        "I",
+        "II",
+        "aVF",
+        "aVR"
+      ]
+    },
+    {
+      "text": "Khoảng PR 120–200 ms; phức bộ QRS hẹp, dưới 120 ms.",
+      "leads": [
+        "II"
+      ]
+    },
+    {
+      "text": "Sóng R cao dần từ V1 tới V5 (tiến triển sóng R), chỗ R bằng S thường ở V3–V4.",
+      "leads": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ]
+    },
+    {
+      "text": "Đoạn ST nằm ngang trên đường đẳng điện; sóng T cùng chiều QRS ở hầu hết chuyển đạo (T âm ở aVR là bình thường).",
+      "leads": [
+        "I",
+        "II",
+        "V5",
+        "V6",
+        "aVR"
+      ]
+    }
+  ],
+  "reviewed": false
+}

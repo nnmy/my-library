@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "dataset": "PTB-XL 1.0.3",
+  "cases": [
+    {
+      "key": "normal",
+      "control": null
+    },
+    {
+      "key": "inferior-mi",
+      "control": "inferior-mi-ctl"
+    },
+    {
+      "key": "anterior-mi",
+      "control": "anterior-mi-ctl"
+    },
+    {
+      "key": "afib",
+      "control": "afib-ctl"
+    },
+    {
+      "key": "lbbb",
+      "control": "lbbb-ctl"
+    },
+    {
+      "key": "lvh",
+      "control": "lvh-ctl"
+    }
+  ]
+}

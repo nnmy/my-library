@@ -1,0 +1,30 @@
+{
+  "title": {
+    "vi": "Rung nhĩ",
+    "en": "Atrial fibrillation"
+  },
+  "summary": "Tâm nhĩ không co bóp đều mà rung hỗn loạn, xung động xuống thất lúc nhanh lúc chậm. Đây là rối loạn nhịp kéo dài hay gặp nhất, làm tăng nguy cơ đột quỵ.",
+  "finds": [
+    {
+      "text": "Khoảng RR không đều hoàn toàn, không theo quy luật nào. Dải nhịp DII ở cuối bản ghi cho thấy rõ nhất.",
+      "leads": [
+        "II"
+      ]
+    },
+    {
+      "text": "Không có sóng P; đường nền giữa các QRS lăn tăn (sóng f), thường rõ ở V1 và II.",
+      "leads": [
+        "V1",
+        "II"
+      ]
+    },
+    {
+      "text": "Phức bộ QRS thường vẫn hẹp vì dẫn truyền trong thất bình thường.",
+      "leads": [
+        "V5",
+        "V6"
+      ]
+    }
+  ],
+  "reviewed": false
+}
