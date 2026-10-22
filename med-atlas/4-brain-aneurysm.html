@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phình mạch não | Atlas hình ảnh y khoa | My N. Nguyen</title>
+<meta name="description" content="Học nhận diện mạch máu não trên ảnh chụp mạch (DSA), vị trí phình mạch thường gặp, các phương pháp chẩn đoán hình ảnh và thang điểm nguy cơ vỡ PHASES.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/atlas.css?v=20261018">
+<link rel="stylesheet" href="lib/aneurysm.css?v=20261022">
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap wide page-head">
+  <p class="crumb"><a href="index.html">Atlas hình ảnh y khoa</a> / Phình mạch não</p>
+  <h1><span class="dot"></span>Phình mạch não</h1>
+  <p class="lead" style="text-align:left;max-width:75ch">Học nhận diện mạch máu não trên ảnh chụp mạch số hóa xóa nền (DSA), xem túi phình thật trên mô hình 3D, biết phình mạch thường nằm ở đâu, dùng loại ảnh nào để chẩn đoán, và nguy cơ vỡ được ước tính ra sao.</p>
+</header>
+
+<div class="wrap wide">
+  <p class="an-note"><b>Chỉ để học.</b> Trang này không dùng để chẩn đoán hay quyết định điều trị. Phình mạch chưa vỡ cần được bác sĩ thần kinh hoặc chẩn đoán hình ảnh can thiệp đánh giá trực tiếp.</p>
+
+  <section class="an-sec" id="dsa" aria-labelledby="h-dsa">
+    <h2 id="h-dsa">1. Nhận diện mạch trên ảnh DSA</h2>
+    <p class="an-sub">Ba ảnh bình thường: hệ đốt sống – nền tư thế thẳng, hệ cảnh trong tư thế nghiêng, và một phim chưa xóa nền để so sánh. Mỗi ca cho biết những vị trí phình mạch thường gặp nằm ở đâu trên ảnh.</p>
+    <div id="anHost"></div>
+  </section>
+
+  <section class="an-sec" id="mo-hinh-3d" aria-labelledby="h-3d">
+    <h2 id="h-3d">2. Túi phình trong không gian 3D</h2>
+    <p class="an-sub">Mô hình mạch máu dựng từ ảnh MRA của bệnh nhân thật, có nhãn túi phình và cổ túi do chuyên gia vẽ. Kéo để xoay, cuộn hoặc chụm hai ngón để phóng to. Xoay giúp hiểu vì sao trên ảnh 2D túi phình có thể bị mạch khác che hoặc nhìn sai kích thước.</p>
+    <div id="a3Host"></div>
+  </section>
+
+  <section class="an-sec" id="vitri" aria-labelledby="h-vt">
+    <h2 id="h-vt">3. Phình mạch thường nằm ở đâu</h2>
+    <p class="an-sub">Phần lớn là phình dạng túi, nằm ở chỗ chia nhánh của đa giác Willis, nơi dòng máu va vào thành mạch. Phình mạch gặp ở khoảng 3–5% dân số, đa số không có triệu chứng và không vỡ.</p>
+    <div class="an-two">
+      <div class="an-card an-svgwrap" id="anSvg"></div>
+      <div class="an-card" id="anSitePanel" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section class="an-sec" id="chuandoan" aria-labelledby="h-cd">
+    <h2 id="h-cd">4. Chẩn đoán hình ảnh: dùng loại ảnh nào</h2>
+    <p class="an-sub">Không có một loại ảnh cho mọi tình huống. Việc chọn phụ thuộc cấp cứu hay tầm soát, và cần phát hiện hay cần mô tả chi tiết để lên kế hoạch điều trị.</p>
+    <div class="an-tblwrap"><table class="an-tbl">
+      <thead><tr><th>Phương pháp</th><th>Vai trò</th><th>Ưu điểm</th><th>Hạn chế</th></tr></thead>
+      <tbody>
+        <tr><td>CT sọ không cản quang</td><td>Khi nghi vỡ phình mạch: tìm máu dưới nhện.</td><td>Nhanh, có sẵn trong cấp cứu.</td><td>Không thấy túi phình. Độ nhạy giảm dần theo thời gian kể từ lúc đau đầu.</td></tr>
+        <tr><td>CTA (chụp mạch CT)</td><td>Phát hiện, đo kích thước, mô tả hình dạng túi phình.</td><td>Nhanh, độ phân giải tốt, dùng cả cấp cứu lẫn tầm soát.</td><td>Tia X, thuốc cản quang. Có thể bỏ sót túi phình rất nhỏ hoặc gần xương nền sọ.</td></tr>
+        <tr><td>MRA (thường là TOF)</td><td>Tầm soát và theo dõi lâu dài.</td><td>Không tia X; TOF có thể không cần thuốc cản quang.</td><td>Kém nhạy hơn với túi phình nhỏ; thời gian chụp lâu; không phù hợp một số bệnh nhân (máy tạo nhịp cũ).</td></tr>
+        <tr><td>DSA (chụp mạch số hóa xóa nền)</td><td>Tiêu chuẩn vàng để mô tả hình thái và lên kế hoạch điều trị; thực hiện khi CTA/MRA chưa đủ hoặc khi sắp can thiệp.</td><td>Độ phân giải cao nhất, thấy rõ cổ túi phình và nhánh mạch quanh nó, xem được dòng chảy theo thời gian.</td><td>Xâm lấn (đặt ống thông), có tia X, có nguy cơ biến chứng thần kinh dù thấp.</td></tr>
+        <tr><td>MRI thành mạch (vessel wall)</td><td>Nghiên cứu: đánh giá thành túi phình để ước tính nguy cơ vỡ.</td><td>Cho thông tin về thành mạch mà các phương pháp trên không có.</td><td>Chưa phải thường quy; kết quả còn đang được nghiên cứu.</td></tr>
+      </tbody></table></div>
+    <div class="an-two" style="margin-top:24px">
+      <div class="an-card">
+        <h3>Trên DSA, nhìn gì</h3>
+        <ul>
+          <li><b>Túi phình:</b> bóng cản quang nhô ra khỏi thành mạch, thường ở chỗ chia nhánh.</li>
+          <li><b>Cổ và thân túi:</b> đo chiều rộng cổ và chiều cao túi; cổ rộng làm khó đặt coil.</li>
+          <li><b>Hình dạng:</b> bờ gồ ghề hoặc có túi phụ (bleb) gợi ý nơi thành yếu và là vị trí dễ vỡ.</li>
+          <li><b>Mạch mẹ và nhánh:</b> nhánh nào xuất phát từ cổ hoặc thân túi, vì điều trị có thể làm tắc nhánh đó.</li>
+          <li><b>Nhiều góc chụp hoặc 3D:</b> mạch chồng hình có thể che hoặc giả làm túi phình.</li>
+        </ul>
+      </div>
+      <div class="an-card">
+        <h3>Dễ nhầm với phình mạch</h3>
+        <ul>
+          <li><b>Phễu mạch (infundibulum):</b> chỗ mạch phình hình phễu, thường ở chỗ ĐM thông sau xuất phát, một nhánh mạch phát ra từ đỉnh, kích thước nhỏ. Không phải phình mạch.</li>
+          <li><b>Quai mạch chồng hình:</b> mạch uốn cong nhìn từ một góc thành giống túi.</li>
+          <li><b>Mạch xuất phát từ ĐM mẹ</b> bị nhìn nghiêng.</li>
+        </ul>
+        <p class="an-foot">Phân biệt cần xem nhiều góc chụp và đối chiếu lâm sàng.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="an-sec" id="nguycovo" aria-labelledby="h-nc">
+    <h2 id="h-nc">5. Nguy cơ vỡ: thang điểm PHASES</h2>
+    <p class="an-sub">Ảnh cho biết kích thước, vị trí và hình dạng. PHASES kết hợp ba yếu tố đó với yếu tố của người bệnh để ước tính nguy cơ vỡ trong 5 năm cho phình mạch <b>chưa vỡ</b>.</p>
+    <div class="an-two">
+      <div class="an-card">
+        <h3>Minh họa cách tính</h3>
+        <div id="anPhases"></div>
+        <p class="an-warn"><b>Chỉ để học cách tính điểm.</b> Điểm PHASES là công cụ hỗ trợ, không cho biết một túi phình cụ thể sẽ vỡ hay không và không tính nguy cơ của việc điều trị. Quyết định theo dõi hay can thiệp do bác sĩ và người bệnh cùng đưa ra.</p>
+      </div>
+      <div class="an-card">
+        <h3>Điều cần nhớ</h3>
+        <ul>
+          <li>PHASES là viết tắt của <b>P</b>opulation, <b>H</b>ypertension, <b>A</b>ge, <b>S</b>ize, <b>E</b>arlier SAH, <b>S</b>ite. Xây dựng từ 6 nghiên cứu đoàn hệ tiến cứu gộp lại (Greving và cộng sự, 2014).</li>
+          <li>Điểm cao hơn cũng liên quan tới khả năng túi phình lớn lên theo thời gian.</li>
+          <li>Thang điểm <b>UIATS</b> khác ở chỗ có tính cả nguy cơ của điều trị.</li>
+          <li>Hình dạng túi phình (ví dụ túi phụ, tỷ lệ kích thước) có thể liên quan nguy cơ vỡ nhưng <b>không</b> nằm trong điểm PHASES.</li>
+          <li>Ở nhóm nguy cơ thấp thường chọn theo dõi bằng CTA hoặc MRA định kỳ, kèm kiểm soát huyết áp và bỏ thuốc lá.</li>
+        </ul>
+        <p class="an-foot">Nguồn: Greving JP và cộng sự, Lancet Neurol 2014;13:59–66; Backes D và cộng sự, Stroke 2015;46:1221–6.</p>
+      </div>
+    </div>
+    <p class="an-warn" style="margin-top:20px"><b>Cần cấp cứu ngay</b> khi có đau đầu dữ dội đột ngột như chưa từng bị, kèm nôn, cứng gáy, lơ mơ, co giật, sụp mi hoặc yếu liệt. Đó có thể là dấu hiệu vỡ phình mạch (xuất huyết dưới nhện).</p>
+  </section>
+
+  <section class="an-sec" id="thieumau" aria-labelledby="h-tm">
+    <h2 id="h-tm">6. Còn nguy cơ đột quỵ thiếu máu?</h2>
+    <p class="an-sub">Vỡ phình mạch gây đột quỵ <b>xuất huyết</b>. Đột quỵ <b>thiếu máu</b> (nhồi máu não) chủ yếu do hẹp hoặc tắc mạch, nên cách đánh giá khác.</p>
+    <div class="an-card" style="max-width:820px">
+      <ul>
+        <li><b>Nguyên nhân hay gặp:</b> xơ vữa hẹp động mạch cảnh hoặc nội sọ, huyết khối từ tim (rung nhĩ), bóc tách động mạch.</li>
+        <li><b>Ảnh thường dùng:</b> MRI khuếch tán (DWI) để thấy vùng nhồi máu sớm; CTA hoặc MRA mạch cổ và mạch não để tìm chỗ hẹp, tắc; siêu âm Doppler động mạch cảnh; DSA khi cần can thiệp hoặc chẩn đoán khó.</li>
+        <li>Phần này sẽ có trang riêng khi có đủ ảnh mở phù hợp.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="an-foot" style="margin-bottom:40px">Nội dung chữ do AI soạn từ tài liệu y văn và chưa được bác sĩ chuyên khoa duyệt. Nếu thấy chỗ nào sai hoặc cần chỉnh, hãy sửa trực tiếp trong <code>case.json</code> hoặc file này.</p>
+</div>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/aneurysm.js?v=20261022"></script>
+<script src="lib/aneurysm3d.js?v=20261022"></script>
+<script>
+  AnViewer.start({ host: document.getElementById('anHost'), data: 'lib/data/aneurysm/' });
+  AnSites.start(document.getElementById('anSvg'), document.getElementById('anSitePanel'));
+  AnPhases.start(document.getElementById('anPhases'));
+  An3D.start({ host: document.getElementById('a3Host'), data: 'lib/data/aneurysm3d/' });
+</script>
+<script src="lib/scroll-btns.js?v=20261018"></script>
+<script src="../common/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+ "an42-full": {
+  "vertices": 56249,
+  "triangles": 111808,
+  "extent": 119.9,
+  "bytes": 2072944
+ },
+ "an42": {
+  "vertices": 1222,
+  "triangles": 2392,
+  "extent": 13.9,
+  "sac_max": 6.4,
+  "neck_width": 4.3,
+  "bytes": 44600
+ },
+ "an9": {
+  "vertices": 1836,
+  "triangles": 3619,
+  "extent": 15.5,
+  "sac_max": 7.7,
+  "neck_width": 5.6,
+  "bytes": 67304
+ },
+ "an204": {
+  "vertices": 1661,
+  "triangles": 3287,
+  "extent": 17.4,
+  "sac_max": 11.3,
+  "neck_width": 7.3,
+  "bytes": 61048
+ },
+ "an212": {
+  "vertices": 2185,
+  "triangles": 4324,
+  "extent": 21.9,
+  "sac_max": 9.0,
+  "neck_width": 6.5,
+  "bytes": 80304
+ },
+ "healthy-42": {
+  "vertices": 784,
+  "triangles": 1520,
+  "extent": 17.6,
+  "bytes": 28440
+ }
+}

@@ -1,0 +1,71 @@
+{
+ "_huong_dan": "Nội dung chữ viết tay cho trình xem 3D. id trùng tên file .bin. Số đo tự động nằm ở cases-auto.json (tạo bởi tools/prepare_intra.py), KHÔNG sửa tay file đó.",
+ "credit": "Mô hình 3D: bộ dữ liệu IntrA (Yang X, Xia D, Kin T, Igarashi T. IntrA: 3D Intracranial Aneurysm Dataset for Deep Learning. CVPR 2020), github.com/intra3d2019/IntrA. Mô hình dựng từ ảnh MRA; nhãn túi phình và cổ túi do chuyên gia của nhóm tác giả vẽ. Giấy phép sử dụng chưa được công bố rõ trong repo.",
+ "parts": [
+  {
+   "vi": "Mạch mang (mạch mẹ) và nhánh",
+   "en": "Parent vessel and branches",
+   "desc": "Đoạn động mạch mà túi phình mọc ra, cùng các nhánh lân cận. Khi điều trị phải giữ cho các mạch này thông."
+  },
+  {
+   "vi": "Túi phình",
+   "en": "Aneurysm sac (dome)",
+   "desc": "Phần thành mạch phình ra thành túi. Kích thước, hình dạng (bờ gồ ghề, túi phụ) liên quan nguy cơ vỡ."
+  },
+  {
+   "vi": "Vùng cổ túi",
+   "en": "Neck region",
+   "desc": "Ranh giới giữa túi và mạch mang, do chuyên gia vẽ để phục vụ kẹp clip. Cổ rộng làm khó đặt coil và dễ tái phát sau nút mạch."
+  }
+ ],
+ "cases": [
+  {
+   "id": "an42-full",
+   "label": "Toàn bộ mạch não",
+   "en": "Whole cerebral arterial tree",
+   "kind": "complete",
+   "text": "Mô hình toàn bộ cây động mạch não của một bệnh nhân (ca AN42), dựng từ MRA. Vùng màu đỏ–vàng là túi phình, được gán nhãn từ đoạn có chú giải của chuyên gia. Túi phình chỉ vài milimét so với cả cây mạch khoảng 12 cm, nên dùng nút \"Phóng tới túi phình\" để xem gần.",
+   "tip": "Xoay để thấy túi phình nằm gần đường giữa, ở vùng các mạch lớn chia nhánh."
+  },
+  {
+   "id": "an42",
+   "label": "Ca AN42",
+   "en": "Segment, same patient",
+   "kind": "segment",
+   "text": "Đoạn mạch quanh túi phình của cùng bệnh nhân với mô hình toàn bộ. Túi phình mọc ở chỗ mạch chia nhánh, đúng kiểu phình dạng túi thường gặp.",
+   "tip": "Xoay để tìm góc nhìn thấy rõ cổ túi tách khỏi mạch mang. Trên ảnh 2D, góc này gọi là góc làm việc (working projection)."
+  },
+  {
+   "id": "an9",
+   "label": "Ca AN9",
+   "en": "Segment",
+   "kind": "segment",
+   "text": "Túi phình tròn, nhô ra ở cạnh mạch mang. Xem số đo kích thước túi và độ rộng cổ ở bên.",
+   "tip": "Một định nghĩa thường gặp của cổ rộng: cổ từ khoảng 4 mm trở lên, hoặc tỷ lệ túi/cổ dưới khoảng 2. Theo cách đó, cả bốn ca ở đây đều thuộc nhóm cổ rộng."
+  },
+  {
+   "id": "an204",
+   "label": "Ca AN204",
+   "en": "Segment, large sac",
+   "kind": "segment",
+   "text": "Túi phình lớn hơn các ca khác, cổ rộng, có nhiều nhánh mạch nằm sát cổ túi.",
+   "tip": "Khi các nhánh nằm sát cổ, điều trị phải tránh làm tắc nhánh. Đây là một lý do cần ảnh 3D trước can thiệp."
+  },
+  {
+   "id": "an212",
+   "label": "Ca AN212",
+   "en": "Segment",
+   "kind": "segment",
+   "text": "Túi phình nằm trên một mạch uốn cong, bờ túi có vẻ không hoàn toàn tròn.",
+   "tip": "Bờ túi gồ ghề hoặc có túi phụ là đặc điểm hình thái được xem là liên quan nguy cơ vỡ, dù không nằm trong điểm PHASES."
+  },
+  {
+   "id": "healthy-42",
+   "label": "Mạch khỏe",
+   "en": "Healthy segment, same patient",
+   "kind": "healthy",
+   "text": "Một đoạn mạch không có túi phình của cùng bệnh nhân AN42, cắt tự động từ mô hình toàn bộ. Dùng để so sánh: thành mạch đi liền, khẩu kính thay đổi từ từ, chỗ chia nhánh không có phần nhô ra.",
+   "tip": "Đoạn này do máy cắt tự động nên hai đầu hở và bề mặt hơi thô."
+  }
+ ]
+}

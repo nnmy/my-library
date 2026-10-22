@@ -1,0 +1,100 @@
+/* =====================================================================
+   Trang Phình mạch não (4-brain-aneurysm.html). Dùng chung biến màu của atlas.css.
+   Mọi lớp bắt đầu bằng "an-" để không đụng các trang khác.
+   ===================================================================== */
+.an-note { margin: 0 0 28px; padding: 10px 14px; background: #FCF6DD; border-left: 4px solid var(--gold); font-size: 15px; line-height: 1.55; text-align: left; }
+.an-sec { margin: 0 0 56px; }
+.an-sec > h2 { font: 400 34px/1.1 var(--pixel-vi); margin: 0 0 6px; }
+.an-sec > .an-sub { margin: 0 0 18px; color: var(--muted); font-size: 15.5px; max-width: 70ch; text-align: left; }
+.an-tabs { display: flex; max-width: 100%; overflow-x: auto; gap: 8px; margin-bottom: 16px; padding: 0 4px 4px 0; }
+.an-tabs .btn { white-space: nowrap; display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.2; }
+.an-tabs .btn .en { font-size: 12px; font-weight: 400; font-style: italic; color: var(--muted); }
+.an-tabs .btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.an-tabs .btn[aria-pressed="true"] .en { color: #C9D3DC; }
+.an-tabs .btn[disabled] { border-style: dashed; border-color: #9DA4AD; color: var(--muted); cursor: not-allowed; }
+.an-tabs .soon { font-size: 11.5px; font-weight: 600; }
+
+.an-viewer { display: grid; grid-template-columns: minmax(0, 6fr) minmax(300px, 4fr); background: #fff; border: 2px solid var(--ink); box-shadow: 6px 6px 0 var(--sky); }
+.an-stage { background: #000; min-width: 0; display: flex; flex-direction: column; }
+.an-film { position: relative; width: 100%; background: #000; line-height: 0; }
+.an-film img, .an-film canvas { display: block; width: 100%; height: auto; }
+.an-film canvas { position: absolute; inset: 0; height: 100%; cursor: crosshair; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.an-film img { filter: contrast(var(--an-contrast, 1)) brightness(var(--an-bright, 1)); user-select: none; -webkit-user-drag: none; }
+.an-readout { display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: center; padding: 8px 14px; background: var(--ink); color: #DCE3EA; font-size: 14px; min-height: 40px; text-align: left; }
+.an-readout b { color: #fff; font-weight: 600; }
+.an-readout .lock { color: var(--gold); }
+.an-controls { background: #fff; border-top: 2px solid var(--ink); padding: 10px 14px 12px; display: grid; gap: 10px; }
+.an-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; font-size: 14px; }
+.an-ctl .lab { font-weight: 600; min-width: 92px; }
+.an-ctl .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.an-ctl .btn[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.an-ctl input[type=range] { accent-color: var(--sea); width: 150px; }
+.an-info { border-left: 2px solid var(--ink); padding: 16px 18px 18px; min-width: 0; text-align: left; max-height: 760px; overflow: auto; }
+.an-info h3 { font: 400 28px/1.1 var(--pixel-vi); margin: 0 0 2px; }
+.an-info .en { margin: 0 0 8px; color: var(--muted); font-style: italic; font-size: 14px; }
+.an-info p { font-size: 14.5px; line-height: 1.55; margin: 8px 0; }
+.an-info .k { font-weight: 600; }
+.an-info .src { display: inline-block; font: 600 11.5px/1.5 var(--body); padding: 0 6px; border: 1px solid currentColor; white-space: nowrap; vertical-align: 1px; margin-right: 6px; }
+.an-info .src.ai { color: #8a6a00; background: #FCF3CF; }
+.an-info .src.guess { color: #5b4a99; background: #EFEBFA; }
+.an-info .src.sure { color: #1d6a43; background: #E3F4EA; }
+.an-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.an-list .btn { font-size: 13px; padding: 3px 9px; font-weight: 500; }
+.an-list .btn[aria-pressed="true"] { background: var(--sea); color: #fff; border-color: var(--sea); }
+.an-credit { margin: 10px 2px 0; font-size: 13px; color: var(--muted); text-align: left; }
+
+.an-two { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 5fr); gap: 24px; align-items: start; }
+.an-card { background: #fff; border: 2px solid var(--ink); box-shadow: 0 6px 18px rgba(27,25,32,.10); padding: 16px 18px; text-align: left; }
+.an-card h3 { font: 400 26px/1.1 var(--pixel-vi); margin: 0 0 6px; }
+.an-card p, .an-card li { font-size: 14.5px; line-height: 1.55; }
+.an-card p { margin: 6px 0; }
+.an-card ul { margin: 6px 0; padding-left: 20px; }
+.an-card li { margin: 3px 0; }
+.an-svgwrap svg { width: 100%; height: auto; display: block; background: var(--mist); border: 1px solid var(--line); }
+.an-svgwrap .vessel { fill: none; stroke: #b9c7d3; stroke-linecap: round; stroke-linejoin: round; }
+.an-svgwrap .lbl { font: 500 11px var(--body); fill: var(--muted); }
+.an-svgwrap .site { cursor: pointer; }
+.an-svgwrap .site circle { fill: #fff; stroke: var(--pos); stroke-width: 2.5; transition: fill .12s; }
+.an-svgwrap .site text { font: 700 11px var(--body); fill: var(--pos); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.an-svgwrap .site:hover circle, .an-svgwrap .site:focus circle, .an-svgwrap .site[aria-pressed="true"] circle { fill: var(--pos); }
+.an-svgwrap .site:hover text, .an-svgwrap .site:focus text, .an-svgwrap .site[aria-pressed="true"] text { fill: #fff; }
+.an-svgwrap .site:focus { outline: none; }
+.an-svgwrap .site:focus-visible circle { stroke: var(--sea); stroke-width: 4; }
+
+table.an-tbl { width: 100%; border-collapse: collapse; background: #fff; border: 2px solid var(--ink); font-size: 14.5px; line-height: 1.5; text-align: left; }
+.an-tblwrap { overflow-x: auto; }
+.an-tbl th, .an-tbl td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.an-tbl th { background: var(--mist); font-weight: 600; white-space: nowrap; }
+.an-tbl tr:last-child td { border-bottom: 0; }
+.an-tbl td:first-child { font-weight: 600; white-space: nowrap; }
+
+.an-calc { display: grid; gap: 10px; }
+.an-calc label { display: grid; grid-template-columns: 1fr minmax(150px, 1.2fr); gap: 8px; align-items: center; font-size: 14.5px; }
+.an-calc select { font: 500 14px var(--body); padding: 5px 8px; border: 2px solid var(--ink); background: #fff; color: var(--ink); max-width: 100%; }
+.an-result { margin-top: 12px; padding: 12px 14px; background: var(--mist); border-left: 4px solid var(--sea); }
+.an-result .big { font: 400 34px/1.1 var(--pixel-vi); }
+.an-warn { margin: 12px 0 0; padding: 10px 14px; background: #FBEDEB; border-left: 4px solid var(--pos); font-size: 14.5px; line-height: 1.55; text-align: left; }
+.an-warn b { color: #b4231a; }
+.an-foot { font-size: 13.5px; color: var(--muted); text-align: left; max-width: 80ch; }
+@media (max-width: 860px) {
+  .an-viewer { grid-template-columns: 1fr; }
+  .an-info { border-left: 0; border-top: 2px solid var(--ink); max-height: none; }
+  .an-two { grid-template-columns: 1fr; }
+  .an-calc label { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { .an-svgwrap .site circle { transition: none; } }
+
+/* ---------- trình xem 3D (lib/aneurysm3d.js) ---------- */
+.a3-film { position: relative; width: 100%; aspect-ratio: 4 / 3; background: #121217; }
+.a3-film canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; outline: none; }
+.a3-film canvas:active { cursor: grabbing; }
+.a3-film canvas:focus-visible { box-shadow: inset 0 0 0 3px var(--sea); }
+.a3-msg { position: absolute; inset: 0; display: grid; place-items: center; color: #DCE3EA; font-size: 15px; padding: 20px; text-align: center; pointer-events: none; }
+.a3-legend { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13.5px; text-align: left; }
+.a3-legend > span, .an-readout > span { display: inline-flex; align-items: center; gap: 6px; }
+.a3-sw { display: inline-block; width: 14px; height: 14px; border: 1px solid rgba(0,0,0,.35); flex: none; }
+.an-readout .a3-dim { color: #AEB8C2; font-size: 13px; }
+table.a3-num { border-collapse: collapse; font-size: 14px; margin: 10px 0 4px; width: 100%; }
+.a3-num th, .a3-num td { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.a3-num th { font-weight: 500; color: var(--muted); }
+.a3-num td { font-weight: 600; white-space: nowrap; }

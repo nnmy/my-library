@@ -1,0 +1,338 @@
+{
+ "title": "DSA động mạch đốt sống trái, tư thế thẳng",
+ "en": "Left vertebral artery DSA, frontal (AP) view",
+ "size": [
+  610,
+  672
+ ],
+ "credit": "CẦN ĐIỀN: tác giả, giấy phép (ví dụ CC BY-SA 4.0), link trang nguồn của ảnh vertebralis_angiographie_links.png. Ảnh đã được cắt và chuyển sang thang xám.",
+ "intro": "Chụp mạch số hóa xóa nền, tiêm thuốc vào động mạch đốt sống trái, tư thế thẳng. Ảnh được trình bày theo quy ước chẩn đoán hình ảnh: bên phải ảnh là bên trái người bệnh (cần đối chiếu với chú thích của ảnh gốc). Rê chuột hoặc chạm lên mạch để xem tên và ý nghĩa.",
+ "legend_note": "Viền do AI tự vẽ bằng tay trên ảnh, chưa được bác sĩ duyệt; chỉ để minh họa vị trí gần đúng.",
+ "structures": [
+  {
+   "id": "v3",
+   "vi": "Quai đoạn V3 của ĐM đốt sống",
+   "en": "Vertebral artery, V3 loop",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "ellipse": [
+      460,
+      506,
+      20,
+      18
+     ]
+    }
+   ],
+   "desc": "Chấm cản quang rất đậm: đoạn ĐM đốt sống vòng quanh đốt đội (C1) và chạy theo hướng tia X nên nhiều lớp mạch chồng lên nhau.",
+   "clin": "Không phải túi phình. Mạch đi theo hướng tia X luôn trông đậm và tròn; muốn phân biệt với túi phình cần chụp thêm góc khác."
+  },
+  {
+   "id": "tip",
+   "vi": "Đỉnh động mạch nền (chỗ chia đôi)",
+   "en": "Basilar apex",
+   "conf": "chac",
+   "top": true,
+   "shapes": [
+    {
+     "ellipse": [
+      292,
+      292,
+      17,
+      12
+     ]
+    }
+   ],
+   "desc": "Nơi động mạch nền chia thành hai động mạch não sau.",
+   "clin": "Một trong những vị trí phổ biến nhất của phình mạch tuần hoàn sau. Ở ảnh này đỉnh nền nhẵn, không thấy túi nhô ra. Điểm PHASES cho vị trí tuần hoàn sau là 4."
+  },
+  {
+   "id": "contra",
+   "vi": "ĐM đốt sống bên kia (thuốc trào ngược), dự đoán",
+   "en": "Contralateral vertebral artery (reflux, probable)",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "line": [
+      [
+       262,
+       410
+      ],
+      [
+       245,
+       414
+      ],
+      [
+       228,
+       419
+      ]
+     ],
+     "width": 9
+    }
+   ],
+   "desc": "Đoạn mạch ngắn đi xuống phía đối bên ở chỗ hai ĐM đốt sống hợp lại. Thường là thuốc trào ngược vào ĐM đốt sống bên kia.",
+   "clin": "Giúp xác định chỗ hợp lưu đốt sống–nền. Phình mạch ở chỗ hợp lưu hiếm gặp, nhưng có thể đi kèm biến thể như cửa sổ ĐM nền."
+  },
+  {
+   "id": "pca-a",
+   "vi": "Động mạch não sau (bên trái ảnh)",
+   "en": "Posterior cerebral artery (image left)",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       290,
+       294
+      ],
+      [
+       255,
+       300
+      ],
+      [
+       215,
+       302
+      ],
+      [
+       188,
+       290
+      ],
+      [
+       175,
+       262
+      ],
+      [
+       162,
+       240
+      ],
+      [
+       170,
+       215
+      ],
+      [
+       195,
+       205
+      ],
+      [
+       210,
+       225
+      ],
+      [
+       205,
+       252
+      ]
+     ],
+     "width": 14
+    }
+   ],
+   "desc": "Nhánh tận của ĐM nền, vòng quanh thân não rồi đi lên cấp máu cho thùy chẩm và mặt dưới thùy thái dương.",
+   "clin": "Tắc ĐM não sau gây mất nửa thị trường. Phình mạch ĐM não sau ít gặp hơn đỉnh nền; khi có, thường ở đoạn P1–P2."
+  },
+  {
+   "id": "pca-b",
+   "vi": "Động mạch não sau (bên phải ảnh)",
+   "en": "Posterior cerebral artery (image right)",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       294,
+       292
+      ],
+      [
+       322,
+       285
+      ],
+      [
+       350,
+       290
+      ],
+      [
+       360,
+       268
+      ],
+      [
+       360,
+       240
+      ],
+      [
+       350,
+       215
+      ],
+      [
+       336,
+       195
+      ],
+      [
+       332,
+       170
+      ],
+      [
+       345,
+       140
+      ]
+     ],
+     "width": 13
+    }
+   ],
+   "desc": "Tương tự bên đối diện. Hai bên không nhất thiết đối xứng.",
+   "clin": "So sánh hai bên giúp phát hiện hẹp hoặc tắc. Một bên có thể nhận máu chủ yếu từ hệ cảnh qua ĐM thông sau (kiểu thai nhi) nên hiện mờ khi tiêm ĐM đốt sống."
+  },
+  {
+   "id": "basilar",
+   "vi": "Động mạch nền",
+   "en": "Basilar artery",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       266,
+       405
+      ],
+      [
+       275,
+       378
+      ],
+      [
+       285,
+       350
+      ],
+      [
+       290,
+       320
+      ],
+      [
+       292,
+       300
+      ]
+     ],
+     "width": 18
+    }
+   ],
+   "desc": "Hợp bởi hai ĐM đốt sống, đi lên trước cầu não, cấp máu cho thân não và tiểu não.",
+   "clin": "Tắc ĐM nền gây đột quỵ thiếu máu nặng của tuần hoàn sau. Ở đây khẩu kính đều, không thấy hẹp."
+  },
+  {
+   "id": "cereb",
+   "vi": "Các nhánh ĐM tiểu não (AICA, PICA), dự đoán",
+   "en": "Cerebellar branches (probable AICA/PICA)",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "ellipse": [
+      352,
+      400,
+      58,
+      24
+     ]
+    },
+    {
+     "ellipse": [
+      195,
+      378,
+      75,
+      16
+     ]
+    }
+   ],
+   "desc": "Các quai mạch nằm ngang dưới ĐM não sau, cấp máu cho tiểu não. Trên ảnh thẳng khó phân biệt chắc chắn AICA với PICA.",
+   "clin": "Phình mạch PICA thường nằm ở chỗ PICA rời ĐM đốt sống. Tắc PICA gây hội chứng tủy bên (Wallenberg)."
+  },
+  {
+   "id": "vert",
+   "vi": "Động mạch đốt sống trái (đoạn V3–V4)",
+   "en": "Left vertebral artery, V3–V4",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       440,
+       672
+      ],
+      [
+       437,
+       610
+      ],
+      [
+       430,
+       550
+      ],
+      [
+       432,
+       520
+      ]
+     ],
+     "width": 24
+    },
+    {
+     "line": [
+      [
+       455,
+       514
+      ],
+      [
+       402,
+       527
+      ],
+      [
+       366,
+       517
+      ],
+      [
+       344,
+       484
+      ],
+      [
+       314,
+       458
+      ],
+      [
+       282,
+       441
+      ],
+      [
+       265,
+       414
+      ]
+     ],
+     "width": 22
+    }
+   ],
+   "desc": "Đoạn ĐM đốt sống được tiêm thuốc, đi lên qua đốt đội rồi vào sọ qua lỗ chẩm, uốn về đường giữa để hợp với bên kia.",
+   "clin": "Bóc tách ĐM đốt sống là nguyên nhân quan trọng của đột quỵ ở người trẻ; phình mạch dạng thoi hoặc do bóc tách cũng gặp ở đoạn V4."
+  },
+  {
+   "id": "distal",
+   "vi": "Nhánh xa của ĐM não sau",
+   "en": "Distal PCA branches",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "poly": [
+      [
+       110,
+       40
+      ],
+      [
+       430,
+       40
+      ],
+      [
+       430,
+       200
+      ],
+      [
+       110,
+       200
+      ]
+     ]
+    }
+   ],
+   "desc": "Các nhánh vỏ não của ĐM não sau (như nhánh đỉnh–chẩm, nhánh cựa) chiếu lên phía trên ở tư thế thẳng.",
+   "clin": "Nơi phát hiện tắc mạch xa hoặc dị dạng động–tĩnh mạch; ít khi là vị trí phình mạch dạng túi."
+  }
+ ]
+}

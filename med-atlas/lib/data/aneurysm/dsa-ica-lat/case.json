@@ -1,0 +1,246 @@
+{
+ "title": "DSA động mạch cảnh trong trái, tư thế nghiêng",
+ "en": "Left internal carotid artery DSA, lateral view",
+ "size": [
+  860,
+  650
+ ],
+ "credit": "CẦN ĐIỀN: tác giả, giấy phép (ví dụ CC BY-SA 4.0), link trang nguồn của ảnh arteria_carotis_interna_angiographie.png. Ảnh đã được cắt và chuyển sang thang xám.",
+ "intro": "Chụp mạch số hóa xóa nền, tiêm thuốc vào động mạch cảnh trong trái, tư thế nghiêng: phía trước (mặt) ở bên phải ảnh. Hệ cảnh trong là nơi có phần lớn phình mạch não (ĐM thông trước, ĐM thông sau, chỗ chia đôi ĐM não giữa).",
+ "legend_note": "Viền do AI tự vẽ bằng tay trên ảnh, chưa được bác sĩ duyệt; chỉ để minh họa vị trí gần đúng.",
+ "structures": [
+  {
+   "id": "term",
+   "vi": "Đoạn trên mỏm yên và vùng xuất phát ĐM thông sau, dự đoán",
+   "en": "Supraclinoid ICA / PCom origin region (probable)",
+   "conf": "du-doan",
+   "top": true,
+   "shapes": [
+    {
+     "ellipse": [
+      508,
+      420,
+      22,
+      18
+     ]
+    }
+   ],
+   "desc": "Đoạn cuối của ĐM cảnh trong sau khi ra khỏi xoang hang, trước khi chia thành ĐM não trước và ĐM não giữa. ĐM thông sau và ĐM mạch mạc trước xuất phát ở đây.",
+   "clin": "Phình mạch ở chỗ ĐM thông sau xuất phát là một trong ba vị trí thường gặp nhất. Tư thế nghiêng thường thấy rõ túi phình hướng ra sau ở vị trí này."
+  },
+  {
+   "id": "oph",
+   "vi": "Có thể là ĐM mắt",
+   "en": "Probable ophthalmic artery",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "line": [
+      [
+       585,
+       440
+      ],
+      [
+       640,
+       438
+      ],
+      [
+       680,
+       442
+      ]
+     ],
+     "width": 9
+    }
+   ],
+   "desc": "Mạch nhỏ chạy ra trước (về phía hốc mắt) từ chỗ uốn của siphon cảnh.",
+   "clin": "Vùng ĐM cảnh trong cạnh mỏm yên, gần chỗ ĐM mắt xuất phát, là vị trí của phình mạch cạnh mỏm yên; túi lớn ở đây có thể chèn dây thần kinh thị."
+  },
+  {
+   "id": "pcom",
+   "vi": "Mạch đi ra sau, có thể là ĐM thông sau",
+   "en": "Posteriorly directed vessel, probable PCom",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "line": [
+      [
+       495,
+       450
+      ],
+      [
+       440,
+       458
+      ],
+      [
+       400,
+       465
+      ],
+      [
+       340,
+       446
+      ],
+      [
+       290,
+       437
+      ]
+     ],
+     "width": 9
+    }
+   ],
+   "desc": "Mạch chạy ngang ra phía sau từ ĐM cảnh trong. Trên phim nghiêng, ĐM thông sau và ĐM mạch mạc trước đều đi theo hướng này nên khó phân biệt nếu chỉ có một ảnh.",
+   "clin": "Khi ĐM thông sau lớn và cấp máu chính cho ĐM não sau (kiểu thai nhi), tiêm ĐM cảnh trong sẽ thấy cả vùng ĐM não sau."
+  },
+  {
+   "id": "siphon",
+   "vi": "Siphon động mạch cảnh (đoạn đá – xoang hang)",
+   "en": "Carotid siphon (petrous–cavernous ICA)",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       505,
+       525
+      ],
+      [
+       512,
+       488
+      ],
+      [
+       540,
+       466
+      ],
+      [
+       575,
+       462
+      ],
+      [
+       562,
+       445
+      ],
+      [
+       535,
+       436
+      ],
+      [
+       512,
+       414
+      ]
+     ],
+     "width": 26
+    }
+   ],
+   "desc": "Đoạn ĐM cảnh trong uốn hình chữ S trong xoang hang, nhìn rõ nhất ở tư thế nghiêng.",
+   "clin": "Phình mạch đoạn xoang hang nằm ngoài khoang dưới nhện nên ít gây xuất huyết dưới nhện, nhưng túi lớn có thể chèn các dây thần kinh vận nhãn."
+  },
+  {
+   "id": "ica",
+   "vi": "Động mạch cảnh trong đoạn cổ",
+   "en": "Cervical internal carotid artery",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       505,
+       650
+      ],
+      [
+       505,
+       600
+      ],
+      [
+       505,
+       560
+      ],
+      [
+       505,
+       525
+      ]
+     ],
+     "width": 30
+    }
+   ],
+   "desc": "Đoạn ĐM cảnh trong đi thẳng lên ở cổ, không có nhánh, tới nền sọ.",
+   "clin": "Chỗ chia đôi ĐM cảnh chung (dưới khung ảnh) là nơi hay hẹp do xơ vữa, nguyên nhân quan trọng của đột quỵ thiếu máu."
+  },
+  {
+   "id": "mca",
+   "vi": "Vùng nhánh ĐM não giữa (rãnh Sylvius), dự đoán",
+   "en": "MCA branches, sylvian region (probable)",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "ellipse": [
+      455,
+      345,
+      115,
+      72
+     ]
+    }
+   ],
+   "desc": "ĐM não giữa đi ra ngoài trong rãnh Sylvius rồi chia nhánh lên mặt ngoài bán cầu. Trên phim nghiêng các nhánh này chồng lên nhau ở giữa ảnh.",
+   "clin": "Chỗ chia đôi ĐM não giữa là vị trí phình mạch thường gặp, nhưng trên phim nghiêng thường bị nhánh khác che; phim thẳng hoặc chếch giúp thấy rõ hơn. Điểm PHASES cho MCA là 2."
+  },
+  {
+   "id": "aca",
+   "vi": "Vùng nhánh ĐM não trước, dự đoán",
+   "en": "ACA territory (probable)",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "poly": [
+      [
+       600,
+       110
+      ],
+      [
+       800,
+       110
+      ],
+      [
+       800,
+       400
+      ],
+      [
+       600,
+       400
+      ]
+     ]
+    }
+   ],
+   "desc": "ĐM não trước chạy ra trước rồi vòng lên trên và ra sau quanh thể chai, cấp máu cho mặt trong bán cầu. Vị trí trên ảnh là gần đúng.",
+   "clin": "Phình mạch ĐM thông trước (giữa hai ĐM não trước) là vị trí thường gặp nhất, nhưng thường cần tiêm cả hai bên và chụp chếch mới thấy rõ."
+  },
+  {
+   "id": "cortex",
+   "vi": "Nhánh vỏ não",
+   "en": "Cortical branches",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "poly": [
+      [
+       100,
+       20
+      ],
+      [
+       600,
+       20
+      ],
+      [
+       600,
+       200
+      ],
+      [
+       100,
+       200
+      ]
+     ]
+    }
+   ],
+   "desc": "Các nhánh tận của ĐM não giữa và não trước trên bề mặt bán cầu.",
+   "clin": "Nơi đánh giá tắc mạch xa trong đột quỵ cấp và tìm dị dạng động–tĩnh mạch."
+  }
+ ]
+}

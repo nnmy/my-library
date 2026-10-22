@@ -1,0 +1,131 @@
+{
+ "title": "Chụp mạch cảnh trong phải, tư thế nghiêng, CHƯA xóa nền",
+ "en": "Right ICA angiogram, lateral view, unsubtracted",
+ "size": [
+  989,
+  830
+ ],
+ "credit": "CẦN ĐIỀN: tác giả, giấy phép (ví dụ CC BY-SA 4.0), link trang nguồn của ảnh ica_angiographie_knochen.png. Ảnh đã được cắt và chuyển sang thang xám.",
+ "intro": "Ảnh chụp mạch chưa trừ nền: xương sọ vẫn còn. So với ca DSA tư thế nghiêng, hãy xem xương nền sọ che mạch ra sao. Đây là lý do DSA chụp một ảnh nền trước khi bơm thuốc rồi trừ đi. Ảnh có thể là của người bệnh khác và bên đối diện.",
+ "legend_note": "Viền do AI tự vẽ bằng tay trên ảnh, chưa được bác sĩ duyệt; chỉ để minh họa vị trí gần đúng.",
+ "structures": [
+  {
+   "id": "siph",
+   "vi": "Siphon và đoạn tận ĐM cảnh trong, dự đoán",
+   "en": "Siphon / terminal ICA (probable)",
+   "conf": "du-doan",
+   "top": true,
+   "shapes": [
+    {
+     "ellipse": [
+      590,
+      492,
+      36,
+      26
+     ]
+    }
+   ],
+   "desc": "Đoạn ĐM cảnh trong uốn cong trong xoang hang rồi chia nhánh. Ở đây xương xung quanh làm bờ mạch kém rõ.",
+   "clin": "Vùng có nhiều vị trí phình mạch (cạnh mỏm yên, thông sau). Túi phình nhỏ có thể bị che bởi xương nếu không xóa nền."
+  },
+  {
+   "id": "ica",
+   "vi": "Động mạch cảnh trong đoạn cổ và đoạn đá",
+   "en": "Cervical and petrous ICA",
+   "conf": "chac",
+   "shapes": [
+    {
+     "line": [
+      [
+       462,
+       830
+      ],
+      [
+       465,
+       760
+      ],
+      [
+       478,
+       690
+      ],
+      [
+       500,
+       660
+      ],
+      [
+       525,
+       680
+      ],
+      [
+       535,
+       640
+      ],
+      [
+       548,
+       592
+      ],
+      [
+       575,
+       572
+      ],
+      [
+       605,
+       555
+      ]
+     ],
+     "width": 26
+    }
+   ],
+   "desc": "ĐM cảnh trong đi lên qua nền sọ trong ống cảnh của xương đá.",
+   "clin": "Đoạn trong xương đá là chỗ khó nhìn nhất trên phim chưa xóa nền."
+  },
+  {
+   "id": "bone",
+   "vi": "Xương nền sọ (xương đá) chồng hình",
+   "en": "Skull base / petrous bone overlap",
+   "conf": "chac",
+   "shapes": [
+    {
+     "poly": [
+      [
+       230,
+       560
+      ],
+      [
+       450,
+       560
+      ],
+      [
+       450,
+       830
+      ],
+      [
+       230,
+       830
+      ]
+     ]
+    }
+   ],
+   "desc": "Vùng xương đặc ở nền sọ cản tia X mạnh, tạo bóng đậm chồng lên mạch.",
+   "clin": "Trên DSA, phần này gần như biến mất nhờ trừ ảnh nền. Nếu người bệnh cử động giữa hai lần chụp, phép trừ lệch và để lại viền giả (artifact chuyển động)."
+  },
+  {
+   "id": "br",
+   "vi": "Nhánh ĐM não giữa và não trước",
+   "en": "MCA and ACA branches",
+   "conf": "du-doan",
+   "shapes": [
+    {
+     "ellipse": [
+      660,
+      390,
+      200,
+      130
+     ]
+    }
+   ],
+   "desc": "Các nhánh nội sọ vẫn thấy được vì nằm trên nền não ít xương, nhưng độ tương phản thấp hơn DSA.",
+   "clin": "So sánh với ca DSA tư thế nghiêng để thấy mạch nhỏ hiện rõ hơn bao nhiêu khi xóa nền."
+  }
+ ]
+}

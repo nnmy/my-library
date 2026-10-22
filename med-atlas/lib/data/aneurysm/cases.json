@@ -1,0 +1,26 @@
+{
+ "_huong_dan": "Danh sách ca theo thứ tự hiện trên nút. id = tên thư mục; label = chữ trên nút. soon:true = nút xám 'Chưa mần' (chưa có ảnh).",
+ "cases": [
+  {
+   "id": "dsa-vert-ap",
+   "label": "Đốt sống – thẳng",
+   "en": "Vertebral DSA, AP"
+  },
+  {
+   "id": "dsa-ica-lat",
+   "label": "Cảnh trong – nghiêng",
+   "en": "ICA DSA, lateral"
+  },
+  {
+   "id": "angio-ica-lat-nosub",
+   "label": "Chưa xóa nền",
+   "en": "Unsubtracted angiogram"
+  },
+  {
+   "id": "aneurysm-1",
+   "label": "Phình mạch (DSA)",
+   "en": "Aneurysm on DSA",
+   "soon": true
+  }
+ ]
+}
