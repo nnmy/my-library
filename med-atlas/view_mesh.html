@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xem file VTK/PLY | Atlas hình ảnh y khoa | My N. Nguyen</title>
+<meta name="description" content="Mở lưới bề mặt .vtk / .ply trên trình duyệt, xoay mô hình 3D, xem hình chiếu ba mặt, tô màu theo dữ liệu và xuất PNG / PDF kèm thông tin file.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/atlas.css?v=20261018">
+<link rel="stylesheet" href="lib/niftiview.css?v=20261023">
+<link rel="stylesheet" href="lib/meshview.css?v=20261024">
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap wide page-head">
+  <p class="crumb"><a href="index.html">Atlas hình ảnh y khoa</a> / Xem file VTK/PLY</p>
+  <h1><span class="dot"></span>Xem file VTK/PLY</h1>
+</header>
+
+<section class="wrap wide" aria-label="Chọn file">
+  <div class="nv-box">
+    <div class="nv-files mv-files">
+      <label class="nv-drop" id="mvDrop"><b>Lưới 3D</b><span class="nv-name" id="mvName">Chưa chọn file</span><input type="file" id="mvFile" accept=".vtk,.ply,.gz"><span class="nv-tip" role="tooltip">Bấm để chọn, hoặc kéo thả file .vtk (VTK legacy) / .ply, có thể nén .gz</span></label>
+    </div>
+    <p class="nv-msg" id="mvMsg" hidden></p>
+  </div>
+</section>
+
+<section class="wrap wide" id="mvViewerWrap" aria-label="Trình xem" hidden>
+  <div class="nv-viewer">
+    <div class="nv-left">
+      <div class="mv-film">
+        <canvas id="mvCanvas" tabindex="0" aria-label="Mô hình 3D. Kéo để xoay, Shift kéo hoặc chuột phải để dời, lăn chuột hoặc chụm hai ngón để phóng to. Phím mũi tên xoay, cộng trừ phóng to, số 0 về góc ban đầu."></canvas>
+        <canvas id="mvAxes" class="mv-axes" aria-hidden="true"></canvas>
+        <span class="mv-tag">3D</span>
+      </div>
+      <div class="mv-projs" role="group" aria-label="Hình chiếu ba mặt">
+        <button class="mv-proj" type="button"><canvas></canvas><span class="mv-tag"></span></button>
+        <button class="mv-proj" type="button"><canvas></canvas><span class="mv-tag"></span></button>
+        <button class="mv-proj" type="button"><canvas></canvas><span class="mv-tag"></span></button>
+      </div>
+      <div class="readout-strip" id="mvReadout" aria-live="polite"></div>
+      <div class="nv-controls">
+        <div class="nv-ctl">
+          <span class="lab">Hiển thị</span>
+          <div class="seg-btns" role="group" aria-label="Hiển thị">
+            <button class="btn" type="button" data-mode="surface">Surface</button>
+            <button class="btn" type="button" data-mode="wire">Wireframe</button>
+            <button class="btn" type="button" data-mode="points">Points</button>
+          </div>
+        </div>
+        <div class="nv-ctl">
+          <label class="lab" for="mvColor">Tô màu</label>
+          <select class="inp" id="mvColor"></select>
+        </div>
+        <div class="nv-ctl" id="mvSolidRow">
+          <label class="lab" for="mvSolid">Màu</label>
+          <div class="inline"><input type="color" id="mvSolid" class="mv-swatch"></div>
+        </div>
+        <div class="nv-ctl" id="mvCmapRow" hidden>
+          <label class="lab" for="mvCmap">Bảng màu</label>
+          <div class="inline"><select class="inp" id="mvCmap"></select><span class="nv-grad mv-bar" id="mvBar"></span><label class="nv-chk"><input type="checkbox" id="mvRev"> Đảo</label></div>
+        </div>
+        <div class="nv-ctl" id="mvRangeRow" hidden>
+          <span class="lab" id="mvRangeLab">Khoảng</span>
+          <div class="inline" role="group" aria-labelledby="mvRangeLab"><input type="number" class="nv-num mv-rng-in" id="mvLo" step="any" aria-label="Giá trị nhỏ nhất"><span aria-hidden="true">…</span><input type="number" class="nv-num mv-rng-in" id="mvHi" step="any" aria-label="Giá trị lớn nhất"><button class="btn nv-sm" type="button" id="mvAuto" title="Lấy theo giá trị nhỏ nhất và lớn nhất của dữ liệu">Tự động</button></div>
+        </div>
+        <div class="nv-ctl">
+          <label class="lab" for="mvSys">Hệ tọa độ</label>
+          <select class="inp" id="mvSys" title="3D Slicer ghi hệ tọa độ trong header (SPACE=RAS / LPS); file khác thường không ghi">
+            <option value="RAS">RAS (phải, trước, trên)</option>
+            <option value="LPS">LPS (trái, sau, trên)</option>
+            <option value="XYZ">X, Y, Z (chưa rõ hướng)</option>
+          </select>
+        </div>
+        <div class="nv-ctl">
+          <label class="lab" for="mvPs">Cỡ điểm</label>
+          <div class="inline"><input type="range" id="mvPs" min="1" max="12" step="1" value="3"><output id="mvPsOut" for="mvPs" style="min-width:3.5em">3 px</output></div>
+        </div>
+        <div class="nv-ctl">
+          <span class="lab">Xoay 3D</span>
+          <div class="inline"><button class="btn nv-sm" type="button" id="mvSpin" aria-pressed="false">Tự xoay</button><button class="btn nv-sm" type="button" id="mvReset">Về góc ban đầu</button></div>
+        </div>
+      </div>
+    </div>
+    <aside class="nv-side" aria-label="Thông tin file">
+      <div class="nv-side-inner">
+        <h2 class="nv-h">Mesh info</h2>
+        <div id="mvInfo"></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="wrap wide" id="mvExportWrap" aria-labelledby="mvEHead" hidden>
+  <div class="nv-box nv-mosaic">
+    <h2 class="nv-h2" id="mvEHead">Xuất file</h2>
+    <p class="mv-lead">Ảnh 3D theo góc đang xem, ba hình chiếu cùng tỉ lệ (có thước đo, trục hướng) và bảng thông tin của file, trên nền trắng. PDF là một trang A4 ngang.</p>
+    <div class="nv-mbar">
+      <label class="lab mv-fmt-lab" for="mvEFmt">Định dạng</label>
+      <select class="inp mv-fmt" id="mvEFmt"><option value="png">PNG</option><option value="pdf">PDF</option></select>
+      <button class="btn primary" type="button" id="mvEDown">Tải PNG</button>
+      <span class="nv-minfo" id="mvEInfo" aria-live="polite"></span>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="mv-float" id="mvFloat" role="group" aria-label="Cuộn trang">
+  <button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên" tabindex="-1"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+  <button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống" tabindex="-1"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+</div>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/meshview.js?v=20261024"></script>
+<script>
+  MESHVIEW.start({
+    printHeader: "My N. Nguyen's Library",                     // dòng cuối chú thích ảnh xuất
+    demo: 'lib/data/mesh-demo/head-surface-demo.ply',          // mô hình minh họa lúc mở trang ('' để tắt)
+  });
+</script>
+<script src="lib/scroll-btns.js?v=20261018"></script>
+<script src="../common/site.js" defer></script>
+</body>
+</html>

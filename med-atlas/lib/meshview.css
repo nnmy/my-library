@@ -1,0 +1,77 @@
+/* =====================================================================
+   Trang xem file VTK / PLY (view_mesh.html). Nạp sau atlas.css và niftiview.css:
+   ô chọn file, khung trình xem, cột thông tin, phần xuất ảnh dùng lại lớp .nv-* của niftiview.css.
+   File này chỉ thêm phần riêng:
+     1. khung 3D + trục hướng
+     2. ba ô hình chiếu
+     3. điều khiển
+     4. cột thông tin (mảng dữ liệu, header)
+     5. phần xuất file
+     6. nút cuộn trang nổi
+   ===================================================================== */
+
+/* ---------- 1. khung 3D ---------- */
+.mv-files { grid-template-columns: minmax(0, 1fr); }
+.mv-film { position: relative; background: #000; height: clamp(300px, calc(100svh - var(--nav-h) - 330px), 680px); }
+.mv-film canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+#mvCanvas { cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; }
+#mvCanvas:active { cursor: grabbing; }
+#mvCanvas:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+.mv-axes { pointer-events: none; }
+.mv-tag { position: absolute; left: 10px; top: 6px; font: 400 28px/1 var(--pixel-vi); color: #fff; pointer-events: none; text-shadow: 0 1px 0 #000; }
+
+/* ---------- 2. hình chiếu ----------
+   Nhỏ hơn ảnh 3D (mỗi ô 25% bề ngang, tức 75% của một phần ba), viền trắng và cách nhau để không lẫn với ảnh 3D */
+.mv-projs { display: flex; justify-content: center; gap: 4%; padding: 16px 12px; background: #000; border-top: 2px solid var(--ink); }
+.mv-proj { position: relative; display: block; flex: none; width: 25%; aspect-ratio: 1 / 1; margin: 0; padding: 0; border: 2px solid #fff; border-radius: 0; background: #000; cursor: pointer; }
+.mv-proj canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.mv-proj .mv-tag { font-size: 22px; left: 6px; top: 4px; }
+.mv-proj:hover { border-color: var(--sky); }
+.mv-proj:hover .mv-tag { color: var(--sky); }
+.mv-proj:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- 3. điều khiển ---------- */
+.mv-swatch { width: 52px; height: 28px; padding: 0; border: 2px solid var(--ink); background: none; cursor: pointer; }
+.mv-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+.mv-swatch::-webkit-color-swatch { border: 0; }
+.mv-swatch::-moz-color-swatch { border: 0; }
+.nv-ctl .inline { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.nv-ctl .inline select.inp { flex: 1 1 auto; width: auto; min-width: 0; }
+.mv-bar { width: 56px; }
+.mv-rng-in { width: 6.4em; }
+
+/* ---------- 4. cột thông tin ---------- */
+.nv-h.mv-sec { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+.mv-arrs { list-style: none; margin: 0; padding: 0; font-size: 13.5px; }
+.mv-arrs li { display: grid; gap: 0 8px; padding: 4px 0; border-bottom: 1px solid var(--line); text-align: left; line-height: 1.4; }
+.mv-arrs b { font: 600 13px var(--mono); word-break: break-all; }
+.mv-arrs span { color: var(--muted); font-size: 12.5px; }
+.mv-arrs .mv-rng { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+.mv-head { white-space: pre-wrap; word-break: break-word; max-height: 160px; overflow-y: auto; }
+.mv-lead { margin: 0 0 6px; color: var(--muted); font-size: 15px; text-align: left !important; }
+
+/* ---------- 5. xuất file ---------- */
+.mv-fmt-lab { font-weight: 600; font-size: 14.5px; }
+.nv-mbar select.mv-fmt { width: auto; padding: 6px 8px; font-size: 15px; }
+.nv-mbar .btn { min-width: 8.5em; }
+
+/* ---------- 6. nút cuộn nổi (bấm / giữ: scroll-btns.js) ---------- */
+.mv-float { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 60;
+  display: flex; flex-direction: column; box-shadow: 4px 4px 0 var(--sky); opacity: 0; visibility: hidden; transform: translateY(8px);
+  transition: opacity .18s, visibility .18s, transform .18s; }
+.mv-float.on { opacity: 1; visibility: visible; transform: none; }
+.mv-float .btn { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; touch-action: none; -webkit-user-select: none; user-select: none; }
+.mv-float .btn + .btn { border-top-width: 0; }
+.mv-float .btn:hover { transform: none; box-shadow: none; background: var(--mist); }
+.mv-float .btn:active { background: var(--ink); color: #fff; }
+.mv-float svg { display: block; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .mv-float { transition: none; transform: none; } }
+
+@media (max-width: 640px) {
+  .mv-film { height: min(100vw, 62svh); }
+  .mv-tag { font-size: 20px; left: 6px; top: 3px; }
+  .mv-projs { gap: 3%; padding: 10px 6px 28px; }
+  .mv-proj .mv-tag { top: calc(100% + 4px); left: 0; right: 0; text-align: center; font-size: 16px; }   /* ô nhỏ: nhãn nằm dưới ô, khỏi đè chữ hướng */
+  .mv-float .btn { width: 46px; height: 46px; }
+  .mv-rng-in { width: 5.2em; }
+}

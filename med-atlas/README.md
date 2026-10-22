@@ -2,9 +2,15 @@
 
 > Trang X-quang ngực (`2-chest-xray.html`) có hướng dẫn riêng: `README-chest-xray.md`.
 >
+> Trang Điện tâm đồ (`3-ecg.html`, trình xem `lib/ecg.js`, dữ liệu trong `lib/data/ecg/`) có hướng dẫn riêng: `README-ecg.md`.
+>
 > Trang MRI đầu: mô và độ dẫn điện (`head-mri.html`) có hướng dẫn riêng: `README-head-mri.md`.
 >
 > Trang phân vùng mô đầu (`head-seg.html`, không liệt kê, chỉ dùng trên máy) có hướng dẫn riêng: `README-head-seg.md`.
+>
+> Trang Xem ảnh NIfTI (`view_nifti.html`, mục Tiện ích; trình xem `lib/niftiview.js` + `lib/niftiview.css`) không cần dữ liệu hay công cụ Python: người dùng tự chọn file trên máy. Ghi chú định dạng và cách hoạt động nằm ở đầu `lib/niftiview.js`.
+>
+> Trang Xem file VTK/PLY (`view_mesh.html`, mục Tiện ích; trình xem `lib/meshview.js` + `lib/meshview.css`, dùng lại khung của `lib/niftiview.css`) cũng không cần dữ liệu hay Python: người dùng tự chọn file lưới .vtk (VTK legacy) / .ply trên máy. Các định dạng đọc được, quy ước hệ tọa độ (RAS / LPS từ header của 3D Slicer) và cách tính số đo ghi ở đầu `lib/meshview.js`. Mô hình minh họa hiện lúc mở trang là `lib/data/mesh-demo/head-surface-demo.ply` (bề mặt đầu, LPS, đã giảm còn khoảng 8 000 tam giác); muốn đổi hoặc tắt, sửa tham số `demo` trong `view_mesh.html`. Minh họa cần chạy qua web server như các trang khác; mở bằng `file://` thì trang chỉ chờ người dùng chọn file.
 >
 > Mục "Bệnh não" (trình xem `lib/compare.js`, dữ liệu trong `lib/data/brain-disease/`) có hướng dẫn riêng: `README-brain-disease.md`.
 
