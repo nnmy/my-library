@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suy hao và phá sóng | Không dây | My N. Nguyen</title>
+<meta name="description" content="Vì sao tín hiệu Wi-Fi, Bluetooth, di động yếu đi: khoảng cách, vật cản, hấp thụ, phản xạ đa đường, che chắn. Nhiễu nền và tỉ số SINR. Nguyên lý máy phá sóng (jamming) và vì sao nhiều hệ thống khó phá.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/wl.css">
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Không dây</a> / Phần 8</p>
+  <h1><span class="dot"></span>Suy hao và phá sóng</h1>
+  <p class="lead">Phần 1 đã nói sóng yếu đi theo khoảng cách. Thực tế, một tín hiệu Wi-Fi, Bluetooth hay di động còn bị bào mòn bởi nhiều thứ khác: tường, cửa kính, mưa, chính cơ thể bạn, và cả những sóng khác cùng chen trong băng tần. Phần này gom các tác nhân đó lại, rồi đi tới trường hợp cực đoan: khi có người <b>cố ý</b> dội sóng vào để nhận chìm tín hiệu — tức máy phá sóng. Mục tiêu là hiểu <i>vì sao</i> nó hoạt động được, chứ không phải cách chế ra một cái.</p>
+</header>
+
+<!-- ================= 1. TÁC NHÂN SUY HAO ================= -->
+<section class="part" id="tac-nhan">
+  <div class="wrap">
+    <h2>Những tác nhân làm sóng yếu đi</h2>
+    <div class="prose">
+      <p>Nhắc lại từ <a href="1-song-vo-tuyen.html#suy-hao">phần 1</a>: ngay cả ngoài trời trống, sóng đã yếu đi vì năng lượng trải ra một mặt cầu càng lúc càng lớn — đó là <span class="term">suy hao không gian tự do</span> <span class="en">(free-space path loss)</span>, và nó là mức sàn không tránh được. Mọi thứ bên dưới chỉ cộng thêm vào mức sàn đó.</p>
+
+      <h3>Hấp thụ: vật cản “nuốt” bớt năng lượng</h3>
+      <p>Khi sóng xuyên qua một vật, một phần năng lượng biến thành nhiệt trong vật đó. Tường bê tông, kính phủ kim loại (kính Low-E tiết kiệm năng lượng), tấm cách nhiệt tráng nhôm hấp thụ rất mạnh. Đặc biệt, <b>nước hấp thụ sóng quanh 2,4 GHz rất tốt</b> — đây cũng chính là tần số lò vi sóng dùng để nấu. Vì cơ thể người chủ yếu là nước, bàn tay cầm che ăng-ten, hay một đám đông trong phòng họp, đều làm Wi-Fi yếu đi thấy rõ. Tần số càng cao thì hấp thụ càng nặng: mưa to và lá cây gần như vô hại với sóng 900 MHz nhưng cắt đáng kể sóng 5 GHz trở lên, và là bài toán lớn với vệ tinh băng Ku/Ka (<a href="6-ve-tinh.html#starlink">phần 6</a>) hay 5G sóng milimét.</p>
+
+      <h3>Phản xạ và đa đường: sóng tự dẫm lên nhau</h3>
+      <p>Sóng dội lại từ tường, sàn, xe cộ, mặt nước. Máy thu vì vậy nhận cùng một tín hiệu qua nhiều đường dài ngắn khác nhau, lệch pha nhau — gọi là <span class="term">truyền đa đường</span> <span class="en">(multipath)</span>. Có chỗ các bản sao cộng vào cho mạnh lên, có chỗ chúng triệt tiêu nhau làm tín hiệu <span class="term">chìm sâu</span> <span class="en">(fading)</span>. Đây là lý do nhích điện thoại vài chục centimet, cột sóng có thể nhảy từ một vạch lên đầy. Multipath cũng làm các bit chồng lấn lên nhau khi đến trễ (<span class="en">delay spread</span>); Wi-Fi và 4G/5G xử lý bằng điều chế OFDM và nhiều ăng-ten (<a href="4-bluetooth-wifi.html#wifi">phần 4</a>), biến đa đường từ kẻ thù thành thứ khai thác được.</p>
+
+      <h3>Che chắn: khi gần như không có đường nào tới</h3>
+      <p>Thang máy, hầm để xe, lõi thép của tòa nhà, thân xe hơi tạo thành những “lồng” kim loại chắn phần lớn sóng — hiệu ứng <span class="term">lồng Faraday</span> <span class="en">(Faraday cage)</span>. Khác với hấp thụ đều đều, che chắn gây sụt mạnh và đột ngột: bước vào thang máy là mất sóng ngay. Địa hình (đồi, nhà cao tầng) cũng tạo “vùng khuất sóng” cho trạm di động.</p>
+    </div>
+
+    <div class="guide"><b>Bảng tra nhanh.</b> Mức suy hao thêm (ngoài suy hao khoảng cách) khi sóng xuyên qua một vật cản điển hình, ở 2,4 GHz và 5 GHz. Con số làm tròn, mỗi công trình mỗi khác; nhớ quy tắc phần 1: <b>cứ 10 dB là yếu đi 10 lần, 3 dB là một nửa</b>.</div>
+    <div class="tablewrap">
+      <table class="cmp" style="min-width:560px">
+        <thead><tr><th>Vật cản</th><th>Suy hao ở 2,4 GHz</th><th>Suy hao ở 5 GHz</th><th>Ghi chú</th></tr></thead>
+        <tbody>
+          <tr><td>Vách thạch cao, cửa gỗ</td><td>3–5 dB</td><td>4–7 dB</td><td>Gần như trong suốt với sóng.</td></tr>
+          <tr><td>Tường gạch</td><td>6–8 dB</td><td>9–12 dB</td><td></td></tr>
+          <tr><td>Tường bê tông, sàn</td><td>10–15 dB</td><td>15–25 dB</td><td>Giữa các tầng nhà yếu rất nhanh.</td></tr>
+          <tr><td>Kính thường</td><td>2–4 dB</td><td>3–6 dB</td><td></td></tr>
+          <tr><td>Kính phủ kim loại (Low-E)</td><td>25–40 dB</td><td>30–45 dB</td><td>Là lý do sóng di động hay yếu trong cao ốc kính.</td></tr>
+          <tr><td>Cơ thể người</td><td>3–6 dB</td><td>5–8 dB</td><td>Mỗi người che là mất thêm một ít.</td></tr>
+          <tr><td>Tấm/lưới kim loại, thang máy</td><td>20–40 dB+</td><td>25–50 dB+</td><td>Gần như chắn hẳn (lồng Faraday).</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note-s">Nguồn gốc các mức này: đo đạc kênh truyền trong nhà, tổng hợp trong Rappaport và tài liệu quy hoạch Wi-Fi/di động; xem <a href="#tham-khao">tham khảo</a>.</p>
+  </div>
+</section>
+
+<!-- ================= 2. NHIỄU NỀN ================= -->
+<section class="part tint" id="nhieu">
+  <div class="wrap">
+    <h2>Nhiễu: khi nền ồn dâng lên</h2>
+    <div class="prose">
+      <p>Suy hao làm <i>tín hiệu</i> nhỏ lại. Nhưng mất kết nối còn có cách thứ hai: giữ nguyên tín hiệu mà làm <i>cái nền ồn</i> to lên. Máy thu nào cũng có sẵn một mức ồn tối thiểu gọi là <span class="term">nhiễu nền</span> <span class="en">(noise floor)</span>, sinh ra từ chuyển động nhiệt của electron trong linh kiện. Điều quyết định có đọc được hay không không phải tín hiệu mạnh bao nhiêu, mà nó <b>trội hơn nền bao nhiêu</b>.</p>
+      <p>Khi còn có những sóng lạ khác chen vào, ta cộng chúng vào nền và gọi tỉ số là <span class="term">SINR</span> <span class="en">(signal-to-interference-plus-noise ratio)</span> — tín hiệu trên (nhiễu cộng can nhiễu). Nối lại với <a href="2-dieu-che.html#toc-do">giới hạn Shannon</a> ở phần 2: SINR càng cao, mỗi giây chở được càng nhiều bit; SINR tụt xuống, thiết bị buộc phải hạ kiểu điều chế cho đỡ lỗi, nên tốc độ rớt trước, rồi mới tới mất hẳn kết nối.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \text{SINR} = \frac{P_\text{tín}}{N + \sum_k I_k} \qquad\Rightarrow\qquad \text{SINR (dB)} = P_\text{tín} - 10\log_{10}\!\Big(N + \textstyle\sum_k I_k\Big) \]</div>
+      <p class="where"><b>P<sub>tín</sub></b>: công suất tín hiệu cần thu (ở máy thu); <b>N</b>: công suất nhiễu nền; <b>I<sub>k</sub></b>: công suất của can nhiễu thứ k. Lưu ý phải <b>cộng ở dạng tuyến tính</b> (watt) rồi mới đổi ra dB, vì hai nguồn ồn cộng công suất chứ không cộng decibel. Thêm một nguồn ồn mạnh ngang nền hiện có làm nền dâng 3 dB (gấp đôi).</p>
+    </div>
+    <div class="prose">
+      <p>Nguồn can nhiễu “lành” gặp hằng ngày: hàng xóm phát Wi-Fi trùng kênh (<span class="term">đồng kênh</span>, <span class="en">co-channel</span>) hoặc kênh sát bên; cả xóm cùng chen trong dải ISM 2,4 GHz chật chội (<a href="4-bluetooth-wifi.html#ism">phần 4</a>); và kinh điển là <b>lò vi sóng</b> — nó phát ở đúng 2,45 GHz, rò ra một ít là đủ làm Wi-Fi khựng mỗi lần hâm đồ ăn. Mạng di động thì quản can nhiễu bằng cách tái sử dụng tần số theo ô và lập lịch cho từng máy (<a href="5-di-dong.html">phần 5</a>). Tất cả những thứ này đều <i>vô tình</i>. Máy phá sóng chỉ là làm đúng điều đó một cách <b>cố ý và hết công suất</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3. PHÁ SÓNG ================= -->
+<section class="part" id="pha-song">
+  <div class="wrap">
+    <h2>Máy phá sóng hoạt động thế nào</h2>
+    <div class="prose">
+      <p>Một <span class="term">máy phá sóng</span> <span class="en">(jammer)</span> về bản chất chỉ là một máy phát: nó bơm công suất vô tuyến vào đúng băng tần mà máy thu đang nghe, kéo nền ồn lên cho tới khi SINR rớt dưới ngưỡng giải mã. Có vài điểm cốt lõi, và cả ba đều là hệ quả trực tiếp của những gì các phần trước đã nói.</p>
+      <p><b>Nó nhận chìm chứ không “xóa” tín hiệu.</b> Jammer không triệt tiêu sóng gốc; nó chỉ phủ lên một lớp ồn to hơn. Vì thế thứ quyết định là <b>tỉ số phá trên tín hiệu</b> tại <i>ăng-ten máy thu</i>, chứ không phải công suất tuyệt đối của máy phá.</p>
+      <p><b>Ở gần ăng-ten là thắng.</b> Cả tín hiệu thật lẫn sóng phá đều tuân theo suy hao khoảng cách của <a href="1-song-vo-tuyen.html#suy-hao">phần 1</a>. Nếu máy thu cách nguồn tín hiệu một quãng xa còn máy phá nằm sát bên, thì dù máy phá công suất bé tí, nó vẫn áp đảo. Viết gọn, tỉ số phá-trên-tín ngoài trời trống tỉ lệ với bình phương quãng đường:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \frac{J}{S} \;\approx\; \frac{P_\text{phá}}{P_\text{phát}}\cdot\left(\frac{d_\text{tín}}{d_\text{phá}}\right)^{2} \]</div>
+      <p class="where"><b>J/S</b>: tỉ số công suất phá trên công suất tín hiệu, đo tại máy thu; <b>P<sub>phá</sub>, P<sub>phát</sub></b>: công suất (kèm độ lợi ăng-ten) của máy phá và của trạm phát thật; <b>d<sub>phá</sub>, d<sub>tín</sub></b>: khoảng cách từ máy thu tới máy phá và tới trạm phát thật. Số mũ 2 là của không gian trống; trong nhà hay phố xá, số mũ lớn hơn (n ≈ 3–3,5, xem phần 1) nên lợi thế “ở gần” còn gắt hơn. Thông điệp: một máy phá yếu nhưng ở sát có thể thắng một trạm mạnh ở xa.</p>
+    </div>
+    <div class="prose">
+      <p><b>Mục tiêu dễ nhất là máy thu tín hiệu yếu.</b> GPS là ví dụ sách giáo khoa: tín hiệu từ vệ tinh bay 20.000 km xuống tới mặt đất yếu khủng khiếp, còn <i>chìm dưới cả nhiễu nền</i> (nó đọc được là nhờ “độ lợi xử lý” — biết trước mã của từng vệ tinh rồi cộng dồn, xem <a href="6-ve-tinh.html#gnss">phần 6</a>). Chính vì tín hiệu quá nhỏ, chỉ cần một nguồn phá công suất bé cũng lấn át được — đây là nghịch lý “vừa bền vừa dễ phá” của GPS.</p>
+      <h3>Mấy kiểu dội sóng</h3>
+      <p>Người ta phân loại máy phá theo cách rải năng lượng của nó, và mỗi kiểu là một đánh đổi giữa “phủ rộng” và “dồn mạnh”:</p>
+      <ul>
+        <li><b>Đúng kênh</b> <span class="en">(spot)</span>: dồn hết công suất vào một kênh hẹp. Hiệu quả nhất nếu biết nạn nhân ở kênh nào, nhưng “bắt trượt” là vô dụng.</li>
+        <li><b>Phủ băng</b> <span class="en">(barrage)</span>: rải đều khắp cả băng. Không cần nhắm, nhưng công suất bị dàn mỏng nên tốn hơn nhiều để đạt cùng mật độ trong kênh nạn nhân.</li>
+        <li><b>Quét</b> <span class="en">(sweep)</span>: một khối hẹp lia qua lại khắp băng, gom cái mạnh của spot với cái rộng của barrage, đổi lại là mỗi kênh chỉ bị đánh từng chặp.</li>
+        <li><b>Giả mạo</b> <span class="en">(spoofing)</span>: không làm ồn mà phát ra tín hiệu <i>giả</i> trông như thật, để máy thu bám nhầm. Đây là họ tấn công khác hẳn, tinh vi hơn và thường bàn riêng với GPS.</li>
+      </ul>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Trục ngang là tần số trong một băng; trục dọc là công suất (dBm). Khối xanh là tín hiệu cần thu, đường đứt xám là nhiễu nền, khối đỏ là công suất máy phá dội tới. Góc phải hiện <b>SINR hiệu dụng</b> và máy còn đọc được hay không. Kéo <b>công suất</b> và <b>khoảng cách</b> của máy phá; đổi kiểu phá; tick <b>nhảy tần</b> để xem tín hiệu né khối phá. Thử chọn GPS: tín hiệu nằm dưới cả nền mà vẫn đọc được, nhưng một máy phá khiêm tốn cũng hạ gục nó.</div>
+    <div class="demo" id="demoJam" data-demo="jam">
+      <div class="demo-title"><h4>Nhận chìm tín hiệu: nhiễu nền và phá sóng</h4><span>Kéo công suất và khoảng cách của máy phá</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+
+    <div class="callout"><b>Một lưu ý quan trọng.</b> Phần này giải thích nguyên lý ở mức khái niệm, không phải hướng dẫn chế tạo hay vận hành. Ở Việt Nam cũng như hầu hết các nước, việc sản xuất, mua bán và sử dụng thiết bị phá sóng là <b>vi phạm pháp luật</b> và bị xử phạt: nó chặn cả cuộc gọi khẩn cấp, tín hiệu định vị cấp cứu, thiết bị y tế không dây và liên lạc của người xung quanh, nên gây nguy hiểm thật sự chứ không chỉ phiền toái.</div>
+  </div>
+</section>
+
+<!-- ================= 4. VÌ SAO KHÓ PHÁ ================= -->
+<section class="part tint" id="chong-pha">
+  <div class="wrap">
+    <h2>Vì sao nhiều hệ thống khó phá hơn</h2>
+    <div class="prose">
+      <p>Nếu nhận chìm tín hiệu dễ như vậy, vì sao Wi-Fi, Bluetooth, di động vẫn chạy ổn giữa một rừng sóng? Vì chúng được thiết kế sẵn để chịu nhiễu — và đúng những cơ chế đó cũng khiến chúng khó bị phá có chủ đích. Hầu hết đã xuất hiện ở các phần trước, giờ nhìn lại dưới một góc khác:</p>
+      <ul>
+        <li><b>Nhảy tần</b> <span class="en">(frequency hopping)</span>: Bluetooth đổi kênh hàng trăm, hàng nghìn lần mỗi giây theo một thứ tự chỉ hai đầu biết (<a href="4-bluetooth-wifi.html#bluetooth">phần 4</a>). Một máy phá đúng-kênh chỉ chặn được đúng lúc tín hiệu ghé qua kênh đó, còn lại là trượt.</li>
+        <li><b>Trải phổ và độ lợi xử lý</b> <span class="en">(spread spectrum)</span>: trải tín hiệu ra một dải rộng rồi “gom” lại ở máy thu. Cách gom đó khuếch đại tín hiệu thật và làm loãng sóng phá — chính là độ lợi xử lý giúp GPS đọc được dưới nền nhiễu.</li>
+        <li><b>Nhiều ăng-ten và lái chùm</b> <span class="en">(MIMO, beamforming)</span>: mảng ăng-ten có thể hướng “tai” về phía nguồn tín hiệu và tạo điểm “điếc” về phía nguồn phá (<span class="en">null steering</span>), dựa trên cùng nguyên lý mảng pha ở <a href="6-ve-tinh.html#starlink">phần 6</a>.</li>
+        <li><b>Mã sửa lỗi</b> <span class="en">(error-correcting codes)</span>: thêm bit dư để dựng lại dữ liệu dù một phần bị hỏng (<a href="2-dieu-che.html#sua-loi">phần 2</a>), nên cầm cự được với nhiễu từng chặp như kiểu quét.</li>
+        <li><b>Điều khiển công suất và chuyển giao</b>: máy di động tự tăng công suất và trạm chuyển máy sang ô khác khi nhiễu lên cao (<a href="5-di-dong.html">phần 5</a>), né quanh vùng bị ảnh hưởng.</li>
+      </ul>
+      <p>Điểm chung: không hệ nào “miễn nhiễm”, nhưng mỗi lớp phòng vệ đẩy cái giá của việc phá lên cao — cần công suất lớn hơn, băng rộng hơn, ở gần hơn. Đó là lý do một máy phá cầm tay làm nghẽn Wi-Fi trong một phòng thì được, nhưng đánh sập cả một mạng di động thì khó hơn rất nhiều.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PHỤ LỤC KÝ HIỆU ================= -->
+<section class="part" id="ky-hieu">
+  <div class="wrap">
+    <h2>Phụ lục: ký hiệu</h2>
+    <div class="tablewrap">
+      <table class="cmp symtab">
+        <thead><tr><th>Ký hiệu</th><th>Đọc (tiếng Anh)</th><th>Ý nghĩa, nói đơn giản</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">SINR</td><td>s-i-n-r</td><td>Tín hiệu trên (nhiễu + can nhiễu); càng cao càng dễ đọc và chở được nhiều bit.</td></tr>
+          <tr><td class="sym">\(N\)</td><td>noise floor</td><td>Nhiễu nền: mức ồn tối thiểu sẵn có trong máy thu, do nhiệt.</td></tr>
+          <tr><td class="sym">\(I_k\)</td><td>interference</td><td>Can nhiễu: công suất của một sóng lạ cùng rơi vào kênh đang nghe.</td></tr>
+          <tr><td class="sym">J/S</td><td>jam-to-signal ratio</td><td>Tỉ số công suất phá trên công suất tín hiệu, đo tại máy thu.</td></tr>
+          <tr><td class="sym">\(G_p\)</td><td>processing gain</td><td>Độ lợi xử lý: số dB mà trải phổ “cộng thêm” cho SINR khi gom tín hiệu lại.</td></tr>
+          <tr><td class="sym">\(d\)</td><td>distance</td><td>Khoảng cách; ở đây là từ máy thu tới trạm phát hoặc tới máy phá.</td></tr>
+          <tr><td class="sym">dB, dBm</td><td>decibel (-milliwatt)</td><td>Thang tỉ số / công suất của phần 1: 10 dB = gấp 10 lần; 0 dBm = 1 mW.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TÀI LIỆU THAM KHẢO ================= -->
+<section class="part tint" id="tham-khao">
+  <div class="wrap">
+    <h2>Tài liệu tham khảo</h2>
+    <ol class="refs">
+      <li>T. S. Rappaport, <i>Wireless Communications: Principles and Practice</i>, 2nd ed., Prentice Hall, 2002 (suy hao trong nhà, vật cản, fading).</li>
+      <li>A. Goldsmith, <i>Wireless Communications</i>, Cambridge University Press, 2005 (fading, đa đường, SINR).</li>
+      <li>R. A. Poisel, <i>Modern Communications Jamming Principles and Techniques</i>, 2nd ed., Artech House, 2011 (nguyên lý J/S, các kiểu phá).</li>
+      <li>D. Adamy, <i>EW 101: A First Course in Electronic Warfare</i>, Artech House, 2001.</li>
+      <li>ITU-R P.2040 / P.833: suy hao do vật liệu xây dựng và do cây cối.</li>
+      <li>Luật Tần số vô tuyến điện (Việt Nam) và quy định xử phạt vi phạm về thiết bị gây nhiễu có hại.</li>
+    </ol>
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="7-y-te.html"><small>Phần 7</small><b>Không dây trong y tế</b></a>
+      <a class="next" href="index.html"><small>Hết loạt bài</small><b>Về trang chủ Không dây</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/wl.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
