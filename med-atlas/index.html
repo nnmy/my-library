@@ -52,7 +52,7 @@
   <ul class="grid" id="pages"></ul>
 
   <section class="others" aria-labelledby="othersHead">
-    <h2 id="othersHead">Khác</h2>
+    <h2 id="othersHead">Tiện ích</h2>
     <ul id="others"></ul>
   </section>
 
@@ -94,10 +94,11 @@ const PAGES = [
     tags: ['DSA', '3D', 'Aneurysm'],
   },
 ];
-/* EDIT: mục Khác (dưới lưới thẻ): liên kết chữ, không có thẻ */
+/* EDIT: mục Tiện ích (dưới lưới thẻ): liên kết chữ, không có thẻ */
 const OTHERS = [
   // quiet: đoạn chữ trong desc được gắn liên kết ẩn (trông như chữ thường)
   { name: 'Phân đoạn MRI đầu', href: 'head-mri.html', desc: 'T1, T2, và 14 loại mô', quiet: { text: '14 loại mô', href: 'head-seg.html' } },
+  { name: 'Xem ảnh NIfTI', href: 'view_nifti.html', desc: 'mở file .nii trên máy, xem lát cắt, chồng nhãn, xuất ảnh mosaic' },
 ];
 
 const list = document.getElementById('pages');

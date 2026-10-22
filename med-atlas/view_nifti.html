@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Xem ảnh NIfTI | Atlas hình ảnh y khoa | My N. Nguyen</title>
+<meta name="description" content="Mở file NIfTI trên trình duyệt, xem lát cắt theo ba hướng, đổi bảng màu, chồng nhãn phân vùng và xuất ảnh mosaic kèm thông tin header.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="stylesheet" href="lib/fonts/fonts.css">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/atlas.css?v=20261018">
+<link rel="stylesheet" href="lib/niftiview.css?v=20261023">
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap wide page-head">
+  <p class="crumb"><a href="index.html">Atlas hình ảnh y khoa</a> / Xem ảnh NIfTI</p>
+  <h1><span class="dot"></span>Xem ảnh NIfTI</h1>
+</header>
+
+<section class="wrap wide" aria-label="Chọn file">
+  <div class="nv-box">
+    <div class="nv-files">
+      <label class="nv-drop" id="nvImgDrop"><b>Ảnh</b><span class="nv-name" id="nvImgName">Chưa chọn file</span><input type="file" id="nvImgFile" accept=".nii,.gz,.nrrd"><span class="nv-tip" role="tooltip">Bấm để chọn, hoặc kéo thả file .nii / .nii.gz / .nrrd</span></label>
+      <label class="nv-drop dis" id="nvLabDrop"><b>Nhãn</b><span class="nv-name" id="nvLabName">Chưa chọn file</span><input type="file" id="nvLabFileIn" accept=".nii,.gz,.nrrd"><span class="nv-tip" role="tooltip">Tùy chọn. Ảnh phân vùng .nii / .nii.gz / .nrrd / .seg.nrrd, chọn sau khi đã có ảnh</span></label>
+      <label class="nv-drop" id="nvNameDrop"><b>Tên nhãn</b><span class="nv-name" id="nvNameName">Chưa chọn file</span><input type="file" id="nvNameFile" accept=".txt,.lut,.ctbl,.csv,.tsv"><span class="nv-tip" role="tooltip">Tùy chọn. CSV “id,name,r,g,b” (xuất từ bảng nhãn), bảng ITK-SNAP, FreeSurfer LUT hoặc Slicer .ctbl</span></label>
+    </div>
+    <p class="nv-msg" id="nvMsg" hidden></p>
+  </div>
+</section>
+
+<section class="wrap wide" id="nvViewerWrap" aria-label="Trình xem" hidden>
+  <div class="nv-viewer">
+    <div class="nv-left">
+      <div class="nv-film"><canvas id="nvCanvas" tabindex="0" aria-label="Lát cắt. Rê chuột để đọc giá trị, lăn chuột hoặc phím mũi tên để đổi lát."></canvas></div>
+      <div class="readout-strip" id="nvReadout" aria-live="polite"></div>
+      <div class="nv-controls">
+        <div class="nv-ctl">
+          <span class="lab">Hướng cắt</span>
+          <div class="seg-btns" role="group" aria-label="Hướng cắt">
+            <button class="btn" type="button" data-orient="ax" title="Lát ngang (axial)">Axial</button>
+            <button class="btn" type="button" data-orient="cor" title="Lát đứng ngang (coronal)">Coronal</button>
+            <button class="btn" type="button" data-orient="sag" title="Lát đứng dọc (sagittal)">Sagittal</button>
+          </div>
+        </div>
+        <div class="nv-ctl">
+          <label class="lab" for="nvSlice">Lát cắt</label>
+          <div class="inline"><input type="range" id="nvSlice" min="0" max="1" value="0"><output id="nvSliceOut" for="nvSlice" style="min-width:5.5em"></output><span class="vscroll" role="group" aria-label="Cuộn trang"><button class="btn" type="button" data-vscroll="up" title="Cuộn lên (giữ để cuộn liên tục)" aria-label="Cuộn lên"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 13V3M3.5 7.5 8 3l4.5 4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button><button class="btn" type="button" data-vscroll="down" title="Cuộn xuống (giữ để cuộn liên tục)" aria-label="Cuộn xuống"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 3v10M3.5 8.5 8 13l4.5-4.5" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></span></div>
+        </div>
+        <div class="nv-ctl">
+          <span class="lab" id="nvCmLab">Bảng màu</span>
+          <div class="nv-cm" id="nvCm">
+            <button type="button" class="nv-cm-btn" id="nvCmBtn" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="nvCmLab nvCmBtn"><span class="nv-grad"></span><span class="nv-cm-name"></span><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+            <ul class="nv-cm-list" id="nvCmList" role="listbox" tabindex="-1" aria-labelledby="nvCmLab" hidden></ul>
+          </div>
+        </div>
+        <div class="nv-ctl" id="nvOvRow" hidden>
+          <label class="lab" for="nvOv">Nhãn</label>
+          <div class="inline"><input type="range" id="nvOv" min="0" max="9" step="1" value="9" title="0: tắt, giữa: độ dày viền, cuối: tô đầy"><output id="nvOvOut" for="nvOv" style="min-width:5.5em"></output></div>
+        </div>
+        <div class="nv-ctl">
+          <label class="lab" for="nvBri">Sáng tối</label>
+          <div class="inline"><input type="range" id="nvBri" min="-100" max="100" value="0" title="Nhấp đúp để đặt lại"><output id="nvBriOut" for="nvBri" style="min-width:3em"></output></div>
+        </div>
+        <div class="nv-ctl">
+          <label class="lab" for="nvCon">Tương phản</label>
+          <div class="inline"><input type="range" id="nvCon" min="-100" max="100" value="0" title="Nhấp đúp để đặt lại"><output id="nvConOut" for="nvCon" style="min-width:3em"></output><button class="btn nv-sm" type="button" id="nvWinReset" title="Đưa sáng tối và tương phản về 0">Đặt lại</button></div>
+        </div>
+        <div class="nv-ctl" id="nvVolRow" hidden>
+          <label class="lab" for="nvVol">Khối (t)</label>
+          <div class="inline"><input type="range" id="nvVol" min="0" max="0" value="0"><output id="nvVolOut" for="nvVol"></output></div>
+        </div>
+      </div>
+    </div>
+    <aside class="nv-side" aria-label="Thông tin file">
+      <div class="nv-side-inner">
+        <h2 class="nv-h">Image info</h2>
+        <div id="nvInfo"></div>
+        <div class="nv-labels" id="nvLabels" hidden>
+          <h2 class="nv-h" id="nvLabHead">Nhãn</h2>
+          <p class="nv-sub" id="nvLabFile"></p>
+          <div class="nv-labbar">
+            <button class="btn nv-sm" type="button" id="nvLabAll">Bật hết</button>
+            <button class="btn nv-sm" type="button" id="nvLabNone">Tắt hết</button>
+            <button class="btn nv-sm" type="button" id="nvLabInv">Đảo</button>
+          </div>
+          <input type="search" class="nv-filter" id="nvLabFilter" placeholder="Lọc theo số hoặc tên" aria-label="Lọc nhãn" hidden>
+          <ul class="nv-lablist" id="nvLabList"></ul>
+          <button class="btn nv-sm nv-csv" type="button" id="nvLabCsv">Xuất tên nhãn (CSV)</button>
+          <p class="nv-note">Bấm số nhãn để tới lát giữa của nhãn, bấm ô màu để đổi màu, sửa tên trực tiếp trong ô.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="wrap wide" id="nvMosaicWrap" aria-labelledby="nvMHead" hidden>
+  <div class="nv-box nv-mosaic">
+    <h2 class="nv-h2" id="nvMHead">Xuất file xem thử</h2>
+    <div class="nv-mgrid">
+      <div class="nv-mf"><label class="lab" for="nvMRows">Số dòng</label><input type="number" class="nv-num" id="nvMRows" min="1" max="20" value="4"></div>
+      <div class="nv-mf"><label class="lab" for="nvMCols">Số cột</label><input type="number" class="nv-num" id="nvMCols" min="1" max="20" value="4"></div>
+      <div class="nv-mf"><label class="lab" for="nvMBg">Nền</label><select class="inp" id="nvMBg"><option value="black">Đen</option><option value="white">Trắng</option></select></div>
+      <div class="nv-mf"><label class="lab" for="nvMTile">Cỡ mỗi ô</label><select class="inp" id="nvMTile"><option value="160">160 px</option><option value="256" selected>256 px</option><option value="384">384 px</option><option value="512">512 px</option></select></div>
+      <div class="nv-mf nv-mchk"><label class="nv-chk"><input type="checkbox" id="nvMNum" checked> In số lát</label></div>
+    </div>
+    <div class="nv-mbar"><button class="btn primary" type="button" id="nvMDown" disabled>Tải PNG</button><span class="nv-minfo" id="nvMInfo"></span></div>
+    <div class="nv-mprev-box" id="nvMPrev"></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/niftiview.js?v=20261023"></script>
+<script>
+  NIFTIVIEW.start({ printHeader: "My N. Nguyen's Library" });   // dòng cuối chú thích mosaic
+</script>
+<script src="lib/scroll-btns.js?v=20261018"></script>
+<script src="../common/site.js" defer></script>
+</body>
+</html>
