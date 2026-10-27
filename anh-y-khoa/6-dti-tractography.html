@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DTI và tractography | Ảnh y khoa | My N. Nguyen</title>
+<meta name="description" content="Ảnh khuếch tán MRI: giá trị b, ADC, tensor khuếch tán, FA, MD, bản đồ màu hướng, tractography tất định và xác suất, sợi giao nhau và giới hạn.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/ay.css">
+</head>
+<body data-home-label="Trang chủ Ảnh y khoa">
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main class="lt-page">
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Ảnh y khoa</a> / Phần 6</p>
+  <h1><span class="dot"></span>DTI và tractography</h1>
+  <p class="lead">Chất trắng trên ảnh T1, T2 trông gần như đồng nhất, dù bên trong là hàng triệu sợi trục thần kinh xếp thành bó. Ảnh khuếch tán đo xem nước trong mỗi voxel đi dễ theo hướng nào; nối các hướng đó lại thành đường, ta có tractography: bản đồ ước lượng các bó sợi, chụp được trên người sống mà không cần mổ.</p>
+</header>
+
+<section class="part" id="khuech-tan">
+  <div class="wrap">
+    <h2>Nước chuyển động và ảnh khuếch tán</h2>
+    <div class="prose">
+      <p>Phân tử nước trong cơ thể luôn chuyển động hỗn loạn do nhiệt: đó là <span class="term">khuếch tán</span>. Trong dịch não tủy, nước đi tự do về mọi phía. Trong chất trắng, màng tế bào và bao myelin bọc quanh sợi trục cản đường đi ngang, nên nước đi dọc theo sợi dễ hơn nhiều. Khuếch tán phụ thuộc hướng như vậy gọi là <span class="term">dị hướng</span> <span class="en">(anisotropic)</span>.</p>
+      <p>Để đo, chuỗi xung khuếch tán thêm vào hai xung gradient mạnh, bằng nhau và ngược chiều tác dụng, cách nhau vài chục mili giây <a href="#ref1">[1]</a>. Proton đứng yên được xung thứ hai trả lại đúng pha nên tín hiệu giữ nguyên. Proton đã di chuyển theo hướng gradient trong khoảng thời gian đó bị lệch pha, nên tín hiệu tổng yếu đi. Nước càng đi xa theo hướng gradient, ảnh càng tối:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ S = S_0\,e^{-b\,D}, \qquad b = \gamma^2 G^2 \delta^2\Big(\Delta - \frac{\delta}{3}\Big) \]</div><p class="where"><b>S<sub>0</sub></b>: tín hiệu khi không có gradient khuếch tán (ảnh b = 0). <b>D</b>: hệ số khuếch tán theo hướng gradient (mm²/s). <b>b</b>: <span class="term">giá trị b</span>, đo độ nhạy với khuếch tán, tăng theo độ lớn G, độ dài δ của xung và khoảng cách Δ giữa hai xung; lâm sàng thường dùng b ≈ 1000 s/mm². γ: tỉ số từ hồi chuyển của proton.</p></div>
+    <div class="prose">
+      <p>Từ ảnh b = 0 và ảnh b = 1000, máy tính được hệ số khuếch tán biểu kiến <span class="term">ADC</span> cho từng voxel. Nước tự do ở 37 °C có D khoảng 3 × 10⁻³ mm²/s; mô não khoảng 0,7 tới 0,9 × 10⁻³ mm²/s. Trong nhồi máu não cấp, tế bào phù lên và ADC giảm rõ chỉ sau vài phút: đây là chuỗi DWI trong bảng ở <a href="1-mri.html#tuong-phan">Phần 1</a>. Đơn vị 10⁻³ mm²/s cũng bằng µm²/ms, nên trong khoảng 50 ms đo, nước tự do đi được cỡ 17 µm theo mỗi trục, xa gấp vài lần đường kính một sợi trục (thường dưới vài µm). Nhờ vậy khuếch tán “cảm nhận” được cấu trúc vi thể nhỏ hơn voxel cả nghìn lần.</p>
+    </div>
+
+  </div>
+</section>
+
+<section class="part tint" id="tensor">
+  <div class="wrap">
+    <h2>Tensor khuếch tán: một hình bầu dục cho mỗi voxel</h2>
+    <div class="prose">
+      <p>Một hướng gradient chỉ đo được khuếch tán theo hướng đó. Basser và cộng sự (1994) đề xuất mô tả khuếch tán trong mỗi voxel bằng một <span class="term">tensor</span>: ma trận đối xứng 3 × 3, có 6 số chưa biết <a href="#ref2">[2]</a>. Đo với ít nhất 6 hướng gradient không thẳng hàng cộng một ảnh b = 0 là giải được; thực tế người ta đo 30 tới 60 hướng hoặc hơn để giảm nhiễu. Đó là <span class="term">DTI</span> <span class="en">(diffusion tensor imaging)</span>.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ S(\mathbf g) = S_0\,e^{-b\,\mathbf g^{\mathsf T}\mathbf D\,\mathbf g}, \qquad \mathbf D = \lambda_1\mathbf e_1\mathbf e_1^{\mathsf T} + \lambda_2\mathbf e_2\mathbf e_2^{\mathsf T} + \lambda_3\mathbf e_3\mathbf e_3^{\mathsf T} \]</div><p class="where"><b>g</b>: vector đơn vị chỉ hướng gradient. <b>D</b>: tensor khuếch tán. Phân tích trị riêng cho ba hướng vuông góc <b>e<sub>1</sub>, e<sub>2</sub>, e<sub>3</sub></b> (vector riêng) và ba hệ số khuếch tán theo các hướng đó <b>λ<sub>1</sub> ≥ λ<sub>2</sub> ≥ λ<sub>3</sub></b> (trị riêng). Hình dung bằng một hình bầu dục ba chiều: trục dài nằm theo e<sub>1</sub>, là hướng nước đi dễ nhất, và trong chất trắng là hướng của bó sợi.</p></div>
+    <div class="prose">
+      <p>Từ ba trị riêng, người ta rút ra vài con số không phụ thuộc cách đặt đầu trong máy:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \mathrm{MD} = \bar\lambda = \frac{\lambda_1+\lambda_2+\lambda_3}{3}, \qquad \mathrm{FA} = \sqrt{\frac{3}{2}}\;\frac{\sqrt{(\lambda_1-\bar\lambda)^2+(\lambda_2-\bar\lambda)^2+(\lambda_3-\bar\lambda)^2}}{\sqrt{\lambda_1^2+\lambda_2^2+\lambda_3^2}} \]</div><p class="where"><b>MD</b> <span class="en">(mean diffusivity)</span>: khuếch tán trung bình, gần với ADC. <b>FA</b> <span class="en">(fractional anisotropy)</span>: mức độ dị hướng, từ 0 (hình cầu, đi như nhau mọi hướng) tới gần 1 (hình điếu xì gà rất dài). <b>AD</b> = λ<sub>1</sub>: khuếch tán dọc sợi. <b>RD</b> = (λ<sub>2</sub> + λ<sub>3</sub>)/2: khuếch tán ngang sợi, thường tăng khi myelin bị tổn thương.</p></div>
+    <div class="demo" id="demoDe" data-demo="dti-ellipsoid">
+      <div class="demo-title"><h4>Một voxel, một tensor</h4><span>Chọn loại mô hoặc tự chỉnh ba giá trị riêng, xem nước tản ra theo hình gì</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Mô (người lớn, b ≈ 1000)</th><th>MD (× 10⁻³ mm²/s)</th><th>FA</th><th>Hình tensor</th></tr></thead>
+        <tbody>
+          <tr><td>Dịch não tủy</td><td>≈ 3</td><td>&lt; 0,1</td><td>hình cầu lớn</td></tr>
+          <tr><td>Chất xám vỏ não</td><td>≈ 0,8</td><td>≈ 0,1 – 0,2</td><td>gần cầu</td></tr>
+          <tr><td>Chất trắng, bó sợi song song (thể chai, bao trong)</td><td>≈ 0,7</td><td>≈ 0,5 – 0,8</td><td>điếu xì gà</td></tr>
+          <tr><td>Chất trắng có sợi giao nhau</td><td>≈ 0,7</td><td>thấp hơn hẳn, có khi &lt; 0,3</td><td>hình đĩa dẹt</td></tr>
+        </tbody>
+        <caption>Giá trị gần đúng; thay đổi theo tuổi, vùng não, máy chụp, giá trị b và cách xử lý. MD của chất xám và chất trắng gần bằng nhau, khác biệt chủ yếu nằm ở FA.</caption>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="part" id="mau-huong">
+  <div class="wrap">
+    <h2>Bản đồ màu hướng và hệ tọa độ</h2>
+    <div class="prose">
+      <p>Để nhìn hướng sợi trên một lát cắt, người ta tô mỗi voxel theo hướng của e<sub>1</sub>: thành phần trái–phải thành màu <b>đỏ</b>, trước–sau thành <b>xanh lá</b>, trên–dưới thành <b>xanh dương</b>, và độ sáng nhân với FA để vùng đẳng hướng tối đi <a href="#ref3">[3]</a>. Trên ảnh cắt ngang, thể chai bắt ngang hai bán cầu có màu đỏ, bó tháp đi từ vỏ não vận động xuống thân não có màu xanh dương, các bó dọc chạy trước–sau có màu xanh lá.</p>
+      <p>Màu và hướng chỉ đúng khi các hướng gradient được hiểu đúng hệ trục. Trong DICOM, hướng gradient được ghi theo hệ tọa độ bệnh nhân LPS; còn tệp <span class="kbd">.bvec</span> mà phần lớn phần mềm phân tích dùng lại ghi theo các trục của khối ảnh (xem <a href="5-he-toa-do.html">Phần 5</a> và <a href="4-nifti-dicom.html">Phần 4</a>). Công cụ chuyển đổi như dcm2niix lo phép đổi này. Tự chuyển bằng tay, hay lật ảnh mà quên lật vector gradient, rất dễ làm sai dấu một trục: bản đồ màu trông vẫn bình thường nhưng các đường tractography gãy khúc hoặc rẽ sai hướng.</p>
+    </div>
+    <div class="callout"><b>Kiểm tra nhanh:</b> sau khi tính tensor, hiển thị e<sub>1</sub> dạng vạch ngắn đè lên bản đồ FA. Ở đường giữa thể chai, các vạch phải nằm ngang theo hướng trái–phải; ở thể chai đoạn gối (phía trước) và lồi (phía sau), các vạch phải uốn theo hình chữ U. Nếu các vạch cắt chéo bó sợi thì nhiều khả năng một thành phần của vector gradient bị sai dấu.</div>
+
+  </div>
+</section>
+
+<section class="part tint" id="tractography">
+  <div class="wrap">
+    <h2>Tractography: nối hướng thành đường</h2>
+    <div class="prose">
+      <p>Ý tưởng của tractography đơn giản: bắt đầu từ một điểm, đi một bước nhỏ theo hướng e<sub>1</sub> tại đó, tới chỗ mới thì lấy e<sub>1</sub> mới và đi tiếp, giống thả một chiếc lá trôi theo dòng nước <a href="#ref4">[4]</a>, <a href="#ref5">[5]</a>. Mỗi voxel chỉ cho một mũi tên ngắn (không có đầu, vì e<sub>1</sub> và −e<sub>1</sub> như nhau), đường dài là do mình nối lại.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \mathbf r_{k+1} = \mathbf r_k + h\,\mathbf e_1(\mathbf r_k) \]</div><p class="where"><b>r<sub>k</sub></b>: vị trí sau k bước (mm). <b>h</b>: độ dài bước, thường nhỏ hơn kích thước voxel. <b>e<sub>1</sub>(r)</b>: hướng chính tại vị trí r, nội suy từ các voxel xung quanh, đổi dấu nếu cần để không quay đầu. Từ điểm gieo, thuật toán đi theo cả hai chiều rồi ghép lại.</p></div>
+    <div class="prose">
+      <ul>
+        <li><b>Gieo điểm</b> <span class="en">(seeding)</span>: gieo trong một vùng quan tâm (ROI) vẽ tay, hoặc gieo khắp não rồi lọc. Lọc bằng ROI: chỉ giữ đường đi qua vùng A <i>và</i> vùng B, bỏ đường đi qua vùng loại trừ.</li>
+        <li><b>Điều kiện dừng</b>: FA xuống dưới ngưỡng (thường 0,15 – 0,2, nghĩa là đã ra khỏi chất trắng), rẽ gắt hơn ngưỡng góc trong một bước (thường 35° – 60°), hoặc ra khỏi mặt nạ não.</li>
+        <li><b>Tất định</b> <span class="en">(deterministic)</span>: mỗi điểm gieo cho đúng một đường. <b>Xác suất</b> <span class="en">(probabilistic)</span>: tính cả độ không chắc chắn của hướng (do nhiễu, do mô hình), mỗi điểm gieo cho hàng nghìn đường hơi khác nhau, rồi đếm tỉ lệ đường đi tới mỗi nơi <a href="#ref6">[6]</a>.</li>
+      </ul>
+    </div>
+    <div class="demo" id="demoDt" data-demo="dti-tract">
+      <div class="demo-title"><h4>Theo dõi bó sợi</h4><span>Bấm lên lát cắt để gieo điểm, kéo điểm gieo để di chuyển</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Lát cắt trong minh họa có hai bó sợi: một bó hình vòm và một bó thẳng cắt chéo qua vòm khoảng 65°. Những điều có thể kiểm tra:</p>
+      <ul>
+        <li>Ở chế độ tensor tất định, đường gieo trên bó thẳng (điểm dưới bên trái) tới chỗ giao thì quẹo theo vòm, đường gieo trên vòm lại quẹo vào bó thẳng. Cả hai tạo ra một “kết nối” không có thật. Bật “Hiện tensor từng voxel”: ở chỗ giao, tensor là hình đĩa gần tròn.</li>
+        <li>Hạ ngưỡng FA xuống 0,05: đường đi lạc vào chất xám. Nâng lên 0,45: đường dừng ngay tại chỗ giao vì FA ở đó thấp. Không có ngưỡng nào vừa giữ được bó vừa đi qua được chỗ giao.</li>
+        <li>Chuyển sang “Nhiều sợi”: khi mô hình tách được hai hướng trong cùng voxel, đường đi thẳng qua chỗ giao.</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<section class="part" id="gioi-han">
+  <div class="wrap">
+    <h2>Giới hạn: đường trên ảnh không phải sợi trục</h2>
+    <div class="prose">
+      <p>Một voxel 2 mm chứa hàng chục nghìn sợi trục. Trong khoảng 60 – 90% số voxel chất trắng, các sợi không song song mà giao nhau, uốn cong hoặc tỏa ra <a href="#ref7">[7]</a>. Một tensor chỉ có một hướng chính nên không mô tả được những cấu hình này. Các mô hình mới hơn đo nhiều hướng với giá trị b cao (<span class="term">HARDI</span>) và ước lượng một hàm phân bố hướng sợi trong mỗi voxel, ví dụ <span class="term">CSD</span> <span class="en">(constrained spherical deconvolution)</span> <a href="#ref8">[8]</a>, nên tách được hai, ba bó giao nhau.</p>
+      <p>Kể cả với mô hình tốt, tractography vẫn là phép suy luận từ chuyển động của nước. Trong một cuộc thi dùng phantom số có đáp án biết trước, phần lớn các phương pháp tìm ra gần hết các bó thật, nhưng đồng thời sinh ra nhiều bó giả hơn cả số bó thật <a href="#ref9">[9]</a>. Một số điều cần nhớ khi đọc kết quả <a href="#ref10">[10]</a>:</p>
+      <ul>
+        <li><b>Không biết chiều tín hiệu</b>: đường đi từ A tới B cũng là từ B tới A; tractography không phân biệt đường vào, đường ra, và không thấy synapse.</li>
+        <li><b>Số đường không phải sức mạnh kết nối</b>: số đường phụ thuộc vị trí gieo, độ dài bó, độ cong, ngưỡng; bó dài và cong thường bị thiếu.</li>
+        <li><b>FA giảm không tự nói lên nguyên nhân</b>: mất myelin, mất sợi trục, phù, hay chỉ là có thêm một bó giao nhau đều làm FA giảm. Cụm từ “toàn vẹn chất trắng” dễ gây hiểu sai.</li>
+        <li><b>Nhiễu ảnh</b>: chuỗi xung khuếch tán (thường là EPI) bị méo ở gần xoang, xương đá, nhạy với chuyển động và dòng xoáy (eddy current), nên cần hiệu chỉnh trước khi tính tensor.</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<section class="part tint" id="ung-dung">
+  <div class="wrap">
+    <h2>Dùng để làm gì</h2>
+    <div class="apps">
+      <div class="app"><span class="where">Phẫu thuật thần kinh</span><h4>Lập kế hoạch mổ u não</h4><p>Vẽ bó tháp (vận động), bó cung (ngôn ngữ), tia thị giác quanh khối u để chọn đường vào và giới hạn cắt bỏ, thường kết hợp với kích thích điện trong lúc mổ. Lưu ý não có thể dịch chuyển sau khi mở hộp sọ.</p></div>
+      <div class="app"><span class="where">Kích thích não sâu</span><h4>Chọn đích DBS</h4><p>Một số trung tâm dùng tractography để nhắm điện cực vào bó sợi đi qua vùng đích (ví dụ bó răng–đỏ–đồi thị trong điều trị run), thay vì chỉ dựa vào tọa độ giải phẫu.</p></div>
+      <div class="app"><span class="where">Nghiên cứu</span><h4>Connectome</h4><p>Gieo khắp não, chia não thành các vùng, đếm đường nối giữa từng cặp vùng để dựng mạng lưới kết nối cấu trúc, so sánh giữa các nhóm người hoặc theo tuổi.</p></div>
+      <div class="app"><span class="where">Mô phỏng điện từ</span><h4>Độ dẫn điện dị hướng</h4><p>Chất trắng dẫn điện dọc sợi tốt hơn ngang sợi. Tensor khuếch tán được chuyển thành tensor độ dẫn cho mô hình phần tử hữu hạn của EEG, kích thích não (xem <a href="../intro-bem/6-fem.html">Phương pháp phần tử hữu hạn</a>).</p></div>
+    </div>
+
+  </div>
+</section>
+
+<section class="part" id="ghi-nho">
+  <div class="wrap">
+    <h2>Điều cần nhớ</h2>
+    <div class="prose">
+      <ul><li>Ảnh khuếch tán đo nước đi xa cỡ nào theo từng hướng; tensor tóm tắt điều đó bằng một hình bầu dục cho mỗi voxel.</li><li>FA đo mức dị hướng, MD đo mức khuếch tán trung bình; e<sub>1</sub> là hướng chính, được dùng làm hướng bó sợi.</li><li>Tractography nối các hướng e<sub>1</sub> thành đường, dừng theo ngưỡng FA và ngưỡng góc; tất định cho một đường, xác suất cho một phân bố.</li><li>Một tensor không tách được sợi giao nhau; cần dữ liệu nhiều hướng và mô hình nhiều sợi.</li><li>Đường tractography là ước lượng, có thể có bó giả; luôn kiểm tra hệ trục của vector gradient.</li></ul>
+    </div>
+
+  </div>
+</section>
+
+<section class="part tint" id="thuat-ngu">
+  <div class="wrap">
+    <h2>Giải thích thuật ngữ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Nghĩa là gì</th></tr></thead>
+        <tbody>
+          <tr><td>DWI <span class="en">(diffusion-weighted imaging)</span></td><td>Ảnh có trọng khuếch tán: vùng nước bị hạn chế đi lại thì sáng.</td></tr>
+          <tr><td>Giá trị b <span class="en">(b-value)</span></td><td>Độ nhạy của chuỗi xung với khuếch tán, đơn vị s/mm².</td></tr>
+          <tr><td>ADC, MD</td><td>Hệ số khuếch tán biểu kiến; khuếch tán trung bình theo mọi hướng.</td></tr>
+          <tr><td>Tensor khuếch tán</td><td>Ma trận đối xứng 3 × 3 mô tả khuếch tán theo mọi hướng trong một voxel.</td></tr>
+          <tr><td>Trị riêng, vector riêng <span class="en">(eigenvalue, eigenvector)</span></td><td>Ba hệ số khuếch tán chính λ<sub>1</sub>, λ<sub>2</sub>, λ<sub>3</sub> và ba hướng vuông góc tương ứng.</td></tr>
+          <tr><td>FA <span class="en">(fractional anisotropy)</span></td><td>Mức dị hướng, 0 là đẳng hướng, gần 1 là rất dị hướng.</td></tr>
+          <tr><td>AD, RD <span class="en">(axial, radial diffusivity)</span></td><td>Khuếch tán dọc hướng chính; khuếch tán ngang hướng chính.</td></tr>
+          <tr><td>Bản đồ màu hướng <span class="en">(DEC map)</span></td><td>Ảnh tô màu theo e<sub>1</sub>: đỏ trái–phải, xanh lá trước–sau, xanh dương trên–dưới.</td></tr>
+          <tr><td>Điểm gieo, ROI <span class="en">(seed, region of interest)</span></td><td>Nơi bắt đầu theo dõi; vùng dùng để giữ hoặc loại đường.</td></tr>
+          <tr><td>HARDI, CSD</td><td>Đo nhiều hướng với b cao; phương pháp ước lượng nhiều hướng sợi trong một voxel.</td></tr>
+          <tr><td>.bvec, .bval</td><td>Tệp văn bản ghi hướng gradient và giá trị b của từng ảnh trong chuỗi khuếch tán.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<section class="part" id="co-so">
+  <div class="wrap">
+    <h2>Cơ sở và tài liệu tham khảo</h2>
+    <div class="prose">
+<ul><li><b>Minh họa “Một voxel, một tensor”</b>: phân tử nước làm bước ngẫu nhiên Gauss với hiệp phương sai 2Dt; hình bầu dục là mặt hai độ lệch chuẩn, chiếu vuông góc lên màn hình. Giá trị trị riêng của các loại mô là ví dụ gần đúng.</li><li><b>Minh họa “Theo dõi bó sợi”</b>: lát cắt là phantom số tự dựng, không phải ảnh thật; mỗi voxel trộn tensor của các thành phần theo tỉ lệ thể tích (bó sợi λ∥ = 1,7, λ⊥ = 0,3; dịch 3,0; nền chất xám ≈ 0,8, đơn vị 10⁻³ mm²/s) cộng nhiễu nhỏ. Hướng trong chế độ “Nhiều sợi” lấy thẳng từ phantom, tức là giả định mô hình nhiều sợi ước lượng hoàn hảo; chế độ xác suất dùng nhiễu góc đơn giản, không phải mô hình Bayes như các phần mềm thật.</li></ul>
+    </div>
+    <ol class="refs">
+      <li id="ref1">E. O. Stejskal, J. E. Tanner, "Spin diffusion measurements: spin echoes in the presence of a time-dependent field gradient", <i>The Journal of Chemical Physics</i> 42(1):288–292, 1965. <a href="https://doi.org/10.1063/1.1695690" rel="noopener">Liên kết</a></li>
+      <li id="ref2">P. J. Basser, J. Mattiello, D. LeBihan, "MR diffusion tensor spectroscopy and imaging", <i>Biophysical Journal</i> 66(1):259–267, 1994. <a href="https://doi.org/10.1016/S0006-3495(94)80775-1" rel="noopener">Liên kết</a></li>
+      <li id="ref3">S. Pajevic, C. Pierpaoli, "Color schemes to represent the orientation of anisotropic tissues from diffusion tensor data: application to white matter fiber tract mapping in the human brain", <i>Magnetic Resonance in Medicine</i> 42(3):526–540, 1999.</li>
+      <li id="ref4">S. Mori, B. J. Crain, V. P. Chacko, P. C. M. van Zijl, "Three-dimensional tracking of axonal projections in the brain by magnetic resonance imaging", <i>Annals of Neurology</i> 45(2):265–269, 1999.</li>
+      <li id="ref5">P. J. Basser, S. Pajevic, C. Pierpaoli, J. Duda, A. Aldroubi, "In vivo fiber tractography using DT-MRI data", <i>Magnetic Resonance in Medicine</i> 44(4):625–632, 2000.</li>
+      <li id="ref6">T. E. J. Behrens et al., "Characterization and propagation of uncertainty in diffusion-weighted MR imaging", <i>Magnetic Resonance in Medicine</i> 50(5):1077–1088, 2003.</li>
+      <li id="ref7">B. Jeurissen, A. Leemans, J.-D. Tournier, D. K. Jones, J. Sijbers, "Investigating the prevalence of complex fiber configurations in white matter tissue with diffusion magnetic resonance imaging", <i>Human Brain Mapping</i> 34(11):2747–2766, 2013.</li>
+      <li id="ref8">J.-D. Tournier, F. Calamante, A. Connelly, "Robust determination of the fibre orientation distribution in diffusion MRI: non-negativity constrained super-resolved spherical deconvolution", <i>NeuroImage</i> 35(4):1459–1472, 2007.</li>
+      <li id="ref9">K. H. Maier-Hein et al., "The challenge of mapping the human connectome based on diffusion tractography", <i>Nature Communications</i> 8:1349, 2017. <a href="https://doi.org/10.1038/s41467-017-01285-x" rel="noopener">Liên kết</a></li>
+      <li id="ref10">D. K. Jones, T. R. Knösche, R. Turner, "White matter integrity, fiber count, and other fallacies: the do's and don'ts of diffusion MRI", <i>NeuroImage</i> 73:239–254, 2013.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="5-he-toa-do.html"><small>Phần 5</small><b>Các hệ tọa độ</b></a>
+      <a class="next" href="index.html"><small>Quay lại</small><b>Ảnh y khoa</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/ay.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

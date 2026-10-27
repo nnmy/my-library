@@ -6,7 +6,7 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CNN &amp; backpropagation | AI | My N. Nguyen</title>
-<meta name="description" content="CNN và backpropagation: ảnh là bảng số, neuron, tích chập, ReLU, pooling, hàm mất mát, gradient descent, lan truyền ngược.">
+<meta name="description" content="CNN và backpropagation: ảnh là bảng số, neuron, tích chập, ReLU, pooling, hàm mất mát, gradient descent, lan truyền ngược, batch và epoch, bias và variance.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -164,7 +164,7 @@
       <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
     </div>
     <div class="prose">
-      <p>Minh họa chỉ có một trọng số cho dễ vẽ. Mạng thật có hàng triệu tới hàng tỷ trọng số, tức là một “vùng đồi” có hàng triệu chiều, nhưng cách đi y chang: mỗi trọng số nhích một chút theo độ dốc của riêng nó. Trong thực tế, mỗi bước người ta chỉ chấm điểm trên một nhúm nhỏ hình chọn ngẫu nhiên (gọi là <span class="term">mini-batch</span>, cỡ 32 tới vài ngàn hình) thay vì cả kho, nên đường đi hơi lắc lư, gọi là <span class="term">SGD</span> <span class="en">(stochastic gradient descent)</span>. Các biến thể như <b>Adam</b> tự chỉnh bước cho từng trọng số, giờ là lựa chọn mặc định.</p>
+      <p>Minh họa chỉ có một trọng số cho dễ vẽ. Mạng thật có hàng triệu tới hàng tỷ trọng số, tức là một “vùng đồi” có hàng triệu chiều, nhưng cách đi y chang: mỗi trọng số nhích một chút theo độ dốc của riêng nó. Trong thực tế, mỗi bước người ta chỉ chấm điểm trên một nhúm nhỏ hình chọn ngẫu nhiên (gọi là <span class="term">mini-batch</span>, cỡ 32 tới vài ngàn hình) thay vì cả kho, nên đường đi hơi lắc lư, gọi là <span class="term">SGD</span> <span class="en">(stochastic gradient descent)</span>. Chuyện lô to lô nhỏ, bước và epoch được nói kỹ ở <a href="#batch-epoch">mục Batch và epoch</a> bên dưới. Các biến thể như <b>Adam</b> tự chỉnh bước cho từng trọng số, giờ là lựa chọn mặc định.</p>
     </div>
     <div class="callout"><b>Còn một câu hỏi bự:</b> làm sao biết độ dốc ∂L/∂w của <i>từng</i> trọng số trong mạng có cả triệu trọng số? Cách ngây thơ là nhích từng trọng số một chút rồi chạy lại cả mạng coi lỗi đổi bao nhiêu. Một triệu trọng số là một triệu lần chạy, cho <i>một</i> bước học. Hổng ai chờ nổi. Backpropagation tính hết một lượt với chi phí chỉ cỡ hai, ba lần chạy mạng.</div>
   </div>
@@ -227,7 +227,99 @@
   </div>
 </section>
 
-<!-- ================= 1.9 CHUYỆN HAY GẶP ================= -->
+<!-- ================= 1.9 BATCH, ITERATION, EPOCH ================= -->
+<section class="part" id="batch-epoch">
+  <div class="wrap">
+    <h2>Batch, iteration, epoch: chia kho dữ liệu ra mà học</h2>
+    <div class="prose">
+      <p>Ở mục huấn luyện, mình nói mỗi bước chỉ chấm điểm trên một nhúm hình. Giờ nói cho kỹ, vì ba chữ <span class="term">batch</span>, <span class="term">iteration</span>, <span class="term">epoch</span> xuất hiện trong mọi đoạn code huấn luyện mà rất hay bị lẫn với nhau.</p>
+    </div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Chữ</th><th>Nói đơn giản</th><th>Ví dụ: kho 50 000 hình, lô 100 hình</th></tr></thead>
+        <tbody>
+          <tr><td>Lô<span class="en">batch, mini-batch</span></td><td>Một nhúm hình lấy ra từ kho để tính <b>một</b> lần chỉnh trọng số. Số hình trong lô gọi là <span class="term">cỡ lô</span> <span class="en">(batch size)</span>, ký hiệu B.</td><td>B = 100 hình.</td></tr>
+          <tr><td>Bước<span class="en">iteration, step</span></td><td>Một vòng đủ bốn bước ở hình vòng huấn luyện: đoán cả lô, lấy trung bình độ lỗi, backprop, chỉnh trọng số đúng một lần.</td><td>Mỗi bước dùng 100 hình.</td></tr>
+          <tr><td>Epoch<span class="en">epoch</span></td><td>Một lượt đi qua hết kho, mỗi hình được dùng đúng một lần.</td><td>50 000 ÷ 100 = 500 bước mỗi epoch.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ g \;=\; \frac{1}{B}\sum_{i=1}^{B} \frac{\partial L_i}{\partial w}, \qquad \text{số bước mỗi epoch} \;=\; \frac{N}{B} \]</div>
+      <p class="where"><b>g</b>: độ dốc dùng cho một bước, lấy trung bình trên các hình trong lô. <b>L<sub>i</sub></b>: độ lỗi của hình thứ i trong lô. <b>B</b>: cỡ lô. <b>N</b>: số hình trong cả kho. Nếu N không chia hết cho B thì lô cuối của epoch nhỏ hơn (hoặc bị bỏ), nên số bước làm tròn lên (hoặc xuống).</p>
+    </div>
+    <div class="prose">
+      <p>Huấn luyện 30 epoch với ví dụ trên nghĩa là mạng thấy mỗi hình 30 lần, tổng cộng 15 000 bước. Trước mỗi epoch, kho được <b>xáo trộn</b> lại để lô nào cũng trộn đều các loại, hổng có chuyện lô toàn mèo rồi lô toàn chó, làm trọng số bị kéo qua kéo lại.</p>
+    </div>
+    <h3>Lô to hay lô nhỏ?</h3>
+    <div class="prose">
+      <p>Độ dốc tính trên một lô chỉ là <b>ước lượng</b> của độ dốc thật tính trên cả kho, giống như hỏi ý kiến 100 người thay vì hỏi cả nước: trúng đại khái, có sai số. Sai số đó giảm theo căn bậc hai của cỡ lô, tức là lô to gấp 4 thì nhiễu chỉ giảm còn một nửa. Có ba trường hợp:</p>
+      <ul>
+        <li><b>B = 1</b> (SGD thuần): mỗi hình một bước. Nhiều bước nhất mỗi epoch, nhưng mỗi bước dựa trên đúng một hình nên đi lắc lư dữ dội.</li>
+        <li><b>B = N</b> (gradient descent trên cả kho, <span class="en">full-batch</span>): mỗi epoch đúng một bước, hướng đi chính xác và mượt, nhưng phải tính hết kho mới nhích được một chút. Kho ImageNet 1,2 triệu hình cũng hổng nhét vừa bộ nhớ GPU một lần.</li>
+        <li><b>Ở giữa</b> (mini-batch, thường 32 tới vài trăm hình cho bài toán ảnh): đủ nhiều bước, đủ ít nhiễu, và tận dụng được GPU, vốn giỏi tính song song cả lô một lúc.</li>
+      </ul>
+    </div>
+    <div class="demo" id="demoBe" data-demo="batch-epoch">
+      <div class="demo-title"><h4>Batch, iteration và epoch</h4><span>Chọn cỡ lô, cho chạy, rồi đổi cỡ lô để so với lần trước</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Minh họa học một đường thẳng ŷ = w·x + b từ 64 điểm, nên chỉ có hai trọng số và vẽ được cả “vùng đồi” độ lỗi. Những điều có thể kiểm tra:</p>
+      <ul>
+        <li>Chọn B = 64 (cả kho) rồi cho chạy: đường đi mượt nhưng mỗi epoch chỉ nhích một bước, 30 epoch vẫn chưa xuống tới đáy. Sau đó chọn B = 4: vạch xám là lần chạy trước. Cùng số epoch, tức là cùng khối lượng tính, lô nhỏ xuống đáy nhanh hơn hẳn vì được chỉnh 16 lần mỗi epoch.</li>
+        <li>Với B = 1, đường đi tới gần đáy rồi cứ nhảy loanh quanh, độ lỗi hổng giảm thêm được. Giảm tốc độ học thì bớt nhảy. Đó là lý do người ta giảm dần tốc độ học về cuối quá trình huấn luyện.</li>
+        <li>Bấm “1 bước” vài lần và coi khung bên phải: lô vừa dùng tô vàng, các điểm đã dùng trong epoch này tô xanh. Hết điểm trắng là xong một epoch, kho được xáo lại.</li>
+      </ul>
+      <p>Muốn lô to mà vẫn học nhanh, người ta tăng tốc độ học theo cỡ lô: lô to gấp k lần thì tốc độ học gấp k lần, kèm một đoạn khởi động nhẹ lúc đầu. Mẹo này cho phép huấn luyện ResNet trên ImageNet với lô 8192 hình mà hổng mất độ chính xác <a href="#ref-goyal">[Goyal 2017]</a>. Lô quá to thì lại hay khái quát kém hơn một chút, nên cỡ lô cũng là một con số phải thử.</p>
+    </div>
+    <div class="callout"><b>Chữ “batch” còn gặp ở đâu?</b> <span class="term">Batch norm</span> chuẩn hóa đầu ra mỗi lớp theo trung bình và độ lệch của lô hiện tại. Lúc chạy mô hình để trả lời <span class="en">(inference)</span>, “batch” là gom nhiều yêu cầu chạy chung một lần cho đỡ tốn GPU. Còn epoch thì hổng phải lúc nào cũng nhiều: LLM ở <a href="5-llm.html">Phần 5</a> có kho dữ liệu khổng lồ nên thường chỉ đi qua phần lớn dữ liệu khoảng một lượt, người ta đếm bằng số token chứ ít khi đếm epoch.</div>
+  </div>
+</section>
+
+<!-- ================= 1.10 BIAS VÀ VARIANCE ================= -->
+<section class="part tint" id="bias-variance">
+  <div class="wrap">
+    <h2>Bias và variance: học thiếu và học vẹt</h2>
+    <div class="prose">
+      <p>Mục tiêu thật của huấn luyện hổng phải là đoán trúng mấy tấm hình đã học, mà là đoán trúng hình <b>chưa thấy bao giờ</b>, gọi là khả năng <span class="term">khái quát</span> <span class="en">(generalization)</span>. Vì vậy dữ liệu được chia làm ba phần: <span class="term">tập huấn luyện</span> <span class="en">(training set)</span> để vặn trọng số; <span class="term">tập kiểm định</span> <span class="en">(validation set)</span> để chọn kiểu mô hình, số epoch, tốc độ học; và <span class="term">tập kiểm tra</span> <span class="en">(test set)</span> cất kỹ, chỉ mở ra một lần cuối để báo cáo kết quả.</p>
+      <p>Tưởng tượng mình lấy nhiều tập huấn luyện khác nhau từ cùng một nguồn, mỗi lần học lại mô hình từ đầu, rồi cho tất cả cùng đoán một hình mới. Giống ném phi tiêu nhiều lần. <span class="term">Bias</span> (độ chệch) là chỗ trung bình của các lần ném cách hồng tâm bao xa: sai có hệ thống, ném lần nào cũng lệch về một phía. <span class="term">Variance</span> (phương sai) là các lần ném tản ra cỡ nào: đổi dữ liệu một chút thì mô hình đổi nhiều hay ít.</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \mathbb{E}\Big[\big(y - \hat f(x)\big)^2\Big] \;=\; \underbrace{\big(\mathbb{E}[\hat f(x)] - f(x)\big)^2}_{\text{bias}^2} \;+\; \underbrace{\mathbb{E}\Big[\big(\hat f(x) - \mathbb{E}[\hat f(x)]\big)^2\Big]}_{\text{variance}} \;+\; \underbrace{\sigma_\varepsilon^2}_{\text{nhiễu}} \]</div>
+      <p class="where">Cho bài toán đoán số với độ lỗi bình phương. <b>f(x)</b>: đáp án thật. <b>y</b>: đáp án ghi trong dữ liệu, bằng f(x) cộng nhiễu. <b>f̂(x)</b>: mô hình học được, thay đổi theo tập huấn luyện. <b>𝔼[·]</b>: trung bình trên rất nhiều tập huấn luyện (và trên nhiễu). <b>σ<sub>ε</sub><sup>2</sup></b>: độ lớn của nhiễu trong dữ liệu; phần này mô hình nào cũng chịu, hổng giảm được. Với bài phân loại, phép tách hổng gọn y chang vậy, nhưng ý tưởng giữ nguyên.</p>
+    </div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Bệnh</th><th>Dấu hiệu</th><th>Cách gỡ phổ biến</th></tr></thead>
+        <tbody>
+          <tr><td>Học thiếu, bias cao<span class="en">underfitting</span></td><td>Lỗi trên tập huấn luyện đã cao, lỗi kiểm định cũng cao, hai con số sát nhau. Mô hình quá đơn giản, hoặc học chưa đủ lâu.</td><td>Mô hình lớn hơn (nhiều lớp, nhiều bộ lọc); huấn luyện thêm epoch; bớt các ràng buộc kiểu weight decay, dropout.</td></tr>
+          <tr><td>Học vẹt, variance cao<span class="en">overfitting</span></td><td>Lỗi huấn luyện rất thấp nhưng lỗi kiểm định cao hơn hẳn. Mô hình thuộc lòng luôn cả nhiễu của tập huấn luyện.</td><td>Thêm dữ liệu; tăng cường dữ liệu; weight decay, dropout; mô hình nhỏ hơn; dừng sớm.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="demo" id="demoBv" data-demo="bias-variance">
+      <div class="demo-title"><h4>Bias và variance</h4><span>Đổi độ phức tạp của mô hình, rồi lấy thêm tập huấn luyện khác để xem nó dao động cỡ nào</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Mô hình trong minh họa là đa thức bậc d: bậc càng cao càng nhiều tham số, càng uốn éo được. Những điều có thể kiểm tra:</p>
+      <ul>
+        <li>Bậc 0 hoặc 1, bấm “Hiện 40 tập khác”: 40 đường gần như trùng nhau (variance thấp) nhưng đường trung bình màu vàng lệch xa hàm thật (bias cao). Lỗi huấn luyện và lỗi kiểm tra đều cao.</li>
+        <li>Kéo lên bậc 10 tới 12: lỗi huấn luyện gần bằng 0 vì đường cong chui qua gần hết các điểm, nhưng 40 đường quẫy mỗi đường một kiểu, nhất là ở hai đầu. Đường trung bình vẫn gần hàm thật: bias thấp, variance cao.</li>
+        <li>Khung dưới cho thấy đường lỗi kiểm tra hình chữ U: bên trái do bias, bên phải do variance, đáy ở giữa. Tăng số điểm huấn luyện n lên 80: variance giảm, đáy dời sang phải. Có nhiều dữ liệu thì mới “nuôi” nổi mô hình phức tạp.</li>
+      </ul>
+    </div>
+    <h3>Học nhiều epoch quá cũng là học vẹt</h3>
+    <div class="prose">
+      <p>Số epoch cũng là một cái núm độ phức tạp. Lúc đầu, cả lỗi huấn luyện lẫn lỗi kiểm định cùng giảm. Học mãi thì lỗi huấn luyện vẫn giảm tiếp, nhưng tới một lúc lỗi kiểm định ngừng giảm rồi đi lên: mạng bắt đầu thuộc lòng. <span class="term">Dừng sớm</span> <span class="en">(early stopping)</span> là theo dõi lỗi kiểm định sau mỗi epoch và giữ lại trọng số ở epoch tốt nhất. Đây là lý do tập kiểm định phải tách riêng: nếu chọn epoch dựa trên tập kiểm tra thì con số báo cáo cuối cùng sẽ đẹp hơn thực tế.</p>
+      <p>Với mạng nơ-ron hiện đại, câu chuyện có thêm một khúc quanh. Mạng có hàng triệu tham số, nhiều hơn số hình huấn luyện, theo đường chữ U lẽ ra phải học vẹt nặng. Thực tế chúng vẫn khái quát tốt, và lỗi kiểm tra có khi giảm thêm một lần nữa khi mô hình to hơn nữa, gọi là <span class="term">double descent</span> <a href="#ref-belkin">[Belkin 2019]</a>. Người ta vẫn đang nghiên cứu vì sao. Bài học thực hành thì hổng đổi: luôn nhìn lỗi trên tập kiểm định, đừng chỉ nhìn lỗi huấn luyện.</p>
+    </div>
+    <div class="callout"><b>Ba chữ “bias” khác nhau.</b> Ở mục neuron, <i>bias</i> là con số b cộng thêm vào tổng có trọng số (độ lệch), một tham số mạng tự học. Ở mục này, <i>bias</i> là sai có hệ thống của cả cách học. Còn khi báo chí nói AI “bị bias”, đó là <i>thiên kiến</i>: mô hình đối xử lệch với một nhóm người vì dữ liệu huấn luyện lệch. Ba chuyện khác nhau, cùng một chữ tiếng Anh.</div>
+  </div>
+</section>
+
+<!-- ================= 1.11 CHUYỆN HAY GẶP ================= -->
 <section class="part" id="kho-khan">
   <div class="wrap">
     <h2>Mấy cái khó và cách gỡ</h2>
@@ -237,7 +329,7 @@
         <tbody>
           <tr><td>Gradient biến mất<span class="en">vanishing gradient</span></td><td>Lan ngược qua nhiều lớp là nhân nhiều tỉ lệ. Tỉ lệ nhỏ hơn 1 nhân hoài thì gần bằng 0, lớp đầu gần như hổng học được.</td><td>ReLU thay cho hàm chữ S; khởi tạo trọng số khéo; chuẩn hóa theo lô <span class="en">(batch norm)</span>; kết nối tắt kiểu ResNet.</td></tr>
           <tr><td>Kết nối tắt<span class="en">skip connection</span></td><td>Cho đầu vào của một khối “đi tắt” cộng thẳng vô đầu ra. Lỗi có đường cao tốc chạy ngược về lớp đầu.</td><td>ResNet (2015) nhờ vậy mà huấn luyện được mạng 152 lớp. Transformer ở <a href="2-transformer.html#khoi">Phần 2</a> cũng xài y chang.</td></tr>
-          <tr><td>Học vẹt<span class="en">overfitting</span></td><td>Mạng thuộc lòng hình huấn luyện, gặp hình mới thì đoán sai. Giống học sinh thuộc đáp án đề cũ.</td><td>Thêm dữ liệu; tăng cường dữ liệu <span class="en">(data augmentation)</span>: lật, xoay, cắt, đổi màu hình; dropout; dừng sớm.</td></tr>
+          <tr><td>Học vẹt<span class="en">overfitting</span></td><td>Mạng thuộc lòng hình huấn luyện, gặp hình mới thì đoán sai. Giống học sinh thuộc đáp án đề cũ.</td><td>Thêm dữ liệu; tăng cường dữ liệu <span class="en">(data augmentation)</span>: lật, xoay, cắt, đổi màu hình; dropout; dừng sớm. Xem <a href="#bias-variance">mục Bias và variance</a>.</td></tr>
           <tr><td>Tốc độ học khó chọn</td><td>Nhỏ quá thì học hoài hổng xong; lớn quá thì nhảy loạn, nổ tung.</td><td>Adam; khởi động nhẹ rồi giảm dần tốc độ học theo lịch <span class="en">(warmup, cosine schedule)</span>.</td></tr>
           <tr><td>Hộp đen</td><td>Mạng đoán đúng nhưng khó giải thích vì sao.</td><td>Vẽ bản đồ nhiệt coi mạng nhìn chỗ nào (Grad-CAM, cũng dựa trên gradient); trực quan hóa bộ lọc.</td></tr>
         </tbody>
@@ -264,7 +356,13 @@
           <tr><td>Gradient</td><td>gradient</td><td>Độ dốc của độ lỗi theo từng trọng số: chỉnh hướng nào, mạnh cỡ nào.</td></tr>
           <tr><td>Tốc độ học</td><td>learning rate</td><td>Bước dài hay ngắn mỗi lần chỉnh trọng số.</td></tr>
           <tr><td>Lan truyền tới / ngược</td><td>forward / backward pass</td><td>Chạy hình xuyên qua mạng để đoán / chạy lỗi ngược về để tính gradient.</td></tr>
+          <tr><td>Lô, cỡ lô</td><td>batch, mini-batch, batch size</td><td>Nhúm dữ liệu dùng cho một lần chỉnh trọng số; cỡ lô là số mẫu trong nhúm đó.</td></tr>
+          <tr><td>Bước</td><td>iteration, step</td><td>Một lần chỉnh trọng số, dùng đúng một lô.</td></tr>
           <tr><td>Epoch</td><td>epoch</td><td>Một lượt mạng đi qua hết kho dữ liệu huấn luyện.</td></tr>
+          <tr><td>Tập huấn luyện / kiểm định / kiểm tra</td><td>training / validation / test set</td><td>Dữ liệu để học / để chọn cấu hình và số epoch / để báo cáo kết quả cuối, chỉ mở một lần.</td></tr>
+          <tr><td>Độ chệch, phương sai</td><td>bias, variance</td><td>Mô hình sai có hệ thống cỡ nào / đổi dữ liệu thì mô hình đổi nhiều cỡ nào.</td></tr>
+          <tr><td>Học thiếu / học vẹt</td><td>underfitting / overfitting</td><td>Mô hình quá đơn giản, sai cả trên dữ liệu đã học / thuộc lòng dữ liệu đã học, sai trên dữ liệu mới.</td></tr>
+          <tr><td>Dừng sớm</td><td>early stopping</td><td>Ngừng huấn luyện ở epoch có lỗi kiểm định thấp nhất.</td></tr>
         </tbody>
       </table>
     </div>
@@ -289,6 +387,10 @@
           <tr><td class="sym">\(\leftarrow\)</td><td>is assigned, gets</td><td>Gán giá trị mới (cập nhật biến).</td></tr>
           <tr><td class="sym">\(K_{i,j}\)</td><td>K sub i j</td><td>Phần tử hàng i, cột j của bộ lọc K.</td></tr>
           <tr><td class="sym">\(\log\)</td><td>log</td><td>Logarit tự nhiên; −log p lớn khi p nhỏ.</td></tr>
+          <tr><td class="sym">\(B,\ N\)</td><td>B, N</td><td>Cỡ lô; số mẫu trong cả kho dữ liệu huấn luyện.</td></tr>
+          <tr><td class="sym">\(\mathbb{E}[\cdot]\)</td><td>expected value of</td><td>Giá trị trung bình (kỳ vọng); ở mục bias và variance là trung bình trên rất nhiều tập huấn luyện.</td></tr>
+          <tr><td class="sym">\(f,\ \hat f\)</td><td>f, f hat</td><td>Quy luật thật sinh ra dữ liệu; mô hình học được (dấu mũ = “ước lượng”).</td></tr>
+          <tr><td class="sym">\(\sigma_\varepsilon^2\)</td><td>sigma epsilon squared</td><td>Độ lớn (phương sai) của nhiễu trong dữ liệu. Khác với σ hàm kích hoạt ở trên.</td></tr>
         </tbody>
       </table>
     </div>
@@ -306,9 +408,12 @@
       <li><span class="yr">1980</span><div><h4>Neocognitron</h4><p>Kunihiko Fukushima xây mạng nhiều lớp xen kẽ lớp tìm đặc trưng và lớp gom, tổ tiên trực tiếp của CNN, nhưng chưa huấn luyện bằng gradient.</p></div></li>
       <li><span class="yr">1986</span><div><h4>Backpropagation nổi tiếng</h4><p>Rumelhart, Hinton và Williams đăng bài trên Nature cho thấy backprop giúp mạng nhiều lớp tự học được cách biểu diễn hữu ích bên trong.</p></div></li>
       <li><span class="yr">1989–98</span><div><h4>LeNet</h4><p>Yann LeCun huấn luyện CNN bằng backprop để đọc mã bưu điện viết tay, rồi LeNet-5 (1998) được xài để đọc séc ngân hàng ở Mỹ. Bộ dữ liệu chữ số viết tay MNIST ra đời cùng lúc.</p></div></li>
+      <li><span class="yr">1992</span><div><h4>Thế khó bias–variance</h4><p>Geman, Bienenstock và Doursat phân tích lỗi của mạng nơ-ron thành bias và variance, chỉ ra cái giá của mô hình quá linh hoạt khi dữ liệu ít.</p></div></li>
       <li><span class="yr">2012</span><div><h4>AlexNet</h4><p>Krizhevsky, Sutskever và Hinton thắng cuộc thi ImageNet (1,2 triệu hình, 1000 loại) với tỉ lệ lỗi top-5 là 15,3%, trong khi hạng nhì 26,2%. Huấn luyện trên hai card đồ họa GPU. Cột mốc mở màn thời đại học sâu.</p></div></li>
       <li><span class="yr">2014–15</span><div><h4>VGG, GoogLeNet, ResNet</h4><p>Mạng sâu dần: 19 lớp, 22 lớp, rồi ResNet 152 lớp nhờ kết nối tắt, lỗi top-5 còn 3,57% trên ImageNet.</p></div></li>
       <li><span class="yr">2018</span><div><h4>Giải Turing</h4><p>Hinton, LeCun và Bengio nhận giải Turing, “Nobel của ngành máy tính”, cho các đóng góp nền tảng về học sâu.</p></div></li>
+      <li><span class="yr">2017</span><div><h4>ImageNet trong một giờ</h4><p>Goyal và cộng sự huấn luyện ResNet-50 với lô 8192 hình trên 256 GPU trong khoảng một giờ, nhờ tăng tốc độ học theo cỡ lô và khởi động nhẹ lúc đầu.</p></div></li>
+      <li><span class="yr">2019</span><div><h4>Double descent</h4><p>Belkin và cộng sự cho thấy khi mô hình to vượt quá mức vừa đủ khớp dữ liệu, lỗi kiểm tra có thể giảm lần nữa, bổ sung cho đường chữ U cổ điển.</p></div></li>
       <li><span class="yr">2022</span><div><h4>ConvNeXt</h4><p>Sau khi Vision Transformer nổi lên, Liu và cộng sự hiện đại hóa CNN và cho thấy CNN được thiết kế kỹ vẫn ngang ngửa. Tới nay CNN vẫn rất phổ biến trên điện thoại, camera và thiết bị y tế vì nhẹ và lẹ.</p></div></li>
       <li><span class="yr">2024</span><div><h4>Nobel Vật lý</h4><p>John Hopfield và Geoffrey Hinton nhận giải Nobel Vật lý cho các phát minh nền tảng giúp mạng nơ-ron nhân tạo học được.</p></div></li>
     </ol>
@@ -323,6 +428,11 @@
       <li>Z. J. Wang et al., “CNN Explainer: Learning Convolutional Neural Networks with Interactive Visualization”, IEEE TVCG 2020. <a href="https://poloclub.github.io/cnn-explainer/" rel="noopener">Bản chạy trực tuyến</a>, <a href="https://arxiv.org/abs/2004.15004" rel="noopener">arXiv:2004.15004</a>.</li>
       <li>Stanford CS231n, <a href="https://cs231n.github.io/convolutional-networks/" rel="noopener">ghi chú bài giảng về CNN</a> và <a href="https://cs231n.github.io/optimization-2/" rel="noopener">về backpropagation</a>.</li>
       <li>3Blue1Brown, <a href="https://www.3blue1brown.com/topics/neural-networks" rel="noopener">loạt video về mạng nơ-ron</a> (giải thích backprop bằng hình rất dễ hiểu).</li>
+      <li>I. Goodfellow, Y. Bengio, A. Courville, <i>Deep Learning</i>, MIT Press, 2016, chương 5 (khái quát, bias và variance) và chương 8 (huấn luyện theo lô). <a href="https://www.deeplearningbook.org/" rel="noopener">Bản đọc trực tuyến</a>.</li>
+      <li>S. Geman, E. Bienenstock, R. Doursat, “Neural Networks and the Bias/Variance Dilemma”, <i>Neural Computation</i> 4(1), 1–58, 1992.</li>
+      <li id="ref-goyal">P. Goyal et al., “Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour”, 2017. <a href="https://arxiv.org/abs/1706.02677" rel="noopener">arXiv:1706.02677</a>.</li>
+      <li>N. S. Keskar et al., “On Large-Batch Training for Deep Learning: Generalization Gap and Sharp Minima”, ICLR 2017. <a href="https://arxiv.org/abs/1609.04836" rel="noopener">arXiv:1609.04836</a>.</li>
+      <li id="ref-belkin">M. Belkin, D. Hsu, S. Ma, S. Mandal, “Reconciling modern machine-learning practice and the classical bias–variance trade-off”, <i>PNAS</i> 116(32), 15849–15854, 2019. <a href="https://arxiv.org/abs/1812.11118" rel="noopener">arXiv:1812.11118</a>.</li>
     </ol>
 
     <nav class="pager" aria-label="Chuyển trang">
