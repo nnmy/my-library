@@ -74,7 +74,7 @@
     <h2>FDTD: sai phân hữu hạn miền thời gian</h2>
     <div class="prose">
       <p><span class="term">Phương pháp sai phân hữu hạn miền thời gian</span> <span class="en">(finite-difference time-domain, FDTD)</span> giải trực tiếp hai phương trình curl của Maxwell (<a href="3-maxwell.html#tong-quan">phần 3</a>). Không gian được chia thành lưới ô vuông (hoặc khối lập phương) cạnh Δx; thời gian chia thành bước Δt. Thủ thuật của Kane Yee (1966) là đặt E và H lệch nhau nửa ô và nửa bước thời gian, để mỗi đạo hàm được tính bằng sai phân trung tâm. Sau đó, chỉ cần lặp: cập nhật H từ E, rồi cập nhật E từ H, hàng nghìn lần.</p>
-      <p>FDTD rất hợp với mô hình người dạng voxel (lấy từ ảnh MRI hay CT): mỗi voxel chỉ cần một bộ (εᵣ, σ). Đổi lại, mặt cong bị xấp xỉ thành bậc thang, và ô lưới phải nhỏ hơn khoảng 1/10 bước sóng trong mô.</p>
+      <p>FDTD rất hợp với mô hình người dạng voxel (lấy từ ảnh MRI hay CT): mỗi voxel chỉ cần một bộ (εᵣ, σ). Đổi lại, mặt cong bị xấp xỉ thành bậc thang, và ô lưới phải nhỏ hơn khoảng 1/10 bước sóng trong mô. Các mô hình voxel toàn thân và cách dùng chúng được giới thiệu ở <a href="7-mo-hinh-voxel.html">phần 7</a>.</p>
     </div>
     <div class="formula">
       <div class="eq">\[ E_z^{n+1} = C_a E_z^{n} + C_b\!\left(\frac{H_y^{n+\frac12}(i+\tfrac12) - H_y^{n+\frac12}(i-\tfrac12)}{\Delta x} - \frac{H_x^{n+\frac12}(j+\tfrac12) - H_x^{n+\frac12}(j-\tfrac12)}{\Delta x}\right), \quad C_a = \frac{1 - \frac{\sigma\Delta t}{2\varepsilon}}{1 + \frac{\sigma\Delta t}{2\varepsilon}},\ C_b = \frac{\Delta t/\varepsilon}{1 + \frac{\sigma\Delta t}{2\varepsilon}} \]</div>

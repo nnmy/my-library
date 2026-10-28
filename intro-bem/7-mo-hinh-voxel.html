@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mô hình voxel toàn thân | Bioelectromagnetics | My N. Nguyen</title>
+<meta name="description" content="Mô hình voxel toàn thân cho đo liều số: cách dựng, các mô hình tiêu biểu, ứng dụng và lưu ý khi dùng.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/bem.css">
+</head>
+<body>
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main>
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Bioelectromagnetics</a> / Phần 7</p>
+  <h1><span class="dot"></span>Mô hình voxel toàn thân</h1>
+  <p class="lead">Ở <a href="5-do-lieu.html">phần 5</a>, ta thấy rằng không đo được trực tiếp điện trường hay SAR bên trong người, nên phải tính bằng mô phỏng. Nhưng mô phỏng cần một "cơ thể số" để tính trên đó. Phần này giới thiệu ngắn gọn mô hình voxel toàn thân: chúng là gì, được dựng ra sao, dùng vào việc gì và cần lưu ý gì khi dùng.</p>
+</header>
+
+<!-- ================= 7.1 VOXEL LÀ GÌ ================= -->
+<section class="part" id="voxel">
+  <div class="wrap">
+    <h2>Mô hình voxel là gì?</h2>
+    <div class="prose">
+      <p><span class="term">Voxel</span> <span class="en">(volume pixel)</span> là "điểm ảnh ba chiều": một khối hộp nhỏ, thường có cạnh từ 0,5 đến vài mm. Một <span class="term">mô hình voxel</span> <span class="en">(voxel model, voxel phantom)</span> chia cơ thể thành hàng triệu khối như vậy, và mỗi khối chỉ mang một con số: nhãn cho biết nó thuộc mô nào (da, mỡ, cơ, xương, não...). Khi mô phỏng ở tần số f, mỗi nhãn được thay bằng tính chất của mô đó: độ dẫn điện σ và hằng số điện môi εᵣ (<a href="4-dien-moi.html">phần 4</a>), cùng khối lượng riêng ρ để tính SAR.</p>
+      <p>Cách biểu diễn này khớp tự nhiên với lưới FDTD (<a href="5-do-lieu.html#fdtd">phần 5</a>): mỗi voxel là một ô lưới. Với FEM (<a href="6-fem.html">phần 6</a>), mô hình thường được chuyển thành lưới tứ diện trước khi giải.</p>
+    </div>
+    <div class="callout"><b>Ba thế hệ "cơ thể số".</b> Những mô hình đầu tiên (từ thập niên 1960, ví dụ phantom MIRD) ghép cơ thể từ các khối hình học đơn giản như elip, trụ, nón. Từ cuối thập niên 1980, mô hình voxel dựng từ ảnh y khoa của người thật dần trở thành chuẩn. Các mô hình mới hơn, như Virtual Family, lưu mỗi mô dưới dạng bề mặt (lưới tam giác); phần mềm mô phỏng tự chia voxel theo cỡ ô cần dùng, nên dễ đổi độ phân giải và tư thế.</div>
+  </div>
+</section>
+
+<!-- ================= 7.2 DỰNG MÔ HÌNH ================= -->
+<section class="part tint" id="xay-dung">
+  <div class="wrap">
+    <h2>Mô hình được dựng như thế nào?</h2>
+    <div class="prose">
+      <p>Quy trình gồm ba bước chính:</p>
+      <ol>
+        <li><b>Chụp ảnh</b>: MRI (phân biệt mô mềm tốt, không có bức xạ ion hóa), CT (thấy rõ xương), hoặc ảnh chụp lát cắt của thi thể như trong dự án Visible Human.</li>
+        <li><b>Phân vùng</b> <span class="en">(segmentation)</span>: gán cho mỗi voxel một nhãn mô. Đây là bước tốn công nhất; trước đây làm thủ công hoặc bán tự động từng lát cắt, nay có thêm hỗ trợ của học sâu.</li>
+        <li><b>Gán tính chất</b>: tra σ, εᵣ theo tần số (thường theo mô hình Gabriel hoặc cơ sở dữ liệu của IT'IS Foundation) và ρ cho từng nhãn.</li>
+      </ol>
+      <p>Sau đó, mô hình được đặt cạnh nguồn (ăng-ten, cuộn dây, điện cực) và giải bằng FDTD, FEM hoặc phương pháp khác để ra liều trong từng mô.</p>
+    </div>
+    <figure class="fig">
+      <img src="lib/figures/quy-trinh-voxel.svg" alt="Sơ đồ năm bước: ảnh MRI mặt cắt ngang thân người; ảnh đó chia thành voxel có màu theo loại mô; bảng εr và σ của da, mỡ, cơ, xương ở 900 MHz; ăng-ten phát sóng vào mô hình voxel; bản đồ SAR giảm dần từ phía ăng-ten." loading="lazy">
+      <figcaption><b>Từ ảnh y khoa đến liều.</b> Mặt cắt ngang thân người dạng sơ đồ. Giá trị εᵣ và σ ở 900 MHz tính theo mô hình Gabriel (cùng dữ liệu với các demo ở phần 4 và 5). Sơ đồ tự vẽ.</figcaption>
+    </figure>
+
+    <h3>Một số mô hình tiêu biểu</h3>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Mô hình</th><th>Nơi phát triển, năm</th><th>Nguồn ảnh</th><th>Độ phân giải</th><th>Số mô</th><th>Thường dùng cho</th></tr></thead>
+        <tbody>
+          <tr><td>TARO (nam), HANAKO (nữ), người Nhật trưởng thành</td><td>NICT, Nhật Bản, 2004</td><td>MRI</td><td>2 mm</td><td>51</td><td>SAR ở tần số vô tuyến</td></tr>
+          <tr><td>Mô hình tham chiếu ICRP 110 (nam, nữ)</td><td>ICRP, 2009</td><td>CT (chỉnh từ hai mô hình Golem và Laura)</td><td>2,137 × 2,137 × 8 mm (nam); 1,775 × 1,775 × 4,84 mm (nữ)</td><td>khoảng 140</td><td>Liều bức xạ ion hóa</td></tr>
+          <tr><td>Virtual Family: Duke (nam, 34 tuổi), Ella (nữ, 26), Billie (bé gái, 11), Thelonious (bé trai, 6)</td><td>IT'IS Foundation, cùng FDA Hoa Kỳ, 2010</td><td>MRI</td><td>Mô hình bề mặt, chia voxel theo nhu cầu</td><td>hơn 80 (bản đầu); khoảng 300 (bản 3.0)</td><td>SAR, an toàn MRI, thiết bị y tế</td></tr>
+          <tr><td>MIDA (đầu và cổ)</td><td>IT'IS Foundation, FDA và cộng sự, 2015</td><td>Nhiều loại ảnh MRI</td><td>0,5 mm</td><td>153 cấu trúc</td><td>Kích thích não, cấy ghép vùng đầu</td></tr>
+          <tr><td>AustinMan, AustinWoman</td><td>Đại học Texas tại Austin</td><td>Ảnh lát cắt Visible Human</td><td>Có sẵn nhiều mức, từ 1 mm đến 16 mm</td><td>—</td><td>Mô phỏng điện từ</td></tr>
+        </tbody>
+        <caption>Số liệu theo bài báo và trang web gốc của từng mô hình (xem tài liệu tham khảo). Hầu hết các mô hình được cấp miễn phí hoặc gần như miễn phí cho nghiên cứu, nhưng kèm hợp đồng không cho phép phân phối lại; vì vậy demo trên trang này dùng một cơ thể sơ đồ tự dựng.</caption>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7.3 ỨNG DỤNG ================= -->
+<section class="part" id="ung-dung">
+  <div class="wrap">
+    <h2>Dùng để làm gì?</h2>
+    <div class="prose">
+      <p>Cùng một mô hình có thể dùng cho nhiều bài toán; chỉ có nguồn và phương pháp giải thay đổi.</p>
+    </div>
+    <h3>SAR từ điện thoại, trạm phát và thiết bị không dây</h3>
+    <div class="prose">
+      <p>Đặt mô hình cạnh ăng-ten, chạy FDTD để tìm SAR toàn thân và SAR cục bộ (trung bình trên 10 g mô), rồi so với <a href="5-do-lieu.html#icnirp">giới hạn ICNIRP</a>. Khi kiểm định một chiếc điện thoại cụ thể, người ta thường đo trong một khuôn đầu nhựa chứa chất lỏng đồng nhất (khuôn SAM); mô hình voxel nhiều mô giúp hiểu SAR thực sự phân bố thế nào giữa các mô, và kiểm tra rằng phép đo đơn giản kia cho kết quả đủ bảo thủ.</p>
+    </div>
+    <h3>Điện trường cảm ứng ở tần số thấp</h3>
+    <div class="prose">
+      <p>Với đường dây điện, thiết bị gia dụng hay cuộn gradient của máy MRI, mô phỏng tính <a href="5-do-lieu.html#cam-ung">điện trường cảm ứng</a> E<sub>i</sub> trong từng mô, đặc biệt trong não và tủy sống. Các mức tham chiếu của ICNIRP (đo được bên ngoài cơ thể) được suy ra phần lớn từ những tính toán như vậy.</p>
+    </div>
+    <h3>An toàn MRI và thiết bị cấy ghép</h3>
+    <div class="prose">
+      <p>Cuộn phát sóng RF của máy MRI làm nóng mô, và quanh dây dẫn kim loại cấy ghép (máy tạo nhịp, điện cực) nhiệt độ có thể tăng cục bộ. Nhà sản xuất và cơ quan quản lý dùng mô hình người số để ước tính rủi ro trước khi thử trên người; Virtual Family được phát triển cùng Trung tâm Thiết bị và Sức khỏe Phóng xạ (CDRH) của FDA Hoa Kỳ cho mục đích này.</p>
+    </div>
+    <h3>Kích thích não</h3>
+    <div class="prose">
+      <p>Với TMS và tDCS, mô hình đầu chi tiết (như MIDA, hoặc mô hình dựng riêng từ ảnh MRI của từng người như trong SimNIBS) cho biết dòng điện thực sự đi tới vùng não nào và mạnh bao nhiêu. Xem <a href="5-do-lieu.html#fem">demo tDCS ở phần 5</a> và các ứng dụng ở <a href="6-fem.html">phần 6</a>.</p>
+    </div>
+    <div class="callout"><b>Ngoài điện từ.</b> Trong bảo vệ bức xạ ion hóa (tia X, gamma), mô hình ICRP 110 được dùng với phương pháp Monte Carlo để tính liều cho từng cơ quan. Khi đó, thay vì σ và εᵣ, mỗi nhãn mang khối lượng riêng và thành phần nguyên tố của mô.</div>
+  </div>
+</section>
+
+<!-- ================= 7.4 LƯU Ý ================= -->
+<section class="part tint" id="luu-y">
+  <div class="wrap">
+    <h2>Lưu ý khi dùng</h2>
+    <h3>Độ phân giải và hiệu ứng bậc thang</h3>
+    <div class="prose">
+      <p>Voxel càng lớn, mặt cong càng biến thành bậc thang, và các lớp mỏng (da dày khoảng 1–2 mm, dịch não tủy, màng) càng dễ biến mất hoặc bị phóng to. Voxel càng nhỏ thì số ô tăng theo lũy thừa ba: giảm cạnh voxel một nửa thì số voxel tăng 8 lần, và thời gian chạy FDTD tăng khoảng 16 lần, vì bước thời gian cũng phải giảm một nửa theo điều kiện Courant. Ở tần số cao còn một ràng buộc nữa: cạnh voxel phải nhỏ hơn khoảng 1/10 bước sóng trong mô.</p>
+    </div>
+    <div class="guide"><b>Cách đọc demo này.</b> Bên trái là toàn thân của một cơ thể sơ đồ (lát cắt đứng dọc, nhìn từ phía trước), bên phải là vùng phóng to.
+      <ul>
+        <li>Kéo thanh "Kích thước voxel" từ 1 mm lên 16 mm và xem vùng đầu: lớp da và lớp dịch não tủy đứt đoạn, chỗ thì não chạm thẳng vào xương sọ. Hai con số "Da phủ bề mặt cơ thể" và "Não được dịch não tủy bao bọc" đo đúng điều này: ở 1 mm cả hai là 100 %, ở 16 mm chỉ còn vài chục phần trăm hoặc ít hơn.</li>
+        <li>Bấm hoặc kéo trên hình toàn thân để chọn vùng phóng to; di chuột trên hình để xem nhãn, σ và εᵣ của từng voxel.</li>
+        <li>Bấm "Tô theo σ" rồi đổi tần số: cùng một bản đồ nhãn cho ra bản đồ σ rất khác nhau ở 50 Hz và ở 1 GHz.</li>
+      </ul>
+    </div>
+    <div class="demo" id="demoVoxel" data-demo="voxel-slice">
+      <div class="demo-title"><h4>Độ phân giải của mô hình voxel</h4><span>Cơ thể sơ đồ, lát cắt đứng dọc nhìn từ phía trước</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Đây là cơ thể sơ đồ ghép từ vài hình đơn giản, không phải giải phẫu thật, nhưng hiện tượng là thật. Lớp dịch não tủy dẫn điện rất tốt nên "rẽ" một phần dòng điện đi vòng quanh não; nếu lưới quá thô làm lớp này đứt, kết quả tDCS hay TMS sẽ sai. Vì vậy mô hình toàn thân thường dùng voxel 1–2 mm, còn mô hình riêng cho đầu mịn tới 0,5 mm.</p>
+    </div>
+
+    <h3>Một cơ thể không đại diện cho mọi người</h3>
+    <div class="prose">
+      <p>Mỗi mô hình là một người cụ thể, hoặc được chỉnh theo một người "tham chiếu". Chiều cao, cân nặng, bề dày lớp mỡ và tư thế đều làm SAR thay đổi đáng kể, và trẻ em khác người lớn. Hầu hết mô hình được dựng từ ảnh chụp lúc nằm, nên muốn mô phỏng người đứng hay ngồi phải biến dạng mô hình. Vì vậy các nghiên cứu cẩn thận thường dùng nhiều mô hình (nam và nữ, người lớn và trẻ em) và báo cáo một khoảng giá trị, không chỉ một con số.</p>
+    </div>
+
+    <h3>Kết quả phụ thuộc vào dữ liệu tính chất mô</h3>
+    <div class="prose">
+      <p>Cùng một mô hình, đổi bảng σ và εᵣ (nhất là cho da và mỡ) hoặc đổi thuật toán lấy trung bình SAR có thể làm kết quả lệch đáng kể. Một nghiên cứu so sánh các mô hình châu Âu (NORMAN, NAOMI) với các mô hình Nhật Bản (TARO, HANAKO) đã chỉ ra đúng điều này. Khi đọc một kết quả mô phỏng, nên hỏi ba câu: mô hình nào, độ phân giải bao nhiêu, và tính chất mô lấy từ đâu.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TÀI LIỆU THAM KHẢO ================= -->
+<section class="part" id="tham-khao">
+  <div class="wrap">
+    <h2>Tài liệu tham khảo</h2>
+    <ol class="refs">
+      <li>T. Nagaoka, S. Watanabe, K. Sakurai, E. Kunieda, S. Watanabe, M. Taki, Y. Yamanaka, "Development of realistic high-resolution whole-body voxel models of Japanese adult males and females of average height and weight, and application of models to radio-frequency electromagnetic-field dosimetry", <i>Phys. Med. Biol.</i> 49 (2004) 1–15. NICT, <a href="https://emc.nict.go.jp/bio/data/index_e.html" rel="noopener">cách đăng ký sử dụng mô hình</a>.</li>
+      <li>ICRP, <i>Adult Reference Computational Phantoms</i>, ICRP Publication 110, Ann. ICRP 39(2) (2009). <a href="https://icrpaedia.org/ICRP_Publication_110" rel="noopener">icrpaedia.org</a>.</li>
+      <li>A. Christ, W. Kainz, E. G. Hahn và cộng sự, "The Virtual Family: development of surface-based anatomical models of two adults and two children for dosimetric simulations", <i>Phys. Med. Biol.</i> 55 (2010) N23–N38.</li>
+      <li>M.-C. Gosselin, E. Neufeld, H. Moser và cộng sự, "Development of a new generation of high-resolution anatomical models for medical device evaluation: the Virtual Population 3.0", <i>Phys. Med. Biol.</i> 59 (2014) 5287–5303. IT'IS Foundation, <a href="https://itis.swiss/virtual-population/virtual-population/faq/" rel="noopener">câu hỏi thường gặp về Virtual Population</a> (cách nhận mô hình, giấy phép).</li>
+      <li>M. I. Iacono, E. Neufeld, E. Akinnagbe và cộng sự, "MIDA: A Multimodal Imaging-Based Detailed Anatomical Model of the Human Head and Neck", <i>PLoS ONE</i> 10(4) (2015) e0124126. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC4406723" rel="noopener">Bản toàn văn</a>.</li>
+      <li>AustinMan và AustinWoman Electromagnetic Voxels, Đại học Texas tại Austin, <a href="https://web.corral.tacc.utexas.edu/AustinManEMVoxels/AustinMan/conditions_of_use/index.html" rel="noopener">điều kiện sử dụng</a>.</li>
+      <li>P. J. Dimbylow, A. Hirata, T. Nagaoka, "Intercomparison of whole-body averaged SAR in European and Japanese voxel phantoms", <i>Phys. Med. Biol.</i> 53 (2008).</li>
+      <li>S. Gabriel, R. W. Lau, C. Gabriel, "The dielectric properties of biological tissues: III. Parametric models for the dielectric spectrum of tissues", <i>Phys. Med. Biol.</i> 41 (1996) 2271–2293; tham số dùng trong demo, xem <a href="4-dien-moi.html">phần 4</a>.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="6-fem.html"><small>Phần 6</small><b>FEM</b></a>
+      <a class="next" href="index.html"><small>Hết</small><b>Trang chủ Bioelectromagnetics</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/bem.js"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
