@@ -95,6 +95,8 @@
 
     <div class="callout"><b>Liên hệ sinh học.</b> Màng tế bào thần kinh lúc nghỉ có hiệu điện thế khoảng −70 mV, đặt trên một lớp màng lipid dày chỉ khoảng 5–10 nm. Theo \(E = U/d\), điện trường bên trong màng vào khoảng \(10^7\) V/m, mạnh hơn nhiều so với ngưỡng gây phóng điện trong không khí khô (khoảng \(3 \times 10^6\) V/m).</div>
 
+    <div class="callout"><b>Khi nào \(\vec E = -\nabla V\) không còn đủ.</b> Công thức trên đúng khi điện tích đứng yên hoặc dòng điện không đổi. Khi từ trường thay đổi nhanh, như dưới cuộn dây kích thích từ xuyên sọ (TMS), điện trường có thêm một phần do cảm ứng chạy thành vòng khép kín, không phải là "độ dốc" của bất kỳ địa hình điện thế nào: \(\vec E = -\partial\vec A/\partial t - \nabla V\), với \(\vec A\) là thế vector của cuộn dây. Khi đó điện thế chỉ còn là một phần của điện trường: phần sinh ra do điện tích dồn ở ranh giới giữa các mô. <a href="5-do-lieu.html#tms">Phần 5</a> giải thích chi tiết.</div>
+
     <h3>Dòng điện</h3>
     <div class="prose">
       <p><span class="term">Dòng điện</span> <span class="en">(electric current)</span> \(I\) là lượng điện tích đi qua một tiết diện trong một đơn vị thời gian, đơn vị <span class="term">ampere</span> (A = C/s). Khi xét từng điểm bên trong vật dẫn, ta dùng <span class="term">mật độ dòng điện</span> <span class="en">(current density)</span> \(\vec J\), đơn vị A/m².</p>
@@ -113,7 +115,7 @@
       </div>
 
     <div class="prose">
-      <p>Ở tần số thấp, màng tế bào gần như là chất cách điện, nên dòng điện trong mô chủ yếu chạy qua <span class="term">dịch ngoại bào</span> <span class="en">(extracellular fluid)</span>, len lỏi giữa các tế bào. Vì vậy mô mỡ (tế bào to, xếp sát, ít dịch) dẫn điện kém hơn cơ nhiều lần, và cơ dẫn điện tốt hơn theo chiều dọc thớ so với chiều ngang (<span class="term">dị hướng</span>, <span class="en">anisotropy</span>). Khi tần số tăng, dòng điện bắt đầu "xuyên" qua màng; câu chuyện này sẽ được kể ở <a href="4-dien-moi.html">phần Tính chất điện môi của mô</a>.</p>
+      <p>Ở tần số thấp, màng tế bào gần như là chất cách điện, nên dòng điện trong mô chủ yếu chạy qua <span class="term">dịch ngoại bào</span> <span class="en">(extracellular fluid)</span>, len lỏi giữa các tế bào. Vì vậy mô mỡ (tế bào to, xếp sát, ít dịch) dẫn điện kém hơn cơ nhiều lần, và cơ dẫn điện tốt hơn theo chiều dọc thớ so với chiều ngang (<span class="term">dị hướng</span>, <span class="en">anisotropy</span>). Khi đó σ không còn là một con số mà là một bảng 3 × 3 (tensor), và \(\vec J\) có thể lệch hướng so với \(\vec E\) (xem <a href="6-fem.html#lap-rap">phần 6</a>). Khi tần số tăng, dòng điện bắt đầu "xuyên" qua màng; câu chuyện này sẽ được kể ở <a href="4-dien-moi.html">phần Tính chất điện môi của mô</a>.</p>
       <p>Tốc độ hạt trên hình không theo tỉ lệ thật. <span class="term">Vận tốc trôi</span> <span class="en">(drift velocity)</span> thực tế rất chậm: dòng 1 A trong dây đồng tiết diện 1 mm² chỉ làm electron trôi khoảng 0,07 mm/s. Tín hiệu điện truyền nhanh vì trường lan truyền nhanh, chứ không phải vì từng hạt chạy nhanh.</p>
     </div>
   </div>
@@ -161,6 +163,7 @@
           <tr><td class="sym">\(\nabla V\)</td><td>grad V, del V</td><td>Gradient: mũi tên chỉ hướng V tăng nhanh nhất. \(-\nabla V\) chỉ hướng "xuống dốc" nhất của điện thế.</td></tr>
           <tr><td class="sym">\(\dfrac{dV}{dx}\)</td><td>d V by d x</td><td>Đạo hàm: V thay đổi bao nhiêu trên mỗi mét đi thêm theo trục x, khi bước đi rất nhỏ.</td></tr>
           <tr><td class="sym">\(\dfrac{dQ}{dt}\)</td><td>d Q by d t</td><td>Tốc độ thay đổi của Q theo thời gian; ở đây là lượng điện tích chảy qua mỗi giây.</td></tr>
+          <tr><td class="sym">\(\dfrac{\partial\vec A}{\partial t}\)</td><td>partial A by partial t</td><td>Tốc độ thay đổi theo thời gian (tại một điểm cố định) của thế vector \(\vec A\) do cuộn dây tạo ra; thêm dấu trừ là phần điện trường do cảm ứng.</td></tr>
           <tr><td class="sym">\(\varepsilon_0\)</td><td>epsilon nought</td><td>Hằng số điện của chân không, cho biết lực điện "truyền" qua chân không mạnh đến đâu.</td></tr>
           <tr><td class="sym">\(\sigma\)</td><td>sigma</td><td>Độ dẫn điện: vật liệu cho dòng điện đi qua dễ đến đâu.</td></tr>
           <tr><td class="sym">\(\rho\)</td><td>rho</td><td>Ở trang này: điện trở suất (= 1/σ). Ở trang khác ρ còn dùng cho khối lượng riêng hoặc mật độ điện tích.</td></tr>

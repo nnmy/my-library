@@ -243,6 +243,14 @@
     <h3>Kích thích từ qua sọ (TMS)</h3>
     <div class="prose">
       <p>Cuộn dây hình số 8 phóng một xung dòng vài kA trong khoảng 0,1 ms, tạo trường điện cảm ứng cỡ 100 V/m ở vỏ não, đủ để kích hoạt nơ-ron. Mô phỏng FEM gần tĩnh từ cho thấy trường tập trung ở đỉnh các nếp cuộn não <span class="en">(gyral crown)</span> nằm gần cuộn dây, và thay đổi rõ theo hướng của cuộn so với rãnh não. Ngày nay, nhiều hệ thống định vị thần kinh <span class="en">(neuronavigation)</span> hiển thị trực tiếp trường E tính bằng FEM (hoặc phần tử biên) thay vì chỉ một điểm chiếu dưới tâm cuộn dây.</p>
+      <p>Ở dạng yếu, cuộn dây chỉ xuất hiện ở vế phải. Viết phương trình gần tĩnh từ của <a href="#che-do">bảng chế độ</a> theo thời gian, nhân với hàm thử v rồi tích phân từng phần như ở <a href="#y-tuong">bước 2</a>:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \int_\Omega \sigma\,\nabla\varphi\cdot\nabla v\;d\Omega \;=\; -\int_\Omega \sigma\,\frac{\partial\mathbf{A}}{\partial t}\cdot\nabla v\;d\Omega \quad \text{với mọi } v, \qquad \mathbf{E}\big|_e = -\frac{\partial\mathbf{A}}{\partial t}\Big|_e - \nabla\varphi\big|_e, \qquad \mathbf{J}\big|_e = \boldsymbol{\sigma}_e\,\mathbf{E}\big|_e \]</div>
+      <p class="where"><b>φ</b>: điện thế (ở đây φ là điện thế như trong bảng chế độ, không phải hàm nón φ<sub>j</sub> của <a href="#y-tuong">bước 3</a>); <b>v</b>: hàm thử; <b>∂A/∂t</b>: tốc độ thay đổi của thế vector cuộn dây (với dòng hình sin, đó chính là jωA<sub>0</sub> trong bảng); <b>|<sub>e</sub></b>: giá trị trên phần tử e; <b>σ<sub>e</sub></b> in đậm: tensor độ dẫn của phần tử, nên trong chất trắng J có thể lệch hướng so với E. Bốn điều đáng để ý. <i>Một</i>: vế trái là đúng ma trận độ cứng K của tDCS, nên mọi thứ ở mục <a href="#lap-rap">lắp ráp</a> dùng lại được; dời hay xoay cuộn dây chỉ đổi cột vế phải, không phải lắp ráp lại. <i>Hai</i>: vì ∇·A = 0 với thế vector tính theo Biot–Savart, vế phải về nguyên tắc chỉ khác 0 ở các nút nằm trên mặt phân cách (kể cả mặt da, nơi mô tiếp giáp không khí), chỗ σ nhảy bậc: đúng những nơi điện tích dồn lại. <i>Ba</i>: điều kiện J·n = 0 trên mặt da là điều kiện <b>tự nhiên</b>; số hạng biên sinh ra khi tích phân từng phần là tổng dòng (cả phần sơ cấp lẫn thứ cấp) đi ra khỏi mặt da, và nó tự bằng 0 nếu ta không thêm gì. Không có điện cực nên cũng không có điều kiện Dirichlet: φ chỉ xác định sai khác một hằng số, và người ta cố định φ ở một nút, như mạch điện cần một chân nối đất. <i>Bốn</i>: với phần tử tuyến tính, ∇φ là hằng số trong mỗi phần tử, nên E và J cũng hằng số từng phần và nhảy bậc giữa các phần tử. Ở mặt phân cách, bước nhảy của thành phần pháp tuyến là thật; bên trong một mô thì đó là sai số rời rạc hóa (<a href="#y-tuong">quy luật thứ nhất</a>).</p>
+    </div>
+    <div class="prose">
+      <p><a href="5-do-lieu.html#tms">Demo TMS ở phần 5</a> giải đúng hệ này trên một lát mô 2D, và mục <a href="5-do-lieu.html#doc-ban-do">Đọc bản đồ mô phỏng TMS</a> ở đó giải thích cách đọc E sơ cấp, E thứ cấp, điện thế, |E|, |J| và đường dòng mà phần mềm xuất ra.</p>
     </div>
 
     <h3>Bài toán thuận của EEG và MEG</h3>
@@ -371,6 +379,8 @@
           <tr><td class="sym">\(h\)</td><td>h</td><td>Kích thước phần tử. "Sai số ∝ h²": chia đôi h thì sai số giảm 4 lần.</td></tr>
           <tr><td class="sym">\(j\), \(\omega\)</td><td>j, omega</td><td>Đơn vị ảo (j² = −1) đánh dấu phần lệch pha 90°; tần số góc ω = 2πf.</td></tr>
           <tr><td class="sym">\(\mathbf{A}_0\)</td><td>A nought, vector potential</td><td>Thế vector của cuộn dây; từ trường là độ xoáy của nó.</td></tr>
+          <tr><td class="sym">\(\dfrac{\partial\mathbf{A}}{\partial t}\)</td><td>partial A by partial t</td><td>Tốc độ thay đổi của thế vector theo thời gian; thêm dấu trừ là điện trường sơ cấp của cuộn dây.</td></tr>
+          <tr><td class="sym">\(\mathbf{E}\big|_e\)</td><td>E restricted to element e</td><td>Giá trị của E trên phần tử e (hằng số với phần tử tuyến tính).</td></tr>
           <tr><td class="sym">\(\mu_r^{-1}\)</td><td>mu r inverse</td><td>Nghịch đảo 1/µᵣ của độ từ thẩm tương đối.</td></tr>
           <tr><td class="sym">\(k_0\)</td><td>k nought, free-space wavenumber</td><td>Số sóng trong chân không, ω/c = 2π/bước sóng.</td></tr>
           <tr><td class="sym">\(\mathbf{W}_m\), \(e_m\)</td><td>W m, e m</td><td>Hàm cơ sở cạnh Whitney và ẩn số trên cạnh m (hiệu điện thế dọc cạnh).</td></tr>
@@ -418,6 +428,7 @@
       <li>F. Rattay, "Analysis of models for external stimulation of axons", <i>IEEE Trans. Biomed. Eng.</i> 33 (1986) 974–977.</li>
       <li>C. R. Butson, C. C. McIntyre, "Tissue and electrode capacitance reduce neural activation volumes during deep brain stimulation", <i>Clin. Neurophysiol.</i> 116 (2005) 2490–2500.</li>
       <li>M. Windhoff, A. Opitz, A. Thielscher, "Electric field calculations in brain stimulation based on finite elements: an optimized processing pipeline for the generation and usage of accurate individual head models", <i>Hum. Brain Mapp.</i> 34 (2013) 923–935.</li>
+      <li>A. Thielscher, A. Opitz, M. Windhoff, "Impact of the gyral geometry on the electric field induced by transcranial magnetic stimulation", <i>NeuroImage</i> 54 (2011) 234–243.</li>
       <li>J. Vorwerk et al., "A guideline for head volume conductor modeling in EEG and MEG", <i>NeuroImage</i> 100 (2014) 590–607.</li>
       <li>J. P. Dmochowski et al., "Optimized multi-electrode stimulation increases focality and intensity at target", <i>J. Neural Eng.</i> 8 (2011) 046011.</li>
       <li>Y. Huang et al., "Measurements and models of electric fields in the in vivo human brain during transcranial electric stimulation", <i>eLife</i> 6 (2017) e18834.</li>

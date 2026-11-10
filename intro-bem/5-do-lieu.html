@@ -6,7 +6,7 @@
 <script src="../common/gate.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Đo liều | Bioelectromagnetics | My N. Nguyen</title>
-<meta name="description" content="Điện trường cảm ứng, mật độ dòng, SAR, SA; mô phỏng FDTD và FEM; giới hạn ICNIRP.">
+<meta name="description" content="Điện trường cảm ứng, mật độ dòng; TMS: điện trường sơ cấp và thứ cấp, điện thế, độ dẫn điện, đường dòng; SAR, SA; mô phỏng FDTD và FEM; giới hạn ICNIRP.">
 <link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +44,89 @@
       <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
     </div>
     <div class="prose">
-      <p>Mô hình đĩa đồng nhất cho giá trị lớn nhất ở mép đĩa. Trong cơ thể thật, dòng điện dồn vào các mô dẫn điện tốt và vòng qua các mô dẫn kém, nên E<sub>i</sub> cục bộ có thể khác vài lần. Đó là lý do các hướng dẫn chuyển từ "giới hạn cơ bản" (bên trong mô) sang "mức tham chiếu" (đo được bên ngoài) bằng mô phỏng số trên mô hình người chi tiết.</p>
+      <p>Mô hình đĩa đồng nhất cho giá trị lớn nhất ở mép đĩa. Trong cơ thể thật, dòng điện dồn vào các mô dẫn điện tốt và vòng qua các mô dẫn kém, nên E<sub>i</sub> cục bộ có thể khác vài lần. Đó là lý do các hướng dẫn chuyển từ "giới hạn cơ bản" (bên trong mô) sang "mức tham chiếu" (đo được bên ngoài) bằng mô phỏng số trên mô hình người chi tiết. Mục dưới đây giải thích cơ chế đó, với ví dụ kích thích từ xuyên sọ.</p>
+    </div>
+
+    <h3 id="tms">Trong đầu thật: điện trường sơ cấp, thứ cấp và điện thế</h3>
+    <div class="prose">
+      <p>Mô hình đĩa có một chỗ dễ dãi: dòng cảm ứng chạy vòng quanh tâm và không bao giờ đâm vào ranh giới nào. Dưới cuộn dây <span class="term">kích thích từ xuyên sọ</span> <span class="en">(transcranial magnetic stimulation, TMS)</span>, dòng cảm ứng phải đi qua da đầu, xương sọ, dịch não tủy, chất xám, chất trắng, với độ dẫn điện chênh nhau hơn trăm lần (<a href="4-dien-moi.html#dai-luong">phần 4</a>). Một phần mềm mô phỏng sẽ cho ra bốn đại lượng: điện trường E, mật độ dòng J, độ dẫn điện σ và điện thế φ. Cách dễ nhất để hiểu chúng liên hệ với nhau ra sao là đi theo chuỗi nhân quả:</p>
+      <ol>
+        <li><b>Cuộn dây tạo điện trường sơ cấp.</b> Dòng I(t) trong cuộn dây tạo ra <span class="term">thế vector</span> <span class="en">(vector potential)</span> A: mỗi đoạn dây góp một mũi tên song song với chính nó, yếu dần theo khoảng cách. Theo <a href="3-maxwell.html#faraday">định luật Faraday</a>, A biến thiên sinh ra <span class="term">điện trường sơ cấp</span> <span class="en">(primary field)</span> E<sub>p</sub> = −∂A/∂t. Trường này chỉ phụ thuộc hình dạng, vị trí của cuộn dây và tốc độ thay đổi dòng dI/dt; nó "không biết" có cái đầu ở đó. Đường sức của nó khép kín thành vòng, như nước xoáy.</li>
+        <li><b>Điện trường đẩy dòng.</b> Trong mỗi mô, mật độ dòng J = σE (định luật Ohm, <a href="1-dien.html#dien-the">phần 1</a>).</li>
+        <li><b>Điện tích dồn ở mặt phân cách.</b> Ở chỗ dòng chảy từ mô dẫn tốt sang mô dẫn kém, hoặc ra tới mặt da (bên ngoài là không khí), dòng đến nhiều hơn dòng đi được, nên điện tích dồn lại, giống xe dồn ở chỗ đường hẹp.</li>
+        <li><b>Điện tích tạo điện thế φ và điện trường thứ cấp.</b> Lớp điện tích đó tạo ra điện thế φ, và <span class="term">điện trường thứ cấp</span> <span class="en">(secondary field)</span> E<sub>s</sub> = −∇φ có hướng chống lại sự dồn ứ: giảm phần dòng đâm vào mô dẫn kém, tăng phần dòng chạy vòng qua mô dẫn tốt. Điện tích thôi dồn khi dòng vào mỗi mặt phân cách bằng dòng ra. Quá trình này rất nhanh so với một xung TMS, nên có thể coi như xảy ra tức thì.</li>
+        <li><b>Kết quả:</b> E = E<sub>p</sub> + E<sub>s</sub> và J = σE. Đây mới là thứ tác động lên nơ-ron.</li>
+      </ol>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \mathbf{E} = \underbrace{-\frac{\partial\mathbf{A}}{\partial t}}_{\mathbf{E}_p\ (\text{sơ cấp})}\ \underbrace{-\ \nabla\varphi}_{\mathbf{E}_s\ (\text{thứ cấp})}, \qquad \mathbf{A}(\mathbf{r},t) = \frac{\mu_0\,I(t)}{4\pi}\oint_{\text{cuộn dây}}\frac{d\boldsymbol{\ell}'}{|\mathbf{r}-\mathbf{r}'|} \]</div>
+      <div class="eq">\[ \mathbf{J} = \sigma\mathbf{E}, \qquad \nabla\cdot\mathbf{J} = 0 \;\Rightarrow\; \nabla\cdot(\sigma\nabla\varphi) = -\nabla\cdot\Big(\sigma\,\frac{\partial\mathbf{A}}{\partial t}\Big), \qquad \mathbf{J}\cdot\mathbf{n} = 0\ \ \text{trên mặt da} \]</div>
+      <p class="where"><b>A</b>: thế vector của cuộn dây (T·m, tức V·s/m); <b>r</b>: điểm đang xét trong mô; <b>r′</b>: một điểm trên dây cuộn; <b>dℓ′</b>: một đoạn dây rất ngắn, hướng theo chiều dòng; <b>∮</b>: cộng dọc theo toàn bộ dây cuộn (mọi vòng dây); <b>µ₀</b>: hằng số từ. Vì A tỉ lệ với I(t), <b>E<sub>p</sub></b> tỉ lệ với <b>dI/dt</b>: hình dạng của nó trong không gian cố định, chỉ có độ lớn lên xuống theo nhịp của xung. <b>∂/∂t</b>: tốc độ thay đổi theo thời gian tại một điểm cố định. <b>φ</b> (phi): điện thế (V) do điện tích ở các mặt phân cách tạo ra; <b>∇φ</b>: gradient của nó. <b>σ</b>: độ dẫn điện (S/m), ở chất trắng là một tensor (<a href="6-fem.html#lap-rap">phần 6</a>). <b>∇·J = 0</b>: tại mỗi điểm, dòng vào bằng dòng ra. <b>n</b>: vector đơn vị vuông góc với mặt da, chỉ ra ngoài; <b>J·n = 0</b>: không có dòng thoát ra không khí. Phương trình ở giữa dòng thứ hai chính là phương trình tDCS ở <a href="#fem">mục FEM</a> bên dưới, chỉ thêm vế phải lấy từ cuộn dây. Vì ∇·A = 0 với thế vector tính theo kiểu Biot–Savart, vế phải bằng 0 bên trong một mô đồng nhất và chỉ khác 0 ở nơi σ nhảy bậc (kể cả mặt da): đúng những chỗ điện tích dồn lại. Hai gần đúng đứng sau các phương trình này (gọi chung là gần tĩnh từ, xem <a href="6-fem.html#che-do">phần 6</a>): bỏ qua dòng dịch chuyển, vì ở vài kHz của xung TMS ωε nhỏ so với σ; và bỏ qua từ trường do chính dòng cảm ứng sinh ra, vì nó quá yếu so với từ trường của cuộn dây.</p>
+    </div>
+    <div class="callout"><b>E = −∇V của phần 1 đi đâu rồi?</b> Công thức đó chỉ đúng khi từ trường không đổi. Phần sơ cấp E<sub>p</sub> chạy thành vòng khép kín: đi trọn một vòng rồi quay về chỗ cũ mà suốt đường vẫn được đẩy cùng một chiều. Không "địa hình điện thế" nào làm được như vậy (đi một vòng quanh quả đồi thì lên bao nhiêu phải xuống bấy nhiêu); nó giống chiếc cầu thang Penrose đi mãi vẫn lên. Vì thế trong TMS, điện thế φ không phải là "nguồn" của điện trường. Nó chỉ là phần hiệu chỉnh do mô không đồng nhất.</div>
+
+    <div class="prose">
+      <p>Ở mặt phân cách giữa hai mô 1 và 2, hai điều kiện quyết định hình dạng của mọi bản đồ mô phỏng:</p>
+    </div>
+    <div class="formula">
+      <div class="eq">\[ \sigma_1 E_{1n} = \sigma_2 E_{2n}\ \ (J_n\ \text{liên tục}), \qquad E_{1t} = E_{2t}\ \ (E_t\ \text{liên tục}), \qquad \frac{\tan\theta_1}{\tan\theta_2} = \frac{\sigma_1}{\sigma_2}, \qquad \rho_s = \varepsilon_0\,(E_{2n} - E_{1n}) \]</div>
+      <p class="where">Chỉ số <b>n</b>: thành phần pháp tuyến (vuông góc với mặt phân cách, hướng từ mô 1 sang mô 2); chỉ số <b>t</b>: thành phần tiếp tuyến (song song với mặt). <b>θ<sub>1</sub>, θ<sub>2</sub></b>: góc giữa đường dòng và pháp tuyến ở hai bên. <b>ρ<sub>s</sub></b>: mật độ điện tích (tổng) trên mặt phân cách (C/m²), suy từ <a href="3-maxwell.html#gauss-e">định luật Gauss</a>; chữ s là <i>surface</i>, không liên quan tới khối lượng riêng ρ ở mục SAR. <b>ε₀</b>: hằng số điện. Điều kiện thứ nhất là bảo toàn điện tích (dòng vào mặt bằng dòng ra); điều kiện thứ hai đến từ định luật Faraday; tỉ số các tan suy ra từ hai điều kiện đó. Lượng điện tích cần thiết rất nhỏ: một bước nhảy 100 V/m chỉ cần khoảng 0,9 nC/m², chưa tới một electron dư trên mỗi ô vuông 13 µm × 13 µm.</p>
+    </div>
+    <div class="prose">
+      <ul>
+        <li><b>E pháp tuyến nhảy bậc, tỉ lệ nghịch với σ</b>, nên lớn hơn ở phía mô dẫn kém. Dòng đâm thẳng từ dịch não tủy (1,65 S/m) vào chất xám (0,28 S/m) thì E trong chất xám gấp khoảng 6 lần trong dịch não tủy, còn J hai bên bằng nhau. Dòng đâm thẳng qua xương sọ (0,01 S/m) thì E trong sọ lớn gấp hàng chục, hàng trăm lần.</li>
+        <li><b>E tiếp tuyến liên tục, nên J tiếp tuyến nhảy theo σ.</b> Dòng chạy dọc lớp dịch não tủy mạnh gấp khoảng 6 lần dòng trong chất xám ngay sát bên, dù E hai bên như nhau.</li>
+        <li><b>Đường dòng bị "khúc xạ"</b> như tia sáng đi qua mặt nước: trong mô dẫn kém, chúng gần như vuông góc với mặt phân cách (xuyên thẳng qua cho nhanh); trong mô dẫn tốt, chúng nghiêng gần song song với mặt (chạy dọc theo).</li>
+      </ul>
+    </div>
+
+    <div class="guide"><b>Cách đọc demo này.</b> Đây là một lát mô mỏng nằm ngang ngay dưới cuộn dây, nhìn từ trên xuống: ngoài cùng là da đầu, rồi xương sọ, lớp dịch não tủy mỏng và não, với các rãnh não (khe hẹp chứa dịch não tủy). Hai vòng nét đứt là hai cánh của cuộn số 8 nằm phía trên lát cắt; mũi tên xanh trên cánh chỉ chiều dòng trong cuộn dây lúc dòng đang tăng, mũi tên đỏ ở tâm chỉ hướng E sơ cấp ngay dưới tâm cuộn. Kéo ô trắng để dời cuộn dây; kéo ô vàng (hoặc chạm vào chỗ bất kỳ) để đặt điểm dò, và bảng số bên phải đọc σ, E sơ cấp, E thứ cấp, E tổng, J và φ tại đó. Đường mảnh có mũi tên là đường dòng J. Thử lần lượt:
+      <ol>
+        <li>Chọn <b>E sơ cấp</b>: bản đồ trơn, không hề thấy ranh giới mô, vì trường này chỉ do cuộn dây quyết định.</li>
+        <li>Chọn <b>Cuộn tròn</b>, <b>4 lớp</b>, <b>Đặt cuộn vào tâm</b>, rồi xem <b>Điện thế φ</b> và <b>E thứ cấp</b>: cả hai bằng 0 ở mọi nơi, vì E sơ cấp chạy vòng song song với mọi mặt phân cách nên không có điện tích nào dồn lại. Bấm <b>4 lớp + rãnh não</b>: E thứ cấp xuất hiện ngay ở các rãnh, nơi E sơ cấp cắt vuông góc qua thành rãnh.</li>
+        <li>Với cuộn số 8, so sánh <b>|E|</b> và <b>|J|</b>: trong dịch não tủy E nhỏ nhưng J lớn; trong xương sọ thì ngược lại. Đặt điểm dò hai bên một mặt phân cách để thấy E nhảy bậc mà J thì không (khi dòng đâm thẳng qua mặt).</li>
+        <li>Kéo thanh <b>Hướng E</b> từ 0° sang 90°: E dưới tâm cuộn chuyển từ song song sang vuông góc với các lớp mô. Bản đồ <b>Điện thế φ</b> đổi thành một vùng âm phía cuộn dây và một vùng dương phía đối diện, tạo E thứ cấp chống lại dòng đang bị đẩy vào trong; ở bản đồ <b>|E|</b>, E trong xương sọ ngay dưới cuộn dây tăng vọt.</li>
+        <li>Chọn <b>Đồng nhất</b>: vẫn có φ, vì mép lát (mặt da) vẫn chặn dòng; nhưng không còn vết nhảy bậc nào bên trong.</li>
+      </ol>
+    </div>
+    <div class="demo" id="demoTms" data-demo="tms-field">
+      <div class="demo-title"><h4>TMS: điện trường sơ cấp, thứ cấp và dòng điện</h4><span>Kéo cuộn dây (ô trắng) và điểm dò (ô vàng)</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Ba điều demo 2D cho thấy cũng đúng trong mô hình đầu 3D:</p>
+      <ul>
+        <li><b>Mô hình hình cầu.</b> Nếu đầu là một quả cầu, đồng nhất hay gồm nhiều lớp đồng tâm, điện tích ở các mặt cầu chỉ làm một việc: triệt tiêu thành phần xuyên tâm của dòng. Kết quả là E bên trong không có thành phần xuyên tâm và không phụ thuộc σ của các lớp (Eaton 1992; Heller và van Hulsteyn 1992), còn J = σE thì vẫn phụ thuộc. φ chỉ bằng 0 hẳn trong vài trường hợp đặc biệt, như cuộn tròn đặt tiếp tuyến và đồng trục với tâm cầu (giống thí nghiệm 2 ở trên). Vì vậy mô hình cầu cho bậc độ lớn của E ở vỏ não khá tốt, nhưng bỏ qua hoàn toàn ảnh hưởng của nếp cuộn và rãnh não.</li>
+        <li><b>E chỉ phụ thuộc vào tỉ số σ giữa các mô.</b> Nhân mọi σ với cùng một số thì φ và E không đổi, chỉ J đổi theo. Sai số về giá trị tuyệt đối của σ vì thế ảnh hưởng tới J nhiều hơn tới E; còn sai số về tỉ số, ví dụ σ dịch não tủy so với σ chất xám, thì ảnh hưởng tới cả hai.</li>
+        <li><b>Hướng cuộn dây so với nếp cuộn não quan trọng.</b> Trong demo, khi E sơ cấp cắt vuông góc qua thành rãnh, E trong dịch não tủy của rãnh giảm còn khoảng một phần ba, còn E trong chất xám hai bên tăng khoảng 10% so với khi không có rãnh. Trên mô hình đầu thật, E trong chất xám tăng tới khoảng 50% khi dòng chạy vuông góc với hướng của nếp cuộn, chủ yếu ở đỉnh và mép nếp cuộn; còn hướng của dòng thì chủ yếu do mặt dịch não tủy và xương sọ quyết định (Thielscher và cộng sự, 2011).</li>
+      </ul>
+    </div>
+
+    <h3 id="doc-ban-do">Đọc bản đồ mô phỏng TMS</h3>
+    <div class="prose">
+      <p>Các phần mềm như SimNIBS cho xuất riêng từng đại lượng dưới đây. Chúng trông rất khác nhau dù cùng mô tả một lần kích thích, vì liên hệ với nhau qua σ và qua các điều kiện ở mặt phân cách.</p>
+    </div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Đại lượng</th><th>Đơn vị</th><th>Thường vẽ dưới dạng</th><th>Đọc thế nào</th></tr></thead>
+        <tbody>
+          <tr><td>E sơ cấp −∂A/∂t<span class="en">primary field, dA/dt</span></td><td class="unit">V/m</td><td>Bản đồ màu, mũi tên</td><td>Chỉ phụ thuộc cuộn dây và dI/dt: trơn, không thấy ranh giới mô, có cả trong không khí. Hữu ích để kiểm tra vị trí và hướng của cuộn dây.</td></tr>
+          <tr><td>Điện thế φ<span class="en">electric potential</span></td><td class="unit">V</td><td>Bản đồ màu có dấu (+/−)</td><td>Cho biết điện tích dồn ở đâu. Không phải nguồn của E; gradient của nó là E thứ cấp. Chỉ xác định sai khác một hằng số, nên giá trị tuyệt đối không có ý nghĩa.</td></tr>
+          <tr><td>Điện trường E, độ lớn |E|<span class="en">electric field, magnitude</span></td><td class="unit">V/m</td><td>Bản đồ màu trên chất xám, mũi tên</td><td>Đại lượng hay dùng nhất để dự đoán vùng bị kích thích. Thành phần pháp tuyến nhảy bậc ở mặt phân cách, nên bản đồ |E| có "vết cắt" ở ranh giới giữa các mô.</td></tr>
+          <tr><td>Thành phần E theo một hướng<span class="en">normal component, component along the axon</span></td><td class="unit">V/m</td><td>Bản đồ màu có dấu</td><td>Nơ-ron nhạy với hướng: phần E vuông góc với bề mặt vỏ não, phần E dọc sợi trục và độ thay đổi của nó dọc sợi (hàm kích hoạt, <a href="6-fem.html#dbs">phần 6</a>). Xoay ngược cuộn dây là đổi dấu thành phần này.</td></tr>
+          <tr><td>Mật độ dòng J, độ lớn |J|<span class="en">current density, streamlines</span></td><td class="unit">A/m²</td><td>Đường dòng, mũi tên, bản đồ màu</td><td>J = σE. Vì ∇·J = 0, đường dòng liền mạch và khép kín. |J| cao ở dịch não tủy, rất thấp ở xương sọ: bản đồ |J| "đổi màu" theo mô ngay cả khi E gần như không đổi.</td></tr>
+          <tr><td>Độ dẫn điện σ<span class="en">conductivity</span></td><td class="unit">S/m</td><td>Tham số đầu vào theo mô (tensor ở chất trắng)</td><td>Quyết định φ, do đó quyết định E ở gần các mặt phân cách và J ở khắp nơi. E chỉ phụ thuộc vào tỉ số σ giữa các mô.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p>Những chỗ dễ nhầm khi đọc các bản đồ này:</p>
+      <ul>
+        <li><b>Đường sức E và đường dòng J không trùng nhau trên toàn đầu.</b> Trong một mô đẳng hướng, E và J cùng hướng tại mỗi điểm. Nhưng đường sức E có thể bắt đầu và kết thúc ở mặt phân cách, nơi có điện tích; đường dòng J thì không bao giờ, vì ∇·J = 0. Trong chất trắng dị hướng, J còn lệch hướng so với E ngay tại một điểm.</li>
+        <li><b>Đường dòng chạy thành vòng</b> <span class="en">(eddy current)</span>, ngược chiều với dòng trong cuộn dây khi dòng ấy đang tăng (định luật Lenz), bị uốn ở các mặt phân cách và không bao giờ cắt qua mặt da.</li>
+        <li><b>|E| lớn nhất ở đâu?</b> Xét cả cái đầu, |E| thường lớn nhất ở da đầu, nơi gần cuộn dây nhất; ở chỗ dòng phải đâm xuyên qua xương sọ, E trong sọ cũng rất lớn. Trong não, |E| lớn nhất ở đỉnh các nếp cuộn não ngay dưới cuộn dây; với cuộn số 8 là dưới chỗ hai cánh gặp nhau. Vì vậy bản đồ thường chỉ vẽ trên chất xám, với thang màu riêng.</li>
+        <li><b>Con số phụ thuộc dI/dt.</b> E và J tỉ lệ thuận với tốc độ thay đổi dòng trong cuộn dây. Phần mềm thường tính cho một dI/dt chuẩn (ví dụ 1 A/µs) rồi nhân lên theo mức công suất máy đang dùng; khi so sánh hai nghiên cứu, hãy kiểm tra họ quy đổi theo dI/dt nào.</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -180,6 +262,18 @@
           <tr><td class="sym">\(\Rightarrow\)</td><td>implies</td><td>Suy ra.</td></tr>
           <tr><td class="sym">\(\omega\)</td><td>omega</td><td>Tần số góc ω = 2πf.</td></tr>
           <tr><td class="sym">rms</td><td>root mean square</td><td>Trị hiệu dụng: căn bậc hai của trung bình bình phương; với dao động hình sin thì bằng biên độ chia √2.</td></tr>
+          <tr><td class="sym">\(\mathbf{A}\), \(\dfrac{\partial\mathbf{A}}{\partial t}\)</td><td>A, partial A by partial t</td><td>Thế vector của cuộn dây, và tốc độ thay đổi của nó tại một điểm cố định. Thêm dấu trừ là điện trường sơ cấp.</td></tr>
+          <tr><td class="sym">\(\mathbf{E}_p\), \(\mathbf{E}_s\)</td><td>E p, E s; primary, secondary field</td><td>Điện trường sơ cấp (do cuộn dây) và thứ cấp (do điện tích ở mặt phân cách).</td></tr>
+          <tr><td class="sym">\(\varphi\), \(\nabla\varphi\)</td><td>phi, grad phi</td><td>Điện thế và gradient của nó (mũi tên chỉ hướng φ tăng nhanh nhất).</td></tr>
+          <tr><td class="sym">\(\underbrace{\ldots}_{\mathbf{E}_p}\)</td><td>underbrace</td><td>Ngoặc nhọn bên dưới: đặt tên cho cả cụm phía trên.</td></tr>
+          <tr><td class="sym">\(\oint\)</td><td>contour integral</td><td>Cộng dồn dọc theo cả một đường khép kín (ở đây: toàn bộ dây cuộn).</td></tr>
+          <tr><td class="sym">\(\mathbf{r}'\), \(d\boldsymbol{\ell}'\)</td><td>r prime, d ell prime</td><td>Một điểm trên dây cuộn, và một đoạn dây rất ngắn tại đó (dấu phẩy trên chỉ "thuộc về nguồn").</td></tr>
+          <tr><td class="sym">\(|\mathbf{r}-\mathbf{r}'|\)</td><td>magnitude of r minus r prime</td><td>Khoảng cách giữa điểm đang xét và điểm trên dây.</td></tr>
+          <tr><td class="sym">\(\nabla\cdot\mathbf{J} = 0\)</td><td>divergence of J equals zero</td><td>Dòng vào một điểm bằng dòng ra; đường dòng không có điểm đầu, điểm cuối.</td></tr>
+          <tr><td class="sym">\(\mathbf{J}\cdot\mathbf{n}\)</td><td>J dot n</td><td>Phần dòng đi xuyên qua mặt; <b>n</b> là vector đơn vị vuông góc với mặt.</td></tr>
+          <tr><td class="sym">\(E_n\), \(E_t\)</td><td>normal, tangential component</td><td>Thành phần vuông góc và song song với mặt phân cách.</td></tr>
+          <tr><td class="sym">\(\theta\), \(\tan\theta\)</td><td>theta, tangent of theta</td><td>Góc giữa đường dòng và pháp tuyến; tan θ = E<sub>t</sub>/E<sub>n</sub>.</td></tr>
+          <tr><td class="sym">\(\rho_s\)</td><td>rho s, surface charge density</td><td>Mật độ điện tích trên một mặt (C/m²).</td></tr>
           <tr><td class="sym">\(\dfrac{dT}{dt}\Big|_{t=0}\)</td><td>d T by d t, evaluated at t equals zero</td><td>Tốc độ tăng nhiệt độ ngay lúc bắt đầu.</td></tr>
           <tr><td class="sym">\(\int \ldots\,dt\)</td><td>integral with respect to t</td><td>Cộng dồn theo thời gian (diện tích dưới đồ thị theo thời gian).</td></tr>
           <tr><td class="sym">\(E_z^{n}\), \(H^{n+\frac12}\)</td><td>E z at step n, H at step n plus one half</td><td>Chỉ số trên: bước thời gian thứ n (không phải lũy thừa).</td></tr>
@@ -206,6 +300,9 @@
       <li>K. S. Yee, "Numerical solution of initial boundary value problems involving Maxwell's equations in isotropic media", <i>IEEE Trans. Antennas Propag.</i> 14 (1966) 302–307.</li>
       <li>A. Taflove, S. C. Hagness, <i>Computational Electrodynamics: The Finite-Difference Time-Domain Method</i>, Artech House.</li>
       <li>H. H. Pennes, "Analysis of tissue and arterial blood temperatures in the resting human forearm", <i>J. Appl. Physiol.</i> 1 (1948) 93–122.</li>
+      <li>H. Eaton, "Electric field induced in a spherical volume conductor from arbitrary coils: application to magnetic stimulation and MEG", <i>Med. Biol. Eng. Comput.</i> 30 (1992) 433–440.</li>
+      <li>L. Heller, D. B. van Hulsteyn, "Brain stimulation using electromagnetic sources: theoretical aspects", <i>Biophys. J.</i> 63 (1992) 129–138.</li>
+      <li>A. Thielscher, A. Opitz, M. Windhoff, "Impact of the gyral geometry on the electric field induced by transcranial magnetic stimulation", <i>NeuroImage</i> 54 (2011) 234–243.</li>
       <li>A. Thielscher, A. Antunes, G. B. Saturnino, "Field modeling for transcranial magnetic stimulation: a useful tool to understand the physiological effects of TMS?", IEEE EMBC 2015 (SimNIBS); giá trị độ dẫn điện mặc định dùng trong demo FEM.</li>
       <li>IT'IS Foundation, <a href="https://itis.swiss/virtual-population/tissue-properties/database/" rel="noopener">Tissue Properties Database</a> (khối lượng riêng, nhiệt dung, lưu lượng máu).</li>
     </ol>
