@@ -409,3 +409,36 @@ pre.code { display: block; padding: 10px 12px; overflow-x: auto; line-height: 1.
 .tagtbl td.v { font: 600 13px var(--mono); overflow-wrap: anywhere; }
 .tagtbl tr.gone td { text-decoration: line-through; color: #A3A9B1; }
 .tagtbl tr.hl td { background: #FCF6DD; }
+
+/* =====================================================================
+   Bổ sung cho Đại số tuyến tính (8-dai-so-tuyen-tinh.html)
+   ===================================================================== */
+/* ma trận hiển thị có ngoặc vuông: <span class="mat c2"><span>..</span>…</span> */
+.mat { display: inline-grid; gap: 1px 12px; padding: 3px 10px; position: relative; vertical-align: middle; font: 600 14px var(--mono); text-align: right; line-height: 1.35; }
+.mat.c1 { grid-template-columns: auto; } .mat.c2 { grid-template-columns: repeat(2, auto); } .mat.c3 { grid-template-columns: repeat(3, auto); }
+.mat::before, .mat::after { content: ""; position: absolute; top: 0; bottom: 0; width: 5px; border: 1.5px solid var(--ink); }
+.mat::before { left: 0; border-right: 0; }
+.mat::after { right: 0; border-left: 0; }
+.matrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font: 600 15px var(--body); text-align: left; }
+.matrow .op { flex-basis: 100%; font: 400 13px var(--body); color: var(--muted); }
+/* ô nhập phần tử ma trận 2×2; cột 1 tô đỏ, cột 2 tô xanh lá (khớp màu mũi tên trong minh họa) */
+.mat-edit { display: inline-grid; grid-template-columns: repeat(2, 4.8em); gap: 6px 8px; padding: 6px 12px; position: relative; }
+.mat-edit::before, .mat-edit::after { content: ""; position: absolute; top: 0; bottom: 0; width: 7px; border: 2px solid var(--ink); }
+.mat-edit::before { left: 0; border-right: 0; }
+.mat-edit::after { right: 0; border-left: 0; }
+.mat-edit input { width: 100%; min-width: 0; font: 600 15px var(--mono); text-align: center; padding: 4px 2px; border: 1.5px solid var(--ink); border-radius: 0; background: #fff; color: var(--ink); }
+.mat-edit input.k1 { background: #FBE6E4; }
+.mat-edit input.k2 { background: #DFF1E6; }
+.swatch { display: inline-block; width: 14px; height: 14px; border: 1px solid var(--ink); vertical-align: -2px; margin-left: 8px; }
+/* hình tĩnh gồm nhiều ô nhỏ (SVG), tự xuống dòng trên màn hình hẹp */
+.la-figgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px 20px; }
+.la-figgrid > div { min-width: 0; }
+.la-figgrid svg { display: block; width: 100%; height: auto; max-width: 260px; margin: 0 auto; }
+.la-figgrid .cap { margin: 6px 0 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); text-align: left; hyphens: none; }
+.la-figgrid .cap b { color: var(--ink); }
+.la-figgrid svg text { font-family: var(--body); }
+/* công thức dài trong khối ví dụ: cuộn ngang thay vì tràn ra ngoài trên màn hình hẹp */
+.worked .eq { overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 4px 0 12px; }
+/* canvas vuông, dính ở đầu cột khi bảng điều khiển bên phải dài hơn (la-tensor) */
+.stagebox canvas.ar.sq { flex: none; height: auto; min-height: 0; aspect-ratio: 1 / 1; position: sticky; top: calc(var(--nav-h) + 8px); }
+@media (max-width: 860px) { .stagebox canvas.ar.sq { position: static; aspect-ratio: 1 / 1; } }

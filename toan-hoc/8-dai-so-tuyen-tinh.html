@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi" class="gate-locked">
+<head>
+<meta charset="utf-8">
+<style>html.gate-locked body{visibility:hidden!important}</style>
+<script src="../common/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đại số tuyến tính | Toán học &amp; ứng dụng | My N. Nguyen</title>
+<meta name="description" content="Đại số tuyến tính: ma trận là phép biến đổi, định thức, ma trận nghịch đảo, trị riêng và vector riêng, chéo hóa, bội đại số và bội hình học, ma trận đối xứng, SVD, tensor 3×3 trong DTI và mô hình độ dẫn điện.">
+<link rel="icon" type="image/svg+xml" href="https://nnmy.github.io/lib/logo-my.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Figtree:wght@500&family=Pixelify+Sans:wght@600;700&family=VT323&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../common/site.css">
+<link rel="stylesheet" href="lib/tm.css">
+</head>
+<body data-home-label="Trang chủ Toán học &amp; ứng dụng">
+<noscript><p style="visibility:visible;margin:40px auto;max-width:520px;padding:0 20px;font:16px system-ui,sans-serif">Trang cần bật JavaScript để xem.</p></noscript>
+
+<nav class="site-nav" aria-label="Site"></nav>
+<script src="../common/nav.js"></script>
+
+<main class="lt-page">
+<header class="wrap page-head">
+  <p class="crumb"><a href="index.html">Toán học &amp; ứng dụng</a> / Phần 8</p>
+  <h1><span class="dot"></span>Đại số tuyến tính</h1>
+  <p class="lead">Ma trận không chỉ là một bảng số: mỗi ma trận là một cách biến đổi không gian. Trị riêng và vector riêng chỉ ra những phương mà phép biến đổi chỉ co giãn chứ không bẻ lệch; nhờ đó một ma trận rắc rối được viết lại thành vài phép co giãn đơn giản. Đây là công cụ đứng sau ảnh DTI, mô hình độ dẫn điện của não, nén ảnh và cách Google xếp hạng trang web.</p>
+</header>
+
+<section class="part" id="ma-tran">
+  <div class="wrap">
+    <h2>Ma trận là một phép biến đổi</h2>
+    <h3>Vector: độ lớn và hướng</h3>
+    <div class="prose">
+      <p>Một <span class="term">vector</span> mang hai thông tin: <b>độ lớn</b> <span class="en">(magnitude)</span>, tức chiều dài, và <b>hướng</b> <span class="en">(direction)</span>. Vector \(v = \begin{bmatrix}2\\1\end{bmatrix}\) là mũi tên từ gốc tọa độ \((0, 0)\) tới điểm \((2, 1)\), dài \(\sqrt{2^2 + 1^2} = \sqrt5\). Hai phép toán cơ bản: cộng hai vector (nối đuôi các mũi tên) và nhân vector với một số (kéo dài, thu ngắn hoặc đảo chiều mũi tên).</p>
+    </div>
+    <h3>Nhân ma trận với vector</h3>
+    <div class="prose">
+      <p>Một <span class="term">ma trận</span> <span class="en">(matrix)</span> có thể hiểu là một quy tắc biến đổi không gian, gọi là <span class="term">phép biến đổi tuyến tính</span> <span class="en">(linear transformation)</span>. Nhân ma trận với một vector cho ra một vector mới, \(Av = v'\). Với ma trận 2×2:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ Av = \begin{bmatrix}a &amp; b\\ c &amp; d\end{bmatrix}\begin{bmatrix}x\\ y\end{bmatrix} = \begin{bmatrix}ax + by\\ cx + dy\end{bmatrix} \]</div><p class="where">Mỗi thành phần của kết quả là <b>tích vô hướng</b> <span class="en">(dot product)</span> của một hàng của A với v: hàng 1 cho \(ax + by\), hàng 2 cho \(cx + dy\).</p></div>
+    <div class="prose">
+      <p>Phép biến đổi có thể thay đổi độ lớn (kéo dài hoặc thu ngắn), thay đổi hướng (xoay), đảo chiều vector, hoặc kết hợp các hiệu ứng trên. Điểm chung của mọi phép biến đổi tuyến tính: gốc tọa độ đứng yên, đường thẳng vẫn thẳng, các đường song song và cách đều vẫn song song và cách đều.</p>
+    </div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 0\\ 0 &amp; 1\end{bmatrix}\), \(v = \begin{bmatrix}2\\1\end{bmatrix}\): \(Av = \begin{bmatrix}2\cdot2 + 0\cdot1\\ 0\cdot2 + 1\cdot1\end{bmatrix} = \begin{bmatrix}4\\1\end{bmatrix}\). Thành phần x được nhân 2, thành phần y giữ nguyên: vector bị kéo dài theo phương ngang và đổi hướng, góc với trục hoành giảm từ khoảng 26,6° xuống 14,0°.</p></div>
+    <h3>Cột của ma trận là ảnh của vector cơ sở</h3>
+    <div class="prose">
+      <p>Hai <span class="term">vector cơ sở</span> <span class="en">(basis vectors)</span> của mặt phẳng là \(e_1 = (1; 0)\) và \(e_2 = (0; 1)\). Nhân A với \(e_1\) lấy ra đúng cột 1, nhân với \(e_2\) lấy ra cột 2. Mọi vector đều viết được thành \(v = x\,e_1 + y\,e_2\), và phép biến đổi tuyến tính giữ nguyên phép cộng và phép nhân với số, nên:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ Av = x\,(Ae_1) + y\,(Ae_2) = x\cdot(\text{cột 1}) + y\cdot(\text{cột 2}) \]</div><p class="where">Biết ma trận biến đổi các vector cơ sở thế nào là biết nó biến đổi mọi vector khác.</p></div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 1\\ 0 &amp; 1\end{bmatrix}\): \(Ae_1 = \begin{bmatrix}2\\0\end{bmatrix}\), \(Ae_2 = \begin{bmatrix}1\\1\end{bmatrix}\). Ảnh của \(v = (1; 1{,}5)\) là \(1\cdot(2; 0) + 1{,}5\cdot(1; 1) = (3{,}5; 1{,}5)\).</p></div>
+    <div class="demo" id="demoTf" data-demo="la-transform">
+      <div class="demo-title"><h4>Ma trận biến đổi mặt phẳng</h4><span>Kéo đầu mũi tên đỏ, xanh lá (hai cột của A) và tím (vector v)</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Lưới xanh là ảnh của lưới ô vuông; hình bình hành vàng là ảnh của ô vuông đơn vị. Bấm qua các ví dụ để thấy kéo giãn, trượt, quay, phản chiếu và ép phẳng trông ra sao. Diện tích của hình bình hành vàng chính là định thức, sẽ bàn ở phần dưới.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part tint" id="doc-lap">
+  <div class="wrap">
+    <h2>Độc lập tuyến tính, cơ sở và số chiều</h2>
+    <div class="prose">
+      <p>Một tập vector là <span class="term">độc lập tuyến tính</span> <span class="en">(linearly independent)</span> nếu không vector nào biểu diễn được bằng tổ hợp tuyến tính của các vector còn lại. Nói cách khác, cách duy nhất để một tổ hợp của chúng bằng vector 0 là mọi hệ số bằng 0:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ c_1v_1 + c_2v_2 + \dots + c_kv_k = 0 \;\Longrightarrow\; c_1 = c_2 = \dots = c_k = 0 \]</div></div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(v_1 = (1; 0)\) và \(v_2 = (0; 1)\) độc lập tuyến tính: không vector nào là bội của vector kia.</p><p>\(v_1 = (1; 2)\) và \(v_2 = (2; 4)\) <span class="term">phụ thuộc tuyến tính</span> <span class="en">(linearly dependent)</span> vì \(v_2 = 2v_1\), tức \(2v_1 - v_2 = 0\). Cả hai nằm trên đường thẳng \(y = 2x\), và mọi tổ hợp của chúng cũng chỉ nằm trên đường thẳng đó.</p></div>
+    <div class="prose">
+      <p>Trong mặt phẳng, hai vector độc lập là đủ để tạo ra mọi vector khác: chúng lập thành một <span class="term">cơ sở</span> <span class="en">(basis)</span>, và mỗi vector có đúng một bộ tọa độ theo cơ sở đó. Mọi cơ sở của cùng một không gian có cùng số vector; con số này là <span class="term">số chiều</span> <span class="en">(dimension)</span>: mặt phẳng có 2 chiều, không gian quanh ta có 3 chiều. Hai cột của một ma trận 2×2 độc lập tuyến tính đúng khi định thức của nó khác 0; khi đó phép biến đổi không làm mất chiều nào.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="dinh-thuc">
+  <div class="wrap">
+    <h2>Định thức: diện tích thay đổi bao nhiêu lần</h2>
+    <div class="prose">
+      <p><span class="term">Định thức</span> <span class="en">(determinant)</span>, ký hiệu \(\det(A)\) hoặc \(|A|\), là một số tính từ ma trận vuông. Về mặt hình học, giá trị tuyệt đối của định thức cho biết diện tích (trong 2D) hoặc thể tích (trong 3D) bị nhân lên bao nhiêu lần; dấu âm nghĩa là hướng bị đảo <span class="en">(orientation reversal)</span>, như soi gương; định thức bằng 0 nghĩa là không gian bị ép về số chiều thấp hơn.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \det\begin{bmatrix}a &amp; b\\ c &amp; d\end{bmatrix} = ad - bc \]</div><p class="where">Ảnh của ô vuông đơn vị là hình bình hành dựng trên hai cột \((a; c)\) và \((b; d)\); diện tích hình bình hành này bằng \(|ad - bc|\).</p></div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Định thức</th><th>Ý nghĩa</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>Diện tích (2D) hoặc thể tích (3D) tăng 2 lần.</td></tr>
+          <tr><td>0,5</td><td>Diện tích, thể tích còn một nửa.</td></tr>
+          <tr><td>−2</td><td>Tăng 2 lần và đảo hướng.</td></tr>
+          <tr><td>0</td><td>Suy biến: không gian mất một hoặc nhiều chiều (mặt phẳng bị ép thành đường thẳng hoặc một điểm).</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 1\\ 1 &amp; 3\end{bmatrix}\): \(\det(A) = 2\cdot3 - 1\cdot1 = 5\). Mọi hình phóng to 5 lần về diện tích; chọn ví dụ "det = 5" trong minh họa ở trên để xem.</p></div>
+    <h3>Định thức dùng để làm gì</h3>
+    <div class="prose">
+      <ul>
+        <li><b>Kiểm tra khả nghịch.</b> \(\det(A) \neq 0\) thì A có nghịch đảo; \(\det(A) = 0\) thì không.</li>
+        <li><b>Giải hệ phương trình tuyến tính</b> bằng <span class="term">quy tắc Cramer</span> <span class="en">(Cramer's rule)</span>: với \(Ax = b\), \(x_i = \det(A_i)/\det(A)\), trong đó \(A_i\) là A với cột i thay bằng b. Gọn cho hệ nhỏ; với hệ lớn, máy tính dùng phép khử Gauss nhanh hơn nhiều.</li>
+        <li><b>Tìm trị riêng</b> bằng cách giải \(\det(A - \lambda I) = 0\) (phần tiếp theo).</li>
+        <li><b>Đo thay đổi diện tích, thể tích</b> trong hình học, vật lý, xử lý ảnh và các phép đổi tọa độ, ví dụ định thức Jacobi khi đổi biến trong tích phân.</li>
+      </ul>
+    </div>
+    <div class="worked"><b class="lbl">Ví dụ: quy tắc Cramer</b><p>Hệ \(2x + y = 5\), \(x + 3y = 10\) có ma trận hệ số chính là A ở trên, \(\det(A) = 5\). Khi đó:</p><div class="eq">\[ x = \frac{1}{5}\det\begin{bmatrix}5 &amp; 1\\ 10 &amp; 3\end{bmatrix} = \frac{15 - 10}{5} = 1, \qquad y = \frac{1}{5}\det\begin{bmatrix}2 &amp; 5\\ 1 &amp; 10\end{bmatrix} = \frac{20 - 5}{5} = 3. \]</div></div>
+  </div>
+</section>
+
+<section class="part tint" id="nghich-dao">
+  <div class="wrap">
+    <h2>Ma trận nghịch đảo: đi ngược phép biến đổi</h2>
+    <div class="prose">
+      <p><span class="term">Ma trận nghịch đảo</span> <span class="en">(inverse matrix)</span> \(A^{-1}\) là phép biến đổi ngược của A: làm A rồi làm \(A^{-1}\), hoặc ngược lại, thì mọi vector trở về đúng chỗ cũ.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ A^{-1}A = AA^{-1} = I, \qquad \begin{bmatrix}a &amp; b\\ c &amp; d\end{bmatrix}^{-1} = \frac{1}{ad - bc}\begin{bmatrix}d &amp; -b\\ -c &amp; a\end{bmatrix} \]</div><p class="where">\(I\): <b>ma trận đơn vị</b> <span class="en">(identity matrix)</span>, bằng 1 trên đường chéo và 0 ở chỗ khác, không làm thay đổi vector nào. Công thức 2×2 cho thấy vì sao cần \(ad - bc \neq 0\).</p></div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 0\\ 0 &amp; 3\end{bmatrix}\) thì \(A^{-1} = \begin{bmatrix}1/2 &amp; 0\\ 0 &amp; 1/3\end{bmatrix}\). Nếu \(Av = \begin{bmatrix}2\\6\end{bmatrix}\) thì \(v = A^{-1}Av = \begin{bmatrix}1\\2\end{bmatrix}\): nghịch đảo khôi phục được vector ban đầu.</p></div>
+    <div class="prose">
+      <p>Ma trận có nghịch đảo gọi là <span class="term">khả nghịch</span> <span class="en">(invertible)</span> hay <span class="term">không suy biến</span> <span class="en">(nonsingular)</span>; ma trận không có nghịch đảo là <span class="term">suy biến</span> <span class="en">(singular)</span>. Ma trận suy biến làm mất thông tin, chẳng hạn ép cả mặt phẳng 2D thành một đường thẳng: nhiều vector khác nhau rơi vào cùng một điểm, nên không có cách nào biết điểm đó đến từ đâu. Thử ví dụ "Ép thành đường thẳng" trong minh họa đầu trang.</p>
+    </div>
+    <div class="callout">Trong tính toán thực tế, để giải \(Ax = b\) người ta hiếm khi tính \(A^{-1}\) rồi nhân với b: các phép phân rã như LU hay QR nhanh hơn và ít sai số làm tròn hơn. Nghịch đảo chủ yếu là công cụ để suy luận và viết công thức, như trong phần chéo hóa dưới đây.</div>
+  </div>
+</section>
+
+<section class="part" id="tri-rieng">
+  <div class="wrap">
+    <h2>Trị riêng và vector riêng</h2>
+    <div class="prose">
+      <p>Hầu hết vector bị A làm lệch phương. Một số vector đặc biệt thì không: sau phép biến đổi, chúng vẫn nằm trên đường thẳng cũ, chỉ bị kéo dài, thu ngắn hoặc đảo chiều. Đó là <span class="term">vector riêng</span> <span class="en">(eigenvector)</span>; hệ số co giãn tương ứng là <span class="term">trị riêng</span> <span class="en">(eigenvalue)</span>.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \boxed{Av = \lambda v}, \qquad v \neq 0 \]</div><p class="where">\(A\): ma trận vuông đang xét; \(v\): vector riêng, bắt buộc khác vector 0 (vì \(A\cdot0 = \lambda\cdot0\) với mọi λ); \(\lambda\): trị riêng, một số.</p></div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 0\\ 0 &amp; 3\end{bmatrix}\). Với \(v_1 = (1; 0)\): \(Av_1 = (2; 0) = 2v_1\), trị riêng 2. Với \(v_2 = (0; 1)\): \(Av_2 = (0; 3) = 3v_2\), trị riêng 3. Mọi bội khác 0 của một vector riêng cũng là vector riêng: điều quan trọng là phương, không phải độ dài.</p></div>
+    <h3>Cách tìm: phương trình đặc trưng</h3>
+    <div class="prose">
+      <p>Viết lại \(Av = \lambda v\) thành \((A - \lambda I)v = 0\). Ta cần một nghiệm v khác 0, tức \(A - \lambda I\) ép một vector khác 0 về 0: ma trận này phải suy biến, định thức bằng 0. Đó là <span class="term">phương trình đặc trưng</span> <span class="en">(characteristic equation)</span>:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \boxed{\det(A - \lambda I) = 0} \qquad\text{với 2×2:}\quad \lambda^2 - (a + d)\,\lambda + (ad - bc) = 0 \]</div><p class="where">\(a + d\) là <b>vết</b> <span class="en">(trace)</span> của A. Theo định lý Vi-ét, tổng hai trị riêng bằng vết, tích bằng định thức. Tìm được λ rồi, thay từng giá trị vào \((A - \lambda I)v = 0\) để tìm v.</p></div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 1\\ 1 &amp; 2\end{bmatrix}\): \(\det(A - \lambda I) = (2 - \lambda)^2 - 1 = 0\), nên \(\lambda = 1\) hoặc \(\lambda = 3\).</p><p>\(\lambda = 3\): \(\begin{bmatrix}-1 &amp; 1\\ 1 &amp; -1\end{bmatrix}v = 0\) cho \(v = (1; 1)\). \(\lambda = 1\): \(\begin{bmatrix}1 &amp; 1\\ 1 &amp; 1\end{bmatrix}v = 0\) cho \(v = (1; -1)\). Kiểm tra: \(A(1; 1) = (3; 3) = 3\cdot(1; 1)\).</p></div>
+    <div class="demo" id="demoEg" data-demo="la-eigen">
+      <div class="demo-title"><h4>Đi tìm vector riêng</h4><span>Xoay v; khi Av nằm trên cùng đường thẳng với v, v là vector riêng</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="prose">
+      <p>Đồ thị dưới minh họa vẽ \(|Av|\cdot\sin(\text{góc từ } v \text{ tới } Av)\) khi v quay một vòng: đại lượng này bằng 0 đúng tại các phương riêng. Đường cong cắt trục: có hai phương riêng. Chỉ chạm trục rồi quay lại: nghiệm kép, có thể chỉ còn một phương riêng. Không chạm trục: không có trị riêng thực.</p>
+    </div>
+    <h3>Mọi ma trận đều có trị riêng?</h3>
+    <div class="prose">
+      <ul>
+        <li>Ma trận vuông thực luôn có trị riêng và vector riêng trên tập số phức \(\mathbb{C}\) (phương trình đặc trưng bậc n luôn có n nghiệm phức, tính cả bội), nhưng không nhất thiết có trị riêng thực.</li>
+        <li>Ma trận vuông phức luôn có trị riêng, vector riêng trên \(\mathbb{C}\).</li>
+        <li>Ma trận không vuông không có trị riêng theo định nghĩa thông thường: \(Av\) và \(v\) nằm trong hai không gian có số chiều khác nhau nên không thể so \(Av\) với \(\lambda v\). SVD ở phần sau đảm nhận vai trò này.</li>
+      </ul>
+    </div>
+    <div class="worked"><b class="lbl">Ví dụ: phép quay 90°</b><p>\(R = \begin{bmatrix}0 &amp; -1\\ 1 &amp; 0\end{bmatrix}\) đổi phương mọi vector khác 0, nên không có vector riêng thực. Phương trình đặc trưng \(\lambda^2 + 1 = 0\) cho hai trị riêng phức \(\lambda_1 = i\), \(\lambda_2 = -i\) với \(i = \sqrt{-1}\). Không phải ngẫu nhiên: nhân với i chính là quay 90° trên mặt phẳng phức (xem <a href="6-so-phuc.html#phep-toan">Số phức</a>).</p></div>
+  </div>
+</section>
+
+<section class="part tint" id="cheo-hoa">
+  <div class="wrap">
+    <h2>Chéo hóa: A = VΛV⁻¹</h2>
+    <div class="prose">
+      <p><span class="term">Chéo hóa</span> <span class="en">(diagonalization)</span> là biểu diễn ma trận ở dạng đường chéo thông qua một phép đổi cơ sở: lấy các vector riêng làm trục tọa độ mới, khi đó A chỉ còn là phép co giãn dọc từng trục.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \boxed{A = V\Lambda V^{-1}} \]</div><p class="where">\(V\): ma trận vector riêng, mỗi vector riêng là một cột. \(\Lambda\): <b>ma trận đường chéo</b> <span class="en">(diagonal matrix)</span> chứa các trị riêng, theo đúng thứ tự cột của V. \(V^{-1}\): nghịch đảo của V.</p></div>
+    <div class="prose">
+      <p>Điều kiện cần và đủ: một ma trận vuông n×n chéo hóa được khi và chỉ khi nó có đủ n vector riêng độc lập tuyến tính (để V khả nghịch). \(A = \begin{bmatrix}2 &amp; 0\\ 0 &amp; 3\end{bmatrix}\) có hai vector riêng độc lập nên chéo hóa được. \(B = \begin{bmatrix}2 &amp; 1\\ 0 &amp; 2\end{bmatrix}\) chỉ có một vector riêng độc lập nên không chéo hóa được; ma trận như vậy gọi là <span class="term">ma trận khuyết</span> <span class="en">(defective matrix)</span>.</p>
+    </div>
+    <h3>Đọc công thức từ phải sang trái</h3>
+    <div class="prose">
+      <p>Áp dụng lên một vector x: \(Ax = V\Lambda V^{-1}x\). Đọc theo thứ tự thực hiện:</p>
+      <ol>
+        <li>\(V^{-1}x\): chuyển x từ hệ tọa độ thông thường sang hệ tọa độ của các vector riêng.</li>
+        <li>\(\Lambda V^{-1}x\): trong hệ này phép biến đổi rất đơn giản: mỗi tọa độ nhân với trị riêng tương ứng.</li>
+        <li>\(V\Lambda V^{-1}x\): chuyển kết quả trở lại hệ tọa độ ban đầu.</li>
+      </ol>
+      <p>Đây là ý nghĩa quan trọng nhất của chéo hóa: tìm một hệ cơ sở mà trong đó phép biến đổi trở nên đơn giản.</p>
+    </div>
+    <figure class="fig">
+      <div class="la-figgrid">
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Điểm x trên lưới tọa độ chuẩn, tách theo hai trục riêng" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M22.6 0V220 M79 0V220 M135.4 0V220 M191.8 0V220 M0 211.5H220 M0 155.1H220 M0 98.7H220 M0 42.3H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 155.1H220M79 0V220" stroke="#1B1920" stroke-width="1.3"/><path d="M79 493.6L755.9 493.6 M22.6 437.2L699.5 437.2 M-33.8 380.8L643.1 380.8 M-90.3 324.4L586.7 324.4 M-146.7 267.9L530.3 267.9 M-203.1 211.5L473.8 211.5 M-259.5 155.1L417.4 155.1 M-315.9 98.7L361 98.7 M-372.3 42.3L304.6 42.3 M-428.7 -14.1L248.2 -14.1 M-485.1 -70.5L191.8 -70.5 M-541.5 -126.9L135.4 -126.9 M-597.9 -183.3L79 -183.3" stroke="#d8312a" stroke-width="1" opacity="0.22"/><path d="M79 493.6L-597.9 -183.3 M135.4 493.6L-541.5 -183.3 M191.8 493.6L-485.1 -183.3 M248.2 493.6L-428.7 -183.3 M304.6 493.6L-372.3 -183.3 M361 493.6L-315.9 -183.3 M417.4 493.6L-259.5 -183.3 M473.8 493.6L-203.1 -183.3 M530.3 493.6L-146.7 -183.3 M586.7 493.6L-90.3 -183.3 M643.1 493.6L-33.8 -183.3 M699.5 493.6L22.6 -183.3 M755.9 493.6L79 -183.3" stroke="#3f9d6a" stroke-width="1" opacity="0.22"/><path d="M-361 155.1L519 155.1" stroke="#d8312a" stroke-width="1.8" stroke-dasharray="6 4" opacity="1"/><path d="M390.1 466.3L-232.2 -156" stroke="#3f9d6a" stroke-width="1.8" stroke-dasharray="6 4" opacity="1"/><path d="M79 155.1L128.2 155.1" stroke="#d8312a" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="5 3" opacity="1"/><path d="M135.4 155.1L126.4 159.6L126.4 150.6Z" fill="#d8312a" opacity="1"/><path d="M135.4 155.1L55.9 75.6" stroke="#3f9d6a" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="5 3" opacity="1"/><path d="M50.8 70.5L60.3 73.7L54 80.1Z" fill="#3f9d6a" opacity="1"/><circle cx="50.8" cy="70.5" r="6" fill="#fff" stroke="#8f63c9" stroke-width="2.2"/><text x="42.8" y="60.5" fill="#8f63c9" font-size="12" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">x = (−0,5; 1,5)</text><text x="177.7" y="149.1" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">v₁</text><text x="8.6" y="100.7" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">v₂</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>x trong tọa độ chuẩn.</b> Trục riêng v₁ = (1; 0), v₂ = (−1; 1) của A = [[2, 1], [0, 1]]; lưới xiên là lưới của hai trục riêng: x = 1·v₁ + 1,5·v₂.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Tọa độ của x theo hai trục riêng, vẽ như hai trục vuông góc" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M53.6 0V220 M110 0V220 M166.4 0V220 M0 211.5H220 M0 155.1H220 M0 98.7H220 M0 42.3H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 155.1H220" stroke="#d8312a" stroke-width="1.8"/><path d="M53.6 0V220" stroke="#3f9d6a" stroke-width="1.8"/><path d="M53.6 155.1L102.8 155.1" stroke="#d8312a" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="5 3" opacity="1"/><path d="M110 155.1L101 159.6L101 150.6Z" fill="#d8312a" opacity="1"/><path d="M110 155.1L110 77.7" stroke="#3f9d6a" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="5 3" opacity="1"/><path d="M110 70.5L114.5 79.5L105.5 79.5Z" fill="#3f9d6a" opacity="1"/><circle cx="110" cy="70.5" r="6" fill="#fff" stroke="#8f63c9" stroke-width="2.2"/><text x="118" y="64.5" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">c = (1; 1,5)</text><text x="214" y="170.1" fill="#d8312a" font-size="11.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">theo v₁</text><text x="59.6" y="14" fill="#3f9d6a" font-size="11.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">theo v₂</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>① V⁻¹x = c.</b> Đọc x theo hai trục riêng: c = (1; 1,5). Trong hệ này hai trục riêng được vẽ vuông góc như trục tọa độ thông thường.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Nhân từng tọa độ với trị riêng tương ứng" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M53.6 0V220 M110 0V220 M166.4 0V220 M0 211.5H220 M0 155.1H220 M0 98.7H220 M0 42.3H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 155.1H220" stroke="#d8312a" stroke-width="1.8"/><path d="M53.6 0V220" stroke="#3f9d6a" stroke-width="1.8"/><circle cx="110" cy="70.5" r="5" fill="#fff" stroke="#8f63c9" stroke-width="2.2"/><path d="M53.6 155.1L159.2 155.1" stroke="#d8312a" stroke-width="3" stroke-linecap="round" opacity="1"/><path d="M166.4 155.1L157.4 159.6L157.4 150.6Z" fill="#d8312a" opacity="1"/><path d="M166.4 155.1L166.4 77.7" stroke="#3f9d6a" stroke-width="3" stroke-linecap="round" opacity="1"/><path d="M166.4 70.5L170.9 79.5L161.9 79.5Z" fill="#3f9d6a" opacity="1"/><path d="M110 70.5L152.9 70.5" stroke="#59606B" stroke-width="1.4" stroke-linecap="round" opacity="1"/><path d="M158.5 70.5L151.5 74L151.5 67Z" fill="#59606B" opacity="1"/><circle cx="166.4" cy="70.5" r="6" fill="#8f63c9" stroke="#1B1920" stroke-width="1.3"/><text x="160.4" y="60.5" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">Λc = (2; 1,5)</text><text x="138.2" y="171.1" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="middle" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">×2</text><text x="172.4" y="116.8" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">×1</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>② ΛV⁻¹x = Λc.</b> Mỗi tọa độ chỉ nhân với trị riêng của trục mình: 1 × 2 = 2 và 1,5 × 1 = 1,5. Không có phần nào trộn lẫn hai trục.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Ghép hai thành phần lại trong tọa độ chuẩn được Ax" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M22.6 0V220 M79 0V220 M135.4 0V220 M191.8 0V220 M0 211.5H220 M0 155.1H220 M0 98.7H220 M0 42.3H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 155.1H220M79 0V220" stroke="#1B1920" stroke-width="1.3"/><path d="M79 493.6L755.9 493.6 M22.6 437.2L699.5 437.2 M-33.8 380.8L643.1 380.8 M-90.3 324.4L586.7 324.4 M-146.7 267.9L530.3 267.9 M-203.1 211.5L473.8 211.5 M-259.5 155.1L417.4 155.1 M-315.9 98.7L361 98.7 M-372.3 42.3L304.6 42.3 M-428.7 -14.1L248.2 -14.1 M-485.1 -70.5L191.8 -70.5 M-541.5 -126.9L135.4 -126.9 M-597.9 -183.3L79 -183.3" stroke="#d8312a" stroke-width="1" opacity="0.22"/><path d="M79 493.6L-597.9 -183.3 M135.4 493.6L-541.5 -183.3 M191.8 493.6L-485.1 -183.3 M248.2 493.6L-428.7 -183.3 M304.6 493.6L-372.3 -183.3 M361 493.6L-315.9 -183.3 M417.4 493.6L-259.5 -183.3 M473.8 493.6L-203.1 -183.3 M530.3 493.6L-146.7 -183.3 M586.7 493.6L-90.3 -183.3 M643.1 493.6L-33.8 -183.3 M699.5 493.6L22.6 -183.3 M755.9 493.6L79 -183.3" stroke="#3f9d6a" stroke-width="1" opacity="0.22"/><path d="M-361 155.1L519 155.1" stroke="#d8312a" stroke-width="1.8" stroke-dasharray="6 4" opacity="1"/><path d="M390.1 466.3L-232.2 -156" stroke="#3f9d6a" stroke-width="1.8" stroke-dasharray="6 4" opacity="1"/><circle cx="50.8" cy="70.5" r="5" fill="#fff" stroke="#8f63c9" stroke-width="2.2"/><path d="M79 155.1L184.6 155.1" stroke="#d8312a" stroke-width="3" stroke-linecap="round" opacity="1"/><path d="M191.8 155.1L182.8 159.6L182.8 150.6Z" fill="#d8312a" opacity="1"/><path d="M191.8 155.1L112.3 75.6" stroke="#3f9d6a" stroke-width="3" stroke-linecap="round" opacity="1"/><path d="M107.2 70.5L116.7 73.7L110.4 80.1Z" fill="#3f9d6a" opacity="1"/><circle cx="107.2" cy="70.5" r="6" fill="#8f63c9" stroke="#1B1920" stroke-width="1.3"/><text x="115.2" y="62.5" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">Ax = (0,5; 1,5)</text><text x="42.8" y="64.5" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">x</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>③ VΛV⁻¹x = Ax.</b> Ghép lại: 2·v₁ + 1,5·v₂ = (0,5; 1,5). Nhân trực tiếp cũng ra (2·(−0,5) + 1·1,5; 0 + 1·1,5) = (0,5; 1,5).</p></div>
+      </div>
+      <figcaption><b>Hình 1.</b> Ba bước của \(A = V\Lambda V^{-1}\) với \(A = \begin{bmatrix}2 &amp; 1\\ 0 &amp; 1\end{bmatrix}\) (ma trận trượt trong minh họa đầu trang), \(\lambda_1 = 2\), \(\lambda_2 = 1\), áp dụng cho \(x = (-0{,}5; 1{,}5)\). Đỏ: thành phần theo \(v_1\); xanh lá: thành phần theo \(v_2\).</figcaption>
+    </figure>
+    <h3>Vì sao hữu ích: lũy thừa ma trận</h3>
+    <div class="prose">
+      <p>Tính với ma trận đường chéo rất dễ: bình phương chỉ cần bình phương từng phần tử trên đường chéo. Và vì \(V^{-1}V = I\), các cặp \(V^{-1}V\) ở giữa tích triệt tiêu nhau:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \Lambda^2 = \begin{bmatrix}2 &amp; 0\\ 0 &amp; 3\end{bmatrix}^2 = \begin{bmatrix}4 &amp; 0\\ 0 &amp; 9\end{bmatrix}, \qquad A^k = (V\Lambda V^{-1})(V\Lambda V^{-1})\cdots(V\Lambda V^{-1}) = V\Lambda^k V^{-1} \]</div></div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>Ma trận trượt ở đầu trang phân rã thành</p><div class="eq">\[ \begin{bmatrix}2 &amp; 1\\ 0 &amp; 1\end{bmatrix} = \begin{bmatrix}1 &amp; -1\\ 0 &amp; 1\end{bmatrix}\begin{bmatrix}2 &amp; 0\\ 0 &amp; 1\end{bmatrix}\begin{bmatrix}1 &amp; 1\\ 0 &amp; 1\end{bmatrix}, \]</div><p>nên</p><div class="eq">\[ A^k = \begin{bmatrix}1 &amp; -1\\ 0 &amp; 1\end{bmatrix}\begin{bmatrix}2^k &amp; 0\\ 0 &amp; 1\end{bmatrix}\begin{bmatrix}1 &amp; 1\\ 0 &amp; 1\end{bmatrix} = \begin{bmatrix}2^k &amp; 2^k - 1\\ 0 &amp; 1\end{bmatrix}. \]</div><p>Với k = 2 được \(\begin{bmatrix}4 &amp; 3\\ 0 &amp; 1\end{bmatrix}\), đúng bằng \(A\cdot A\). Muốn \(A^{100}\) chỉ cần \(2^{100}\), không phải nhân ma trận 100 lần.</p></div>
+    <div class="prose">
+      <p>Về lâu dài, thành phần theo trị riêng có trị tuyệt đối lớn nhất lấn át các thành phần khác. Vì thế nhiều quá trình lặp đi lặp lại (dân số, chuỗi Markov, xếp hạng trang web) tiến dần về một vector riêng. Minh họa dưới cho xem điều này với hai trục riêng vẽ thành lưới.</p>
+    </div>
+    <div class="demo" id="demoDg" data-demo="la-diag">
+      <div class="demo-title"><h4>Chéo hóa: nhìn theo trục riêng</h4><span>Kéo điểm x; tăng k để xem Aᵏx = VΛᵏV⁻¹x</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="boi">
+  <div class="wrap">
+    <h2>Bội đại số và bội hình học</h2>
+    <div class="prose">
+      <p>Khi trị riêng bị lặp, câu hỏi "có chéo hóa được không" trở nên tinh tế. Hai khái niệm sau trả lời chính xác.</p>
+    </div>
+    <div class="prose">
+      <p><span class="term">Bội đại số</span> <span class="en">(algebraic multiplicity, AM)</span> của λ là số lần λ xuất hiện như nghiệm của phương trình đặc trưng. Ví dụ \((\lambda - 2)^2(\lambda - 3) = 0\): trị riêng 2 có AM = 2, trị riêng 3 có AM = 1.</p>
+      <p><span class="term">Bội hình học</span> <span class="en">(geometric multiplicity, GM)</span> của λ là số vector riêng độc lập tuyến tính ứng với λ, tức số chiều của <span class="term">không gian riêng</span> <span class="en">(eigenspace)</span>: tập mọi nghiệm của \((A - \lambda I)v = 0\), kể cả vector 0. Luôn có \(1 \le \text{GM}(\lambda) \le \text{AM}(\lambda)\).</p>
+    </div>
+    <div class="formula"><div class="eq">\[ A \text{ chéo hóa được} \iff \boxed{\text{GM}(\lambda) = \text{AM}(\lambda)} \text{ với mọi trị riêng } \lambda \]</div></div>
+    <div class="prose">
+      <ul>
+        <li>Trị riêng phân biệt <span class="en">(distinct eigenvalues)</span> luôn đảm bảo chéo hóa được: mỗi λ có AM = 1, mà GM ít nhất là 1.</li>
+        <li>Trị riêng lặp <span class="en">(repeated eigenvalues)</span> không có nghĩa là không chéo hóa được: ma trận 2I có trị riêng 2 lặp hai lần nhưng AM = GM = 2.</li>
+      </ul>
+    </div>
+    <figure class="fig">
+      <div class="la-figgrid">
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Ma trận đường chéo 2, 3: hai phương riêng là hai trục tọa độ" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M12.9 0V220 M45.3 0V220 M77.6 0V220 M110 0V220 M142.4 0V220 M174.7 0V220 M207.1 0V220 M0 207.1H220 M0 174.7H220 M0 142.4H220 M0 110H220 M0 77.6H220 M0 45.3H220 M0 12.9H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><circle cx="110" cy="110" r="32.4" fill="none" stroke="#B9C4CC" stroke-width="1.5"/><path d="M174.7 110L174.6 104.9L174.4 99.9L173.9 94.8L173.3 89.8L172.5 84.9L171.5 80L170.4 75.2L169.1 70.5L167.7 65.9L166 61.5L164.3 57.1L162.3 53L160.3 48.9L158.1 45.1L155.8 41.4L153.3 37.9L150.7 34.6L148 31.5L145.2 28.6L142.4 25.9L139.4 23.5L136.3 21.3L133.2 19.4L130 17.7L126.7 16.2L123.5 15.1L120.1 14.1L116.8 13.5L113.4 13.1L110 12.9L106.6 13.1L103.2 13.5L99.9 14.1L96.5 15.1L93.3 16.2L90 17.7L86.8 19.4L83.7 21.3L80.6 23.5L77.6 25.9L74.8 28.6L72 31.5L69.3 34.6L66.7 37.9L64.2 41.4L61.9 45.1L59.7 48.9L57.7 53L55.7 57.1L54 61.5L52.3 65.9L50.9 70.5L49.6 75.2L48.5 80L47.5 84.9L46.7 89.8L46.1 94.8L45.6 99.9L45.4 104.9L45.3 110L45.4 115.1L45.6 120.1L46.1 125.2L46.7 130.2L47.5 135.1L48.5 140L49.6 144.8L50.9 149.5L52.3 154.1L54 158.5L55.7 162.9L57.7 167L59.7 171.1L61.9 174.9L64.2 178.6L66.7 182.1L69.3 185.4L72 188.5L74.8 191.4L77.6 194.1L80.6 196.5L83.7 198.7L86.8 200.6L90 202.3L93.3 203.8L96.5 204.9L99.9 205.9L103.2 206.5L106.6 206.9L110 207.1L113.4 206.9L116.8 206.5L120.1 205.9L123.5 204.9L126.7 203.8L130 202.3L133.2 200.6L136.3 198.7L139.4 196.5L142.4 194.1L145.2 191.4L148 188.5L150.7 185.4L153.3 182.1L155.8 178.6L158.1 174.9L160.3 171.1L162.3 167L164.3 162.9L166 158.5L167.7 154.1L169.1 149.5L170.4 144.8L171.5 140L172.5 135.1L173.3 130.2L173.9 125.2L174.4 120.1L174.6 115.1L174.7 110Z" fill="none" stroke="#3787c4" stroke-width="2" stroke-dasharray="6 4" opacity="1"/><path d="M-330 110L550 110" stroke="#d8312a" stroke-width="2" stroke-dasharray="6 4" opacity="1"/><path d="M110 550L110 -330" stroke="#3f9d6a" stroke-width="2" stroke-dasharray="6 4" opacity="1"/><text x="183.6" y="104" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">λ = 2</text><text x="116" y="21.3" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">λ = 3</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><span class="mat c2"><span>2</span><span>0</span><span>0</span><span>3</span></span> <b>Hai trị riêng phân biệt.</b> Hai phương riêng; AM = GM = 1 cho mỗi λ. Chéo hóa được.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Ma trận 2I: mọi vector đều là vector riêng" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M12.9 0V220 M45.3 0V220 M77.6 0V220 M110 0V220 M142.4 0V220 M174.7 0V220 M207.1 0V220 M0 207.1H220 M0 174.7H220 M0 142.4H220 M0 110H220 M0 77.6H220 M0 45.3H220 M0 12.9H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><circle cx="110" cy="110" r="32.4" fill="none" stroke="#B9C4CC" stroke-width="1.5"/><path d="M-330 110L550 110" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M-315 223.9L535 -3.9" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M-271.1 330L491.1 -110" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M-201.1 421.1L421.1 -201.1" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M-110 491.1L330 -271.1" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M-3.9 535L223.9 -315" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M110 550L110 -330" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M223.9 535L-3.9 -315" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M330 491.1L-110 -271.1" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M421.1 421.1L-201.1 -201.1" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M491.1 330L-271.1 -110" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><path d="M535 223.9L-315 -3.9" stroke="#8f63c9" stroke-width="1.1" stroke-dasharray="3 4" opacity="0.55"/><circle cx="110" cy="110" r="64.7" fill="none" stroke="#3787c4" stroke-width="2" stroke-dasharray="6 4"/><path d="M110 110L160.5 82.4" stroke="#3787c4" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M166.8 79L161 87.2L156.7 79.3Z" fill="#3787c4" opacity="1"/><path d="M110 110L132.1 97.9" stroke="#8f63c9" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M138.4 94.5L132.7 102.8L128.3 94.9Z" fill="#8f63c9" opacity="1"/><path d="M110 110L71.7 67.1" stroke="#3787c4" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M66.9 61.7L76.2 65.5L69.5 71.5Z" fill="#3787c4" opacity="1"/><path d="M110 110L93.2 91.2" stroke="#8f63c9" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M88.4 85.9L97.8 89.6L91.1 95.6Z" fill="#8f63c9" opacity="1"/><path d="M110 110L81.8 160.1" stroke="#3787c4" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M78.3 166.4L78.8 156.3L86.6 160.8Z" fill="#3787c4" opacity="1"/><path d="M110 110L97.7 131.9" stroke="#8f63c9" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M94.1 138.2L94.6 128.1L102.5 132.6Z" fill="#8f63c9" opacity="1"/><text x="16.2" y="203.8" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">mọi phương</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><span class="mat c2"><span>2</span><span>0</span><span>0</span><span>2</span></span> <b>λ = 2 lặp, AM = 2, GM = 2.</b> Mọi vector đều bị nhân 2: mọi phương là phương riêng. Chéo hóa được.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Ma trận khuyết 2, 1, 0, 2: chỉ một phương riêng" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M12.9 0V220 M45.3 0V220 M77.6 0V220 M110 0V220 M142.4 0V220 M174.7 0V220 M207.1 0V220 M0 207.1H220 M0 174.7H220 M0 142.4H220 M0 110H220 M0 77.6H220 M0 45.3H220 M0 12.9H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><circle cx="110" cy="110" r="32.4" fill="none" stroke="#B9C4CC" stroke-width="1.5"/><path d="M174.7 110L176.3 106.6L177.7 103.2L179 99.9L180 96.5L180.9 93.3L181.5 90L182 86.8L182.3 83.7L182.3 80.6L182.2 77.6L181.9 74.8L181.4 72L180.6 69.3L179.7 66.7L178.6 64.2L177.3 61.9L175.9 59.7L174.2 57.7L172.4 55.7L170.4 54L168.2 52.3L165.9 50.9L163.4 49.6L160.8 48.5L158 47.5L155.1 46.7L152.1 46.1L148.9 45.6L145.7 45.4L142.4 45.3L138.9 45.4L135.4 45.6L131.8 46.1L128.2 46.7L124.5 47.5L120.8 48.5L117 49.6L113.2 50.9L109.5 52.3L105.7 54L101.9 55.7L98.1 57.7L94.4 59.7L90.7 61.9L87.1 64.2L83.6 66.7L80.1 69.3L76.7 72L73.4 74.8L70.1 77.6L67 80.6L64 83.7L61.2 86.8L58.5 90L55.9 93.3L53.4 96.5L51.2 99.9L49 103.2L47.1 106.6L45.3 110L43.7 113.4L42.3 116.8L41 120.1L40 123.5L39.1 126.7L38.5 130L38 133.2L37.7 136.3L37.7 139.4L37.8 142.4L38.1 145.2L38.6 148L39.4 150.7L40.3 153.3L41.4 155.8L42.7 158.1L44.1 160.3L45.8 162.3L47.6 164.3L49.6 166L51.8 167.7L54.1 169.1L56.6 170.4L59.2 171.5L62 172.5L64.9 173.3L67.9 173.9L71.1 174.4L74.3 174.6L77.6 174.7L81.1 174.6L84.6 174.4L88.2 173.9L91.8 173.3L95.5 172.5L99.2 171.5L103 170.4L106.8 169.1L110.5 167.7L114.3 166L118.1 164.3L121.9 162.3L125.6 160.3L129.3 158.1L132.9 155.8L136.4 153.3L139.9 150.7L143.3 148L146.6 145.2L149.9 142.4L153 139.4L156 136.3L158.8 133.2L161.5 130L164.1 126.7L166.6 123.5L168.8 120.1L171 116.8L172.9 113.4L174.7 110Z" fill="none" stroke="#3787c4" stroke-width="2" stroke-dasharray="6 4" opacity="1"/><path d="M-330 110L550 110" stroke="#d8312a" stroke-width="2" stroke-dasharray="6 4" opacity="1"/><text x="181.2" y="103" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">λ = 2</text><path d="M110 110L158.8 55.1" stroke="#3787c4" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M163.6 49.7L161 59.4L154.3 53.4Z" fill="#3787c4" opacity="1"/><path d="M110 110L119.1 86.6" stroke="#8f63c9" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M121.7 79.8L122.7 89.9L114.3 86.6Z" fill="#8f63c9" opacity="1"/><text x="107.7" y="77.8" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">v</text><text x="167.6" y="47.7" fill="#3787c4" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">Av</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><span class="mat c2"><span>2</span><span>1</span><span>0</span><span>2</span></span> <b>λ = 2 lặp, AM = 2, GM = 1.</b> Chỉ trục hoành giữ phương; v ngoài trục bị kéo lệch. Không chéo hóa được.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Ma trận quay 90 độ: không có vector riêng thực" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M12.9 0V220 M45.3 0V220 M77.6 0V220 M110 0V220 M142.4 0V220 M174.7 0V220 M207.1 0V220 M0 207.1H220 M0 174.7H220 M0 142.4H220 M0 110H220 M0 77.6H220 M0 45.3H220 M0 12.9H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><circle cx="110" cy="110" r="32.4" fill="none" stroke="#3787c4" stroke-width="2" stroke-dasharray="6 4"/><path d="M110 110L167.6 82.2" stroke="#8f63c9" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M174.1 79L167.9 87L164 78.9Z" fill="#8f63c9" opacity="1"/><path d="M110 110L82.2 52.4" stroke="#3787c4" stroke-width="2.4" stroke-linecap="round" opacity="1"/><path d="M79 45.9L87 52.1L78.9 56Z" fill="#3787c4" opacity="1"/><path d="M145.2 93A39.1 39.1 0 0 0 93 74.8" fill="none" stroke="#59606B" stroke-width="1.4"/><text x="179.1" y="83" fill="#8f63c9" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">v</text><text x="75" y="41.9" fill="#3787c4" font-size="12.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">Av</text><text x="6.5" y="203.8" fill="#59606B" font-size="11.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">không phương nào giữ nguyên</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><span class="mat c2"><span>0</span><span>−1</span><span>1</span><span>0</span></span> <b>λ = ±i.</b> Không có trị riêng thực; trên tập số phức có hai trị riêng phân biệt nên chéo hóa được trên ℂ.</p></div>
+      </div>
+      <figcaption><b>Hình 2.</b> Đường tròn xám: vòng tròn đơn vị; đường đứt xanh dương: ảnh của nó qua A; đường đứt đỏ, xanh lá: phương riêng. Cùng là ma trận 2×2 nhưng số phương riêng thực có thể là 2, vô số, 1 hoặc 0. Chọn các ma trận này trong minh họa "Đi tìm vector riêng" để xem đường cong độ lệch của từng trường hợp.</figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Ma trận</th><th>Trị riêng</th><th>AM</th><th>GM</th><th>Chéo hóa được?</th></tr></thead>
+        <tbody>
+          <tr><td>\(\begin{bmatrix}2 &amp; 0\\ 0 &amp; 3\end{bmatrix}\)</td><td>2 và 3</td><td>1 và 1</td><td>1 và 1</td><td>Có</td></tr>
+          <tr><td>\(2I = \begin{bmatrix}2 &amp; 0\\ 0 &amp; 2\end{bmatrix}\)</td><td>2 (lặp)</td><td>2</td><td>2</td><td>Có (vốn đã là ma trận đường chéo)</td></tr>
+          <tr><td>\(\begin{bmatrix}2 &amp; 1\\ 0 &amp; 2\end{bmatrix}\)</td><td>2 (lặp)</td><td>2</td><td>1</td><td>Không: ma trận khuyết</td></tr>
+          <tr><td>\(\begin{bmatrix}0 &amp; -1\\ 1 &amp; 0\end{bmatrix}\)</td><td>\(i\) và \(-i\)</td><td>1 và 1</td><td>1 và 1</td><td>Không trên \(\mathbb{R}\); có trên \(\mathbb{C}\)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="part tint" id="doi-xung">
+  <div class="wrap">
+    <h2>Ma trận đối xứng: luôn chéo hóa được</h2>
+    <div class="prose">
+      <p>Một số loại ma trận luôn chéo hóa được, không cần kiểm tra AM và GM:</p>
+    </div>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Loại ma trận</th><th>Điều kiện</th><th>Khả năng chéo hóa</th></tr></thead>
+        <tbody>
+          <tr><td>Đối xứng thực <span class="en">(real symmetric)</span></td><td>\(A = A^T\)</td><td>Luôn luôn, bằng một ma trận trực giao; trị riêng thực.</td></tr>
+          <tr><td>Hermitian phức <span class="en">(complex Hermitian)</span></td><td>\(A = A^H\)</td><td>Luôn luôn, bằng một ma trận unita; trị riêng thực.</td></tr>
+          <tr><td>Trực giao <span class="en">(orthogonal)</span></td><td>\(A^TA = I\)</td><td>Luôn luôn trên \(\mathbb{C}\); mọi trị riêng có \(|\lambda| = 1\).</td></tr>
+          <tr><td>Đường chéo <span class="en">(diagonal)</span></td><td>Phần tử ngoài đường chéo bằng 0</td><td>Luôn luôn (vốn đã ở dạng chéo).</td></tr>
+          <tr><td>Chuẩn tắc <span class="en">(normal)</span>, bao gồm cả bốn loại trên</td><td>\(A^HA = AA^H\)</td><td>Luôn luôn trên \(\mathbb{C}\), bằng một ma trận unita.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3 id="truc-giao">Trực giao và trực chuẩn</h3>
+    <div class="prose">
+      <p>Hai vector <span class="term">vuông góc</span> <span class="en">(orthogonal)</span> khi tích vô hướng của chúng bằng 0. Một bộ vector là <span class="term">trực chuẩn</span> <span class="en">(orthonormal)</span> nếu chúng vuông góc từng đôi và mỗi vector dài đúng 1. Ma trận có các cột trực chuẩn là <span class="term">ma trận trực giao</span> Q: \(Q^TQ = I\), nên \(Q^{-1} = Q^T\), khỏi phải tính nghịch đảo. Phép biến đổi bởi Q giữ nguyên độ dài và góc: đó là phép quay, có thể kèm phản chiếu (\(\det Q = \pm1\)).</p>
+    </div>
+    <h3>Định lý phổ cho ma trận đối xứng</h3>
+    <div class="prose">
+      <p>Nếu A là ma trận thực đối xứng, \(A = A^T\), thì luôn phân rã được:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \boxed{A = Q\Lambda Q^T} = \lambda_1 q_1q_1^T + \lambda_2 q_2q_2^T + \dots + \lambda_n q_nq_n^T \]</div><p class="where">\(Q\): ma trận trực giao, các cột \(q_i\) là vector riêng trực chuẩn. \(\Lambda\): ma trận đường chéo chứa trị riêng. Dạng tổng cho thấy A là tổng của các phép "chiếu lên \(q_i\) rồi nhân \(\lambda_i\)".</p></div>
+    <div class="prose">
+      <ul>
+        <li>Mọi trị riêng đều là số thực.</li>
+        <li>Các vector riêng ứng với những trị riêng khác nhau vuông góc với nhau.</li>
+        <li>Luôn chọn được một bộ vector riêng trực chuẩn, kể cả khi có trị riêng lặp.</li>
+      </ul>
+    </div>
+    <div class="worked"><b class="lbl">Ví dụ</b><p>\(A = \begin{bmatrix}2 &amp; 1\\ 1 &amp; 2\end{bmatrix}\) có vector riêng \((1; 1)\) và \((1; -1)\): tích vô hướng \(1 - 1 = 0\), vuông góc. Chia mỗi vector cho độ dài \(\sqrt2\): \(Q = \frac{1}{\sqrt2}\begin{bmatrix}1 &amp; 1\\ 1 &amp; -1\end{bmatrix}\), \(\Lambda = \begin{bmatrix}3 &amp; 0\\ 0 &amp; 1\end{bmatrix}\), và \(Q\Lambda Q^T = A\).</p></div>
+    <div class="prose">
+      <p>Nếu thêm điều kiện mọi trị riêng đều dương, A gọi là <span class="term">xác định dương</span> <span class="en">(positive definite)</span>: \(x^TAx > 0\) với mọi \(x \neq 0\). Về mặt vật lý, tensor khuếch tán và tensor độ dẫn điện thuộc loại này; khi ước lượng từ ảnh nhiễu vẫn có thể ra trị riêng âm, và phần mềm phải xử lý riêng những voxel đó.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="svd">
+  <div class="wrap">
+    <h2>SVD: phân rã cho mọi ma trận</h2>
+    <div class="prose">
+      <p>Phân rã trị riêng chỉ dành cho ma trận vuông và không phải lúc nào cũng làm được. <span class="term">Phân rã giá trị kỳ dị</span> <span class="en">(Singular Value Decomposition, SVD)</span> tổng quát hơn: nó luôn tồn tại với mọi ma trận kích thước hữu hạn, vuông hay không vuông.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \boxed{A = U\Sigma V^H} \]</div><p class="where">\(U, V\): ma trận unita (với ma trận thực là ma trận trực giao, \(V^H = V^T\)). \(\Sigma\): ma trận cùng cỡ với A, khác 0 chỉ trên đường chéo, chứa các <b>giá trị kỳ dị</b> \(\sigma_1 \ge \sigma_2 \ge \dots \ge 0\). Ta có \(\sigma_i^2\) là trị riêng của \(A^HA\); cột của V là vector riêng của \(A^HA\), cột của U là vector riêng của \(AA^H\).</p></div>
+    <div class="prose">
+      <p>Ý nghĩa hình học: mọi ma trận đều là một phép quay (có thể kèm phản chiếu), rồi co giãn dọc các trục vuông góc, rồi quay thêm lần nữa. Ảnh của đường tròn đơn vị luôn là một ellipse, và các giá trị kỳ dị là độ dài các bán trục của nó.</p>
+    </div>
+    <figure class="fig">
+      <div class="la-figgrid">
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Đường tròn đơn vị với hai vector kỳ dị phải vuông góc" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M23.7 0V220 M66.9 0V220 M110 0V220 M153.1 0V220 M196.3 0V220 M0 196.3H220 M0 153.1H220 M0 110H220 M0 66.9H220 M0 23.7H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><circle cx="110" cy="110" r="43.1" fill="none" stroke="#1B1920" stroke-width="1.8"/><path d="M110 110L140.6 91.1" stroke="#d8312a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M146.7 87.3L141.4 95.9L136.7 88.2Z" fill="#d8312a" opacity="1"/><path d="M110 110L91.1 79.4" stroke="#3f9d6a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M87.3 73.3L95.9 78.6L88.2 83.3Z" fill="#3f9d6a" opacity="1"/><text x="150.7" y="85.3" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">v₁</text><text x="81.3" y="69.3" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">v₂</text><circle cx="153.1" cy="110" r="4.5" fill="#f2c230" stroke="#1B1920" stroke-width="1.3"/><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>Đầu vào.</b> Đường tròn đơn vị và hai vector kỳ dị phải v₁, v₂ (vuông góc, độ dài 1). Chấm vàng đánh dấu để theo dõi phép quay.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Sau Vᵀ: quay để v1, v2 trùng hai trục tọa độ" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M23.7 0V220 M66.9 0V220 M110 0V220 M153.1 0V220 M196.3 0V220 M0 196.3H220 M0 153.1H220 M0 110H220 M0 66.9H220 M0 23.7H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><circle cx="110" cy="110" r="43.1" fill="none" stroke="#1B1920" stroke-width="1.8"/><path d="M110 110L145.9 110" stroke="#d8312a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M153.1 110L144.1 114.5L144.1 105.5Z" fill="#d8312a" opacity="1"/><path d="M110 110L110 74.1" stroke="#3f9d6a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M110 66.9L114.5 75.9L105.5 75.9Z" fill="#3f9d6a" opacity="1"/><circle cx="146.7" cy="132.7" r="4.5" fill="#f2c230" stroke="#1B1920" stroke-width="1.3"/><text x="157.1" y="106" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">e₁</text><text x="115" y="64.9" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">e₂</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>① Vᵀ: quay</b> khoảng 32° theo chiều kim đồng hồ để v₁, v₂ nằm trên hai trục. Đường tròn vẫn là đường tròn.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Sau Sigma: kéo giãn theo hai trục thành ellipse" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M23.7 0V220 M66.9 0V220 M110 0V220 M153.1 0V220 M196.3 0V220 M0 196.3H220 M0 153.1H220 M0 110H220 M0 66.9H220 M0 23.7H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><path d="M208.7 110L208.6 108L208.2 106.1L207.5 104.1L206.6 102.2L205.3 100.2L203.9 98.3L202.2 96.5L200.2 94.7L198 92.9L195.5 91.1L192.8 89.5L189.9 87.8L186.7 86.3L183.4 84.8L179.8 83.3L176 82L172.1 80.7L168 79.5L163.8 78.4L159.4 77.3L154.8 76.4L150.1 75.6L145.4 74.8L140.5 74.1L135.5 73.6L130.5 73.1L125.4 72.8L120.3 72.5L115.2 72.3L110 72.3L104.8 72.3L99.7 72.5L94.6 72.8L89.5 73.1L84.5 73.6L79.5 74.1L74.6 74.8L69.9 75.6L65.2 76.4L60.6 77.3L56.2 78.4L52 79.5L47.9 80.7L44 82L40.2 83.3L36.6 84.8L33.3 86.3L30.1 87.8L27.2 89.5L24.5 91.1L22 92.9L19.8 94.7L17.8 96.5L16.1 98.3L14.7 100.2L13.4 102.2L12.5 104.1L11.8 106.1L11.4 108L11.3 110L11.4 112L11.8 113.9L12.5 115.9L13.4 117.8L14.7 119.8L16.1 121.7L17.8 123.5L19.8 125.3L22 127.1L24.5 128.9L27.2 130.5L30.1 132.2L33.3 133.7L36.6 135.2L40.2 136.7L44 138L47.9 139.3L52 140.5L56.2 141.6L60.6 142.7L65.2 143.6L69.9 144.4L74.6 145.2L79.5 145.9L84.5 146.4L89.5 146.9L94.6 147.2L99.7 147.5L104.8 147.7L110 147.7L115.2 147.7L120.3 147.5L125.4 147.2L130.5 146.9L135.5 146.4L140.5 145.9L145.4 145.2L150.1 144.4L154.8 143.6L159.4 142.7L163.8 141.6L168 140.5L172.1 139.3L176 138L179.8 136.7L183.4 135.2L186.7 133.7L189.9 132.2L192.8 130.5L195.5 128.9L198 127.1L200.2 125.3L202.2 123.5L203.9 121.7L205.3 119.8L206.6 117.8L207.5 115.9L208.2 113.9L208.6 112L208.7 110Z" fill="none" stroke="#1B1920" stroke-width="1.8" opacity="1"/><path d="M110 110L201.5 110" stroke="#d8312a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M208.7 110L199.7 114.5L199.7 105.5Z" fill="#d8312a" opacity="1"/><path d="M110 110L110 79.5" stroke="#3f9d6a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M110 72.3L114.5 81.3L105.5 81.3Z" fill="#3f9d6a" opacity="1"/><circle cx="194" cy="129.8" r="4.5" fill="#f2c230" stroke="#1B1920" stroke-width="1.3"/><text x="206.7" y="102" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">σ₁</text><text x="115" y="68.3" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">σ₂</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>② Σ: co giãn theo trục,</b> σ₁ ≈ 2,29, σ₂ ≈ 0,87: đường tròn thành ellipse có bán trục σ₁, σ₂.</p></div>
+        <div><svg viewBox="0 0 220 220" role="img" aria-label="Sau U: quay ellipse về vị trí cuối, đúng bằng ảnh qua A" xmlns="http://www.w3.org/2000/svg"><rect width="220" height="220" fill="#FBFCFD"/><path d="M23.7 0V220 M66.9 0V220 M110 0V220 M153.1 0V220 M196.3 0V220 M0 196.3H220 M0 153.1H220 M0 110H220 M0 66.9H220 M0 23.7H220" stroke="#E3EAF0" stroke-width="1"/><path d="M0 110H220M110 0V220" stroke="#1B1920" stroke-width="1.3"/><path d="M196.3 110L198.4 107.7L200.3 105.5L202 103.3L203.4 101L204.5 98.8L205.4 96.7L206 94.5L206.4 92.5L206.5 90.4L206.3 88.4L205.9 86.5L205.2 84.6L204.2 82.9L203 81.1L201.5 79.5L199.8 77.9L197.8 76.5L195.6 75.1L193.2 73.8L190.5 72.6L187.6 71.6L184.5 70.6L181.2 69.7L177.7 69L174 68.3L170.1 67.8L166.1 67.4L161.9 67.1L157.6 66.9L153.1 66.9L148.6 66.9L143.9 67.1L139.1 67.4L134.3 67.8L129.3 68.3L124.4 69L119.4 69.7L114.3 70.6L109.3 71.6L104.2 72.6L99.2 73.8L94.2 75.1L89.2 76.5L84.3 77.9L79.5 79.5L74.8 81.1L70.1 82.9L65.6 84.6L61.1 86.5L56.9 88.4L52.7 90.4L48.7 92.5L44.9 94.5L41.3 96.7L37.8 98.8L34.6 101L31.5 103.3L28.7 105.5L26.1 107.7L23.7 110L21.6 112.3L19.7 114.5L18 116.7L16.6 119L15.5 121.2L14.6 123.3L14 125.5L13.6 127.5L13.5 129.6L13.7 131.6L14.1 133.5L14.8 135.4L15.8 137.1L17 138.9L18.5 140.5L20.2 142.1L22.2 143.5L24.4 144.9L26.8 146.2L29.5 147.4L32.4 148.4L35.5 149.4L38.8 150.3L42.3 151L46 151.7L49.9 152.2L53.9 152.6L58.1 152.9L62.4 153.1L66.9 153.1L71.4 153.1L76.1 152.9L80.9 152.6L85.7 152.2L90.7 151.7L95.6 151L100.6 150.3L105.7 149.4L110.7 148.4L115.8 147.4L120.8 146.2L125.8 144.9L130.8 143.5L135.7 142.1L140.5 140.5L145.2 138.9L149.9 137.1L154.4 135.4L158.9 133.5L163.1 131.6L167.3 129.6L171.3 127.5L175.1 125.5L178.7 123.3L182.2 121.2L185.4 119L188.5 116.7L191.3 114.5L193.9 112.3L196.3 110Z" fill="none" stroke="#1B1920" stroke-width="1.8" opacity="1"/><path d="M110 110L199.1 89" stroke="#d8312a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M206.1 87.3L198.3 93.8L196.3 85Z" fill="#d8312a" opacity="1"/><path d="M110 110L103 80.3" stroke="#3f9d6a" stroke-width="2.8" stroke-linecap="round" opacity="1"/><path d="M101.3 73.3L107.8 81L99 83.1Z" fill="#3f9d6a" opacity="1"/><circle cx="196.3" cy="110" r="4.5" fill="#f2c230" stroke="#1B1920" stroke-width="1.3"/><text x="204.1" y="78.3" fill="#d8312a" font-size="12.5" font-weight="600" text-anchor="end" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">Av₁</text><text x="106.3" y="71.3" fill="#3f9d6a" font-size="12.5" font-weight="600" text-anchor="start" paint-order="stroke" stroke="#FBFCFD" stroke-width="3.5" stroke-linejoin="round">Av₂</text><rect x=".75" y=".75" width="218.5" height="218.5" fill="none" stroke="#1B1920" stroke-width="1.5"/></svg><p class="cap"><b>③ U: quay</b> khoảng 13° ngược chiều kim đồng hồ. Kết quả đúng bằng ảnh của đường tròn qua A = [[2, 1], [0, 1]]; Av₁ = σ₁u₁, Av₂ = σ₂u₂ vuông góc nhau.</p></div>
+      </div>
+      <figcaption><b>Hình 3.</b> SVD của \(A = \begin{bmatrix}2 &amp; 1\\ 0 &amp; 1\end{bmatrix}\). Trị riêng của A là 2 và 1, ứng với hai vector riêng không vuông góc; còn hai giá trị kỳ dị ≈ 2,29 và 0,87 đi với hai hướng luôn vuông góc. Tích \(\sigma_1\sigma_2 = |\det A| = 2\), bằng tích trị tuyệt đối các trị riêng.</figcaption>
+    </figure>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Tiêu chí</th><th>Phân rã trị riêng</th><th>SVD</th></tr></thead>
+        <tbody>
+          <tr><td>Ma trận đầu vào</td><td>Vuông</td><td>Vuông hoặc không vuông</td></tr>
+          <tr><td>Luôn thực hiện được?</td><td>Không (ma trận khuyết thì không)</td><td>Có</td></tr>
+          <tr><td>Thành phần</td><td>Trị riêng, vector riêng</td><td>Giá trị kỳ dị, vector kỳ dị trái và phải</td></tr>
+          <tr><td>Các hướng tìm được</td><td>Không nhất thiết vuông góc</td><td>Luôn trực chuẩn</td></tr>
+          <tr><td>Ứng dụng</td><td>Phân tích đặc tính ma trận, lũy thừa, hệ động lực</td><td>Giảm chiều dữ liệu, xử lý tín hiệu, bình phương tối thiểu</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="prose">
+      <p>Giữ lại k giá trị kỳ dị lớn nhất và bỏ phần còn lại cho ra xấp xỉ hạng k tốt nhất của A (định lý Eckart–Young): đây là nền tảng của nén ảnh, khử nhiễu, phân tích thành phần chính (PCA) và bài toán bình phương tối thiểu <span class="en">(least squares)</span>. Với ma trận đối xứng xác định dương như tensor khuếch tán, SVD và phân rã trị riêng trùng nhau.</p>
+    </div>
+  </div>
+</section>
+
+<section class="part tint" id="tensor">
+  <div class="wrap">
+    <h2>Tensor 3×3 trong DTI và mô hình độ dẫn điện</h2>
+    <div class="prose">
+      <p>Ảnh khuếch tán DTI đo chuyển động ngẫu nhiên của phân tử nước theo nhiều hướng. Ở mỗi voxel, kết quả được gói vào một ma trận đối xứng thực 3×3, gọi là <span class="term">tensor khuếch tán</span> <span class="en">(diffusion tensor)</span>:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ D = \begin{bmatrix} D_{xx} &amp; D_{xy} &amp; D_{xz}\\ D_{xy} &amp; D_{yy} &amp; D_{yz}\\ D_{xz} &amp; D_{yz} &amp; D_{zz}\end{bmatrix} = D^T \quad\Longrightarrow\quad \boxed{D = Q\Lambda Q^T} \]</div><p class="where">Chỉ có sáu số độc lập (không phải chín) vì D đối xứng. \(\Lambda\) chứa ba trị riêng \(\lambda_1 \ge \lambda_2 \ge \lambda_3\): độ lớn khuếch tán theo ba phương chính. \(Q\) chứa ba vector riêng \(e_1, e_2, e_3\): hướng của ba trục chính, luôn chọn được vuông góc từng đôi và dài 1.</p></div>
+    <div class="prose">
+      <p>Ảnh của mặt cầu đơn vị qua D là một ellipsoid có ba bán trục dài \(\lambda_1, \lambda_2, \lambda_3\) dọc theo \(e_1, e_2, e_3\). (Một số phần mềm vẽ bán trục tỉ lệ với \(\sqrt{\lambda}\), tức quãng dịch chuyển trung bình của phân tử nước; hình dạng tương tự.) Trong chất trắng, nước đi dọc sợi trục thần kinh dễ hơn đi xuyên qua các lớp màng myelin, nên ellipsoid dài ra theo hướng sợi và \(e_1\) là ước lượng hướng của bó sợi. Hai chỉ số hay dùng:</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \text{MD} = \frac{\lambda_1 + \lambda_2 + \lambda_3}{3} = \frac{\operatorname{tr} D}{3}, \qquad \text{FA} = \sqrt{\tfrac12}\,\frac{\sqrt{(\lambda_1-\lambda_2)^2 + (\lambda_2-\lambda_3)^2 + (\lambda_3-\lambda_1)^2}}{\sqrt{\lambda_1^2 + \lambda_2^2 + \lambda_3^2}} \]</div><p class="where"><b>MD</b> <span class="en">(mean diffusivity)</span>: khuếch tán trung bình, bằng vết chia 3 nên không cần tìm trị riêng. <b>FA</b> <span class="en">(fractional anisotropy)</span>: độ bất đẳng hướng, từ 0 (như nhau mọi hướng) tới gần 1 (gần như chỉ đi theo một hướng). Bản đồ màu DTI tô mỗi voxel theo \((|e_{1x}|, |e_{1y}|, |e_{1z}|)\) nhân FA: đỏ là trái–phải, xanh lá là trước–sau, xanh dương là trên–dưới.</p></div>
+    <h3>Từ khuếch tán sang độ dẫn điện</h3>
+    <div class="prose">
+      <p>Ion mang dòng điện trong mô cũng phải luồn qua chính những cấu trúc cản trở phân tử nước, nên tensor độ dẫn điện σ thường được giả định có cùng vector riêng với D. Tuch và cộng sự (2001) suy ra quan hệ tuyến tính giữa trị riêng của hai tensor, với hệ số đo được khoảng 0,844 S·s/mm³ <a href="#ref8">[8]</a>. Các phần mềm mô phỏng TMS, tDCS như SimNIBS giữ nguyên vector riêng của D và chỉ đổi trị riêng: hoặc nhân trực tiếp với một hệ số, hoặc <span class="term">chuẩn hóa thể tích</span> <span class="en">(volume normalization)</span> sao cho trung bình nhân \(\sqrt[3]{\sigma_1\sigma_2\sigma_3}\) bằng độ dẫn đẳng hướng của mô (mặc định: chất trắng 0,126 S/m, chất xám 0,275 S/m, dịch não tủy 1,654 S/m) <a href="#ref9">[9]</a>, <a href="#ref10">[10]</a>.</p>
+    </div>
+    <div class="formula"><div class="eq">\[ \sigma = Q\Lambda_\sigma Q^T, \qquad J = \sigma E \]</div><p class="where">Định luật Ohm cho mô bất đẳng hướng: mật độ dòng điện J cùng phương với điện trường E chỉ khi E nằm dọc một vector riêng của σ; ở các hướng khác, dòng điện bị kéo lệch về phía sợi.</p></div>
+    <div class="prose">
+      <p>Đây là lý do phân rã trị riêng hữu ích khi phân tích <span class="term">tính bất đẳng hướng</span> <span class="en">(anisotropy)</span> của mô trong DTI và trong mô hình điện trường TMS: ba trị riêng cho biết mô khuếch tán, dẫn điện mạnh tới đâu theo từng phương chính; ba vector riêng cho biết các phương đó nằm ở đâu.</p>
+    </div>
+    <div class="demo" id="demoTs" data-demo="la-tensor">
+      <div class="demo-title"><h4>Tensor đối xứng 3×3 và ellipsoid</h4><span>Ba trị riêng là ba bán trục, ba vector riêng là ba hướng chính; kéo hình để xoay</span></div>
+      <div class="demo-loading">Minh họa sẽ được tải khi bạn cuộn tới đây.</div>
+    </div>
+    <div class="worked"><b class="lbl">Ví dụ: một voxel chất trắng</b><p>\(\lambda = 1{,}7;\ 0{,}3;\ 0{,}3\) (×10⁻³ mm²/s): MD = 2,3/3 ≈ 0,77 × 10⁻³ mm²/s, FA ≈ 0,80.</p><p>Chuẩn hóa thể tích với σ = 0,126 S/m: trung bình nhân của các λ là \(\sqrt[3]{1{,}7\cdot0{,}3\cdot0{,}3} \approx 0{,}535\), nên σ dọc sợi ≈ 0,126 × 1,7/0,535 ≈ 0,40 S/m và σ ngang sợi ≈ 0,126 × 0,3/0,535 ≈ 0,071 S/m. Dọc sợi dẫn điện tốt hơn ngang sợi khoảng 5,7 lần, đúng bằng tỉ số 1,7/0,3.</p></div>
+  </div>
+</section>
+
+<section class="part" id="ung-dung">
+  <div class="wrap">
+    <h2>Ứng dụng trong đời sống</h2>
+    <div class="apps">
+      <div class="app"><span class="where">Ảnh y khoa</span><h4>Bản đồ bó sợi thần kinh</h4><p>Phần mềm tractography đi từ voxel này sang voxel kế bên theo vector riêng \(e_1\) của tensor khuếch tán, nối thành các bó sợi chất trắng. Bác sĩ phẫu thuật thần kinh dùng bản đồ này để tránh làm tổn thương các bó vận động, ngôn ngữ khi cắt khối u.</p></div>
+      <div class="app"><span class="where">Kích thích não</span><h4>Mô phỏng điện trường TMS, tDCS</h4><p>Mô hình đầu của từng người được chia thành hàng triệu phần tử tứ diện; mỗi phần tử chất trắng mang một tensor độ dẫn điện 3×3 dựng từ DTI. Giải định luật Ohm \(J = \sigma E\) trên lưới này cho biết điện trường thực sự tới vùng vỏ não nào.</p></div>
+      <div class="app"><span class="where">Internet</span><h4>PageRank của Google</h4><p>Google ban đầu xếp hạng trang web bằng vector riêng ứng với trị riêng 1 của một ma trận khổng lồ mô tả các liên kết. Vector này được tính bằng cách nhân ma trận lặp đi lặp lại, đúng như cách \(A^kx\) tiến về trạng thái cân bằng trong minh họa chéo hóa.</p></div>
+      <div class="app"><span class="where">Dữ liệu</span><h4>PCA và nhận dạng khuôn mặt</h4><p>Ma trận hiệp phương sai của dữ liệu là ma trận đối xứng; các vector riêng vuông góc của nó là những hướng dữ liệu biến thiên nhiều nhất. Phương pháp eigenfaces (1991) biểu diễn mỗi khuôn mặt bằng vài chục tọa độ theo các "khuôn mặt riêng" như vậy.</p></div>
+      <div class="app"><span class="where">Xây dựng</span><h4>Tần số riêng của công trình</h4><p>Cầu, tòa nhà, cánh máy bay có các kiểu dao động riêng, tìm từ bài toán trị riêng \(Kx = \omega^2Mx\) (K: độ cứng, M: khối lượng). Cầu Millennium ở London phải đóng cửa hai ngày sau khi khánh thành năm 2000 vì dòng người đi bộ kích thích một kiểu dao động ngang; cầu mở lại năm 2002 sau khi lắp thêm bộ giảm chấn.</p></div>
+      <div class="app"><span class="where">Đồ họa</span><h4>Đồ họa 3D và trò chơi</h4><p>Mỗi khung hình, card đồ họa nhân hàng triệu tọa độ đỉnh với các ma trận 4×4 để quay, co giãn, dịch chuyển vật thể và chiếu lên màn hình. Ghép nhiều phép biến đổi liên tiếp chỉ là nhân các ma trận với nhau.</p></div>
+      <div class="app"><span class="where">Nén, gợi ý</span><h4>SVD trong ảnh và hệ gợi ý</h4><p>Ảnh xám là một ma trận điểm ảnh; giữ vài chục giá trị kỳ dị lớn nhất đã đủ giữ hình dạng chính. Hệ gợi ý phim, nhạc phân rã ma trận người dùng × sản phẩm thành vài "gu" ẩn; cách làm này nổi tiếng qua cuộc thi Netflix Prize.</p></div>
+      <div class="app"><span class="where">Vật lý</span><h4>Cơ học lượng tử</h4><p>Mỗi đại lượng đo được (năng lượng, spin…) ứng với một toán tử Hermitian; các kết quả đo có thể có chính là trị riêng của nó, nên luôn là số thực. Các mức năng lượng của nguyên tử là trị riêng của toán tử Hamilton.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="part" id="ghi-nho">
+  <div class="wrap">
+    <h2>Điều cần nhớ</h2>
+    <div class="prose">
+      <ul>
+        <li>Nhân ma trận với vector là một phép biến đổi vector trong không gian; các cột của ma trận là ảnh của các vector cơ sở.</li>
+        <li>Vector riêng là vector giữ nguyên phương sau phép biến đổi; trị riêng là hệ số co giãn tương ứng.</li>
+        <li>Mọi ma trận vuông đều có trị riêng trên tập số phức, nhưng không phải ma trận nào cũng có đủ vector riêng để chéo hóa.</li>
+        <li>Ma trận n×n chéo hóa được khi và chỉ khi có n vector riêng độc lập tuyến tính, tức GM = AM với mọi trị riêng.</li>
+        <li>Ma trận nghịch đảo đảo ngược một phép biến đổi không làm mất thông tin.</li>
+        <li>Định thức là hệ số thay đổi diện tích, thể tích và quyết định ma trận có nghịch đảo hay không.</li>
+        <li>Ma trận đối xứng thực và Hermitian phức luôn chéo hóa được, với vector riêng trực chuẩn.</li>
+        <li>SVD luôn tồn tại, kể cả khi phân rã trị riêng không làm được.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="part tint" id="hoc-tiep">
+  <div class="wrap">
+    <h2>Lộ trình học tiếp</h2>
+    <div class="prose">
+      <p>Để hiểu sâu hơn các ứng dụng trong DTI và tensor độ dẫn điện, nên học theo thứ tự:</p>
+      <ol>
+        <li>Phép toán vector: cộng vector, nhân vector với số, tích vô hướng (<a href="#ma-tran">phần đầu trang</a>).</li>
+        <li>Nhân ma trận và phép biến đổi ma trận–vector (<a href="#ma-tran">Ma trận là một phép biến đổi</a>).</li>
+        <li>Độc lập tuyến tính, cơ sở và số chiều (<a href="#doc-lap">mục tương ứng</a>).</li>
+        <li>Ma trận nghịch đảo và định thức (<a href="#dinh-thuc">Định thức</a>, <a href="#nghich-dao">Nghịch đảo</a>).</li>
+        <li>Tính vuông góc và cơ sở trực chuẩn (<a href="#truc-giao">Trực giao và trực chuẩn</a>).</li>
+        <li>Trị riêng, vector riêng và không gian riêng (<a href="#tri-rieng">Trị riêng</a>, <a href="#boi">Bội đại số, bội hình học</a>).</li>
+        <li>Chéo hóa ma trận đối xứng (<a href="#doi-xung">Ma trận đối xứng</a>).</li>
+        <li>SVD và ứng dụng trong xử lý dữ liệu (<a href="#svd">SVD</a>).</li>
+      </ol>
+    </div>
+    <div class="callout"><b>Mục tiêu cuối cùng:</b> hiểu vì sao một tensor đối xứng 3×3 biểu diễn được bằng ba trị riêng và ba vector riêng, cũng như ý nghĩa vật lý của các giá trị và hướng này trong DTI và mô hình độ dẫn điện (<a href="#tensor">phần Tensor 3×3</a>).</div>
+  </div>
+</section>
+
+<section class="part" id="thuat-ngu">
+  <div class="wrap">
+    <h2>Giải thích thuật ngữ</h2>
+    <div class="tablewrap">
+      <table class="cmp">
+        <thead><tr><th>Thuật ngữ</th><th>Nghĩa là gì</th></tr></thead>
+        <tbody>
+          <tr><td>Ma trận <span class="en">(matrix)</span></td><td>Bảng số xếp theo hàng và cột; ma trận vuông n×n biểu diễn một phép biến đổi tuyến tính của không gian n chiều.</td></tr>
+          <tr><td>Vector, vectơ <span class="en">(vector)</span></td><td>Đại lượng có độ lớn và hướng; mũi tên từ gốc tọa độ tới một điểm.</td></tr>
+          <tr><td>Đại lượng vô hướng <span class="en">(scalar)</span></td><td>Một con số đơn lẻ, không có hướng.</td></tr>
+          <tr><td>Độ lớn <span class="en">(magnitude)</span></td><td>Chiều dài của vector: \(|v| = \sqrt{x^2 + y^2}\) trong mặt phẳng.</td></tr>
+          <tr><td>Hướng <span class="en">(direction)</span></td><td>Phương và chiều của vector.</td></tr>
+          <tr><td>Phép nhân ma trận <span class="en">(matrix multiplication)</span></td><td>Nhân hàng với cột; nhân hai ma trận là ghép hai phép biến đổi liên tiếp.</td></tr>
+          <tr><td>Phép biến đổi tuyến tính <span class="en">(linear transformation)</span></td><td>Phép biến đổi giữ phép cộng và phép nhân với số: gốc đứng yên, lưới vẫn thẳng, song song và cách đều.</td></tr>
+          <tr><td>Tích vô hướng <span class="en">(dot product)</span></td><td>\(x_1x_2 + y_1y_2\); bằng 0 khi hai vector vuông góc.</td></tr>
+          <tr><td>Vector cơ sở <span class="en">(basis vector)</span></td><td>Các vector dùng làm thước đo tọa độ, như \(e_1 = (1; 0)\), \(e_2 = (0; 1)\).</td></tr>
+          <tr><td>Trị riêng <span class="en">(eigenvalue)</span></td><td>Hệ số λ trong \(Av = \lambda v\): vector riêng bị nhân lên bao nhiêu lần.</td></tr>
+          <tr><td>Vector riêng <span class="en">(eigenvector)</span></td><td>Vector khác 0 vẫn nằm trên phương cũ sau khi nhân với A (có thể đảo chiều).</td></tr>
+          <tr><td>Phân rã trị riêng <span class="en">(eigendecomposition)</span></td><td>Viết \(A = V\Lambda V^{-1}\) từ trị riêng và vector riêng.</td></tr>
+          <tr><td>Chéo hóa <span class="en">(diagonalization)</span></td><td>Đưa ma trận về dạng đường chéo bằng một phép đổi cơ sở.</td></tr>
+          <tr><td>Ma trận đường chéo <span class="en">(diagonal matrix)</span></td><td>Mọi phần tử ngoài đường chéo chính bằng 0; chỉ co giãn dọc các trục tọa độ.</td></tr>
+          <tr><td>Độc lập tuyến tính <span class="en">(linear independence)</span></td><td>Không vector nào trong tập là tổ hợp tuyến tính của các vector còn lại.</td></tr>
+          <tr><td>Phụ thuộc tuyến tính <span class="en">(linear dependence)</span></td><td>Có ít nhất một vector là tổ hợp tuyến tính của các vector còn lại.</td></tr>
+          <tr><td>Phương trình đặc trưng <span class="en">(characteristic equation)</span></td><td>\(\det(A - \lambda I) = 0\); nghiệm là các trị riêng.</td></tr>
+          <tr><td>Vết <span class="en">(trace)</span></td><td>Tổng các phần tử trên đường chéo; bằng tổng các trị riêng.</td></tr>
+          <tr><td>Định thức <span class="en">(determinant)</span></td><td>Hệ số thay đổi diện tích, thể tích; dấu âm nghĩa là đảo hướng; bằng tích các trị riêng.</td></tr>
+          <tr><td>Ma trận đơn vị <span class="en">(identity matrix)</span></td><td>I: bằng 1 trên đường chéo, 0 ở chỗ khác; không làm thay đổi vector nào.</td></tr>
+          <tr><td>Ma trận nghịch đảo <span class="en">(inverse matrix)</span></td><td>\(A^{-1}\) với \(A^{-1}A = AA^{-1} = I\): phép biến đổi ngược.</td></tr>
+          <tr><td>Ma trận khả nghịch <span class="en">(invertible matrix)</span></td><td>Ma trận có nghịch đảo; định thức khác 0.</td></tr>
+          <tr><td>Ma trận không suy biến <span class="en">(nonsingular matrix)</span></td><td>Tên khác của ma trận khả nghịch.</td></tr>
+          <tr><td>Ma trận suy biến <span class="en">(singular matrix)</span></td><td>Ma trận không có nghịch đảo; định thức bằng 0, làm mất ít nhất một chiều.</td></tr>
+          <tr><td>Bội đại số <span class="en">(algebraic multiplicity)</span></td><td>Số lần λ là nghiệm của phương trình đặc trưng.</td></tr>
+          <tr><td>Bội hình học <span class="en">(geometric multiplicity)</span></td><td>Số vector riêng độc lập tuyến tính ứng với λ, tức số chiều của không gian riêng.</td></tr>
+          <tr><td>Không gian riêng <span class="en">(eigenspace)</span></td><td>Tập nghiệm của \((A - \lambda I)v = 0\), gồm mọi vector riêng ứng với λ và vector 0.</td></tr>
+          <tr><td>Số chiều <span class="en">(dimension)</span></td><td>Số vector trong một cơ sở của không gian.</td></tr>
+          <tr><td>Ma trận khuyết <span class="en">(defective matrix)</span></td><td>Ma trận thiếu vector riêng độc lập (GM &lt; AM ở một trị riêng nào đó), không chéo hóa được.</td></tr>
+          <tr><td>Ma trận đối xứng <span class="en">(symmetric matrix)</span></td><td>\(A = A^T\): đối xứng qua đường chéo chính.</td></tr>
+          <tr><td>Ma trận Hermitian <span class="en">(Hermitian matrix)</span></td><td>Ma trận phức với \(A = A^H\); phiên bản phức của ma trận đối xứng.</td></tr>
+          <tr><td>Chuyển vị <span class="en">(transpose)</span></td><td>\(A^T\): đổi hàng thành cột.</td></tr>
+          <tr><td>Chuyển vị liên hợp <span class="en">(conjugate transpose)</span></td><td>\(A^H\): chuyển vị rồi lấy số phức liên hợp của từng phần tử.</td></tr>
+          <tr><td>Ma trận trực giao <span class="en">(orthogonal matrix)</span></td><td>\(Q^TQ = I\): các cột trực chuẩn; là phép quay, có thể kèm phản chiếu.</td></tr>
+          <tr><td>Tính vuông góc <span class="en">(orthogonality)</span></td><td>Hai vector vuông góc khi tích vô hướng bằng 0.</td></tr>
+          <tr><td>Trực chuẩn <span class="en">(orthonormal)</span></td><td>Vuông góc từng đôi và mỗi vector có độ dài 1.</td></tr>
+          <tr><td>Xác định dương <span class="en">(positive definite)</span></td><td>Ma trận đối xứng có mọi trị riêng dương: \(x^TAx > 0\) với mọi \(x \neq 0\).</td></tr>
+          <tr><td>Phân rã giá trị kỳ dị <span class="en">(Singular Value Decomposition, SVD)</span></td><td>\(A = U\Sigma V^H\): quay, co giãn theo trục, quay; tồn tại với mọi ma trận.</td></tr>
+          <tr><td>Tensor khuếch tán <span class="en">(diffusion tensor)</span></td><td>Ma trận đối xứng 3×3 mô tả khuếch tán của nước theo mọi hướng trong một voxel.</td></tr>
+          <tr><td>MD, FA <span class="en">(mean diffusivity, fractional anisotropy)</span></td><td>Khuếch tán trung bình và độ bất đẳng hướng, tính từ ba trị riêng của tensor khuếch tán.</td></tr>
+          <tr><td>Tính bất đẳng hướng <span class="en">(anisotropy)</span></td><td>Tính chất thay đổi theo hướng, như khuếch tán và dẫn điện trong chất trắng.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="part tint" id="co-so">
+  <div class="wrap">
+    <h2>Cơ sở và tài liệu tham khảo</h2>
+    <div class="prose">
+<ul><li><b>Minh họa</b>: trị riêng, vector riêng của ma trận 2×2 tính bằng công thức nghiệm của phương trình bậc hai; tensor 3×3 được dựng từ trị riêng và hướng đã chọn theo \(D = Q\Lambda Q^T\). Giá trị khuếch tán của các mô chỉ để minh họa, cùng cỡ số đo điển hình ở não người trưởng thành; độ dẫn điện đẳng hướng lấy theo giá trị mặc định của SimNIBS.</li></ul>
+    </div>
+    <ol class="refs">
+      <li id="ref1">G. Strang, <i>Introduction to Linear Algebra</i>, 5th ed., Wellesley-Cambridge Press, 2016.</li>
+      <li id="ref2">S. Axler, <i>Linear Algebra Done Right</i>, 4th ed., Springer, 2024 (truy cập mở). <a href="https://linear.axler.net/" rel="noopener">linear.axler.net</a></li>
+      <li id="ref3">G. H. Golub, C. F. Van Loan, <i>Matrix Computations</i>, 4th ed., Johns Hopkins University Press, 2013.</li>
+      <li id="ref4">G. Sanderson (3Blue1Brown), <i>Essence of Linear Algebra</i>, loạt video, 2016. <a href="https://www.3blue1brown.com/topics/linear-algebra" rel="noopener">3blue1brown.com</a></li>
+      <li id="ref5">P. J. Basser, J. Mattiello, D. LeBihan, "MR diffusion tensor spectroscopy and imaging", <i>Biophys. J.</i> 66(1):259–267, 1994.</li>
+      <li id="ref6">P. J. Basser, C. Pierpaoli, "Microstructural and physiological features of tissues elucidated by quantitative-diffusion-tensor MRI", <i>J. Magn. Reson. B</i> 111(3):209–219, 1996.</li>
+      <li id="ref7">S. Pajevic, C. Pierpaoli, "Color schemes to represent the orientation of anisotropic tissues from diffusion tensor data", <i>Magn. Reson. Med.</i> 42(3):526–540, 1999.</li>
+      <li id="ref8">D. S. Tuch, V. J. Wedeen, A. M. Dale, J. S. George, J. W. Belliveau, "Conductivity tensor mapping of the human brain using diffusion tensor MRI", <i>PNAS</i> 98(20):11697–11701, 2001. <a href="https://doi.org/10.1073/pnas.171473898" rel="noopener">Liên kết</a></li>
+      <li id="ref9">A. Opitz, M. Windhoff, R. M. Heidemann, R. Turner, A. Thielscher, "How the brain tissue shapes the electric field induced by transcranial magnetic stimulation", <i>NeuroImage</i> 58(3):849–859, 2011.</li>
+      <li id="ref10">G. B. Saturnino, O. Puonti, J. D. Nielsen, D. Antonenko, K. H. Madsen, A. Thielscher, "SimNIBS 2.1: A comprehensive pipeline for individualized electric field modelling for transcranial brain stimulation", trong <i>Brain and Human Body Modeling</i>, Springer, 2019, tr. 3–25.</li>
+      <li id="ref11">P. J. Basser, S. Pajevic, C. Pierpaoli, J. Duda, A. Aldroubi, "In vivo fiber tractography using DT-MRI data", <i>Magn. Reson. Med.</i> 44(4):625–632, 2000.</li>
+      <li id="ref12">S. Brin, L. Page, "The anatomy of a large-scale hypertextual Web search engine", <i>Computer Networks and ISDN Systems</i> 30(1–7):107–117, 1998.</li>
+      <li id="ref13">M. Turk, A. Pentland, "Eigenfaces for recognition", <i>J. Cogn. Neurosci.</i> 3(1):71–86, 1991.</li>
+      <li id="ref14">Y. Koren, R. Bell, C. Volinsky, "Matrix factorization techniques for recommender systems", <i>Computer</i> 42(8):30–37, 2009.</li>
+    </ol>
+
+    <nav class="pager" aria-label="Chuyển trang">
+      <a href="7-mu-logarit.html"><small>Phần 7</small><b>Hàm mũ và logarit</b></a>
+      <a class="next" href="index.html"><small>Quay lại</small><b>Toán học &amp; ứng dụng</b></a>
+    </nav>
+  </div>
+</section>
+</main>
+
+<footer class="site-foot">
+  <div class="cat-lane">
+    <canvas id="catCanvas" aria-hidden="true"></canvas>
+    <button id="catBtn" aria-label="Chơi minigame" title="Chơi minigame">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle class="bg" cx="12" cy="12" r="10.75" fill="#fff" stroke="#1B1920" stroke-width="1.5"/><path d="M9.6 7.4 17 12l-7.4 4.6z" fill="#1B1920" stroke="#1B1920" stroke-width="1.2" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="foot-row"><span>Content by My N. Nguyen x AI Agents</span></div>
+  </div>
+</footer>
+
+<script src="lib/tm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" defer></script>
+<script src="../common/site.js" defer></script>
+<script data-goatcounter="https://nnmy99.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>
